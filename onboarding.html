@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>🔱 TRITON ONBOARDING V1.0</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'JetBrains Mono', monospace; }
+        .question-card { transition: all 0.3s ease; }
+        .question-card:hover { border-color: #fff; }
+        .question-card.answered { border-color: #22c55e; }
+    </style>
+</head>
+<body class="bg-[#050505] text-zinc-400 min-h-screen">
+    
+    <!-- HEADER -->
+    <div class="h-16 border-b border-zinc-900 bg-black flex items-center justify-between px-10 sticky top-0 z-50">
+        <div class="flex items-center gap-6">
+            <a href="index.html" class="text-white text-xl font-black italic tracking-tighter hover:text-zinc-300 transition-all">← FORGE</a>
+            <h1 class="text-zinc-500">TRITON_ONBOARDING</h1>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="flex gap-4 text-[10px] uppercase tracking-widest">
+                <span class="text-zinc-600">LENS: OpenAI CEO / First-Principles</span>
+                <span id="progress" class="text-amber-500">0/10 Complete</span>
+            </div>
+            <a href="logs.html" class="text-[10px] border border-amber-900 text-amber-500 px-3 py-1 hover:border-amber-500 transition-all">📋 LOG</a>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto p-12">
+        
+        <!-- INTRO -->
+        <div class="mb-16 border-b border-zinc-800 pb-8">
+            <h1 class="text-white text-3xl font-bold tracking-tighter italic mb-4">🔱 TRITON SEQUENCE</h1>
+            <p class="text-zinc-500 text-sm leading-relaxed max-w-2xl">
+                Before you write, you must know what you're fighting for. These 10 questions collapse optionality 
+                and anchor your identity. Answer with brutal honesty. The Forge only works with clear fuel.
+            </p>
+        </div>
+        
+        <!-- QUESTIONS -->
+        <div id="questions" class="space-y-8">
+            
+            <!-- Q01 -->
+            <div class="question-card border-l-2 border-zinc-800 pl-8 py-6" data-q="1">
+                <p class="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">Q01 / THE INEVITABILITY</p>
+                <h2 class="text-white text-xl mb-4">What is the single question that makes failure mathematically impossible?</h2>
+                <p class="text-zinc-600 text-[11px] mb-4">The question that, if answered daily, guarantees forward motion regardless of external circumstances.</p>
+                <textarea class="w-full bg-zinc-900 border border-zinc-800 p-4 text-sm focus:border-white outline-none h-28 resize-none" placeholder="Input core logic..." oninput="checkAnswer(1)"></textarea>
+            </div>
+            
+            <!-- Q02 -->
+            <div class="question-card border-l-2 border-zinc-800 pl-8 py-6" data-q="2">
+                <p class="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">Q02 / THE MOAT</p>
+                <h2 class="text-white text-xl mb-4">What unique insight do you possess that 50 engineers cannot copy?</h2>
+                <p class="text-zinc-600 text-[11px] mb-4">Your lived experience + synthesized wisdom = uncopyable advantage.</p>
+                <textarea class="w-full bg-zinc-900 border border-zinc-800 p-4 text-sm focus:border-white outline-none h-28 resize-none" placeholder="Define the moat..." oninput="checkAnswer(2)"></textarea>
+            </div>
+            
+            <!-- Q03 -->
+            <div class="question-card border-l-2 border-zinc-800 pl-8 py-6" data-q="3">
+                <p class="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">Q03 / THE ENEMY</p>
+                <h2 class="text-white text-xl mb-4">What lie does your audience believe that's killing them slowly?</h2>
+                <p class="text-zinc-600 text-[11px] mb-4">The Weight Lie. The Flexibility Myth. Name the dragon you're slaying.</p>
+                <textarea class="w-full bg-zinc-900 border border-zinc-800 p-4 text-sm focus:border-white outline-none h-28 resize-none" placeholder="Name the lie..." oninput="checkAnswer(3)"></textarea>
+            </div>
+            
+            <!-- Q04 -->
+            <div class="question-card border-l-2 border-zinc-800 pl-8 py-6" data-q="4">
+                <p class="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">Q04 / THE TRANSFORMATION</p>
+                <h2 class="text-white text-xl mb-4">What does someone become after 90 days in your system?</h2>
+                <p class="text-zinc-600 text-[11px] mb-4">Not what they know. Who they BECOME. Identity shift > information transfer.</p>
+                <textarea class="w-full bg-zinc-900 border border-zinc-800 p-4 text-sm focus:border-white outline-none h-28 resize-none" placeholder="Describe the transformation..." oninput="checkAnswer(4)"></textarea>
+            </div>
+            
+            <!-- Q05 -->
+            <div class="question-card border-l-2 border-zinc-800 pl-8 py-6" data-q="5">
+                <p class="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">Q05 / THE PRICE</p>
+                <h2 class="text-white text-xl mb-4">What did you sacrifice to earn the right to teach this?</h2>
+                <p class="text-zinc-600 text-[11px] mb-4">The 1-year rule. Confession before teaching. What was the cost?</p>
+                <textarea class="w-full bg-zinc-900 border border-zinc-800 p-4 text-sm focus:border-white outline-none h-28 resize-none" placeholder="Name the sacrifice..." oninput="checkAnswer(5)"></textarea>
+            </div>
+            
+            <!-- Q06 -->
+            <div class="question-card border-l-2 border-zinc-800 pl-8 py-6" data-q="6">
+                <p class="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">Q06 / THE BRIDGE</p>
+                <h2 class="text-white text-xl mb-4">What ancient wisdom + modern science are you bridging?</h2>
+                <p class="text-zinc-600 text-[11px] mb-4">Venezuelan-Italian. Movement philosophy. Embodied wisdom. What's YOUR bridge?</p>
+                <textarea class="w-full bg-zinc-900 border border-zinc-800 p-4 text-sm focus:border-white outline-none h-28 resize-none" placeholder="Define the bridge..." oninput="checkAnswer(6)"></textarea>
+            </div>
+            
+            <!-- Q07 -->
+            <div class="question-card border-l-2 border-zinc-800 pl-8 py-6" data-q="7">
+                <p class="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">Q07 / THE CHANNEL</p>
+                <h2 class="text-white text-xl mb-4">Where does your audience hang out when they're ready to change?</h2>
+                <p class="text-zinc-600 text-[11px] mb-4">Not where they scroll. Where they GO when they've decided to transform.</p>
+                <textarea class="w-full bg-zinc-900 border border-zinc-800 p-4 text-sm focus:border-white outline-none h-28 resize-none" placeholder="Name the channel..." oninput="checkAnswer(7)"></textarea>
+            </div>
+            
+            <!-- Q08 -->
+            <div class="question-card border-l-2 border-zinc-800 pl-8 py-6" data-q="8">
+                <p class="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">Q08 / THE VEHICLE</p>
+                <h2 class="text-white text-xl mb-4">What is your primary delivery mechanism for transformation?</h2>
+                <p class="text-zinc-600 text-[11px] mb-4">Book? Course? App? Coaching? Community? Pick ONE primary vehicle.</p>
+                <textarea class="w-full bg-zinc-900 border border-zinc-800 p-4 text-sm focus:border-white outline-none h-28 resize-none" placeholder="Name the vehicle..." oninput="checkAnswer(8)"></textarea>
+            </div>
+            
+            <!-- Q09 -->
+            <div class="question-card border-l-2 border-zinc-800 pl-8 py-6" data-q="9">
+                <p class="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">Q09 / THE NUMBER</p>
+                <h2 class="text-white text-xl mb-4">What is your 90-day revenue target?</h2>
+                <p class="text-zinc-600 text-[11px] mb-4">$50K? $100K? Write the number. Make it real. Feed your family.</p>
+                <textarea class="w-full bg-zinc-900 border border-zinc-800 p-4 text-sm focus:border-white outline-none h-28 resize-none" placeholder="$..." oninput="checkAnswer(9)"></textarea>
+            </div>
+            
+            <!-- Q10 -->
+            <div class="question-card border-l-2 border-zinc-800 pl-8 py-6" data-q="10">
+                <p class="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">Q10 / THE DECLARATION</p>
+                <h2 class="text-white text-xl mb-4">In one sentence: What do you do and for whom?</h2>
+                <p class="text-zinc-600 text-[11px] mb-4">"I teach [transformation] to [specific people] through [unique method]."</p>
+                <textarea class="w-full bg-zinc-900 border border-zinc-800 p-4 text-sm focus:border-white outline-none h-28 resize-none" placeholder="I teach..." oninput="checkAnswer(10)"></textarea>
+            </div>
+            
+        </div>
+        
+        <!-- EXPORT -->
+        <div class="mt-16 flex justify-between items-center border-t border-zinc-800 pt-8">
+            <div>
+                <p class="text-[10px] text-zinc-700 uppercase tracking-widest">KERNEL_STATUS</p>
+                <p id="kernel-status" class="text-zinc-500 text-sm">Awaiting calibration...</p>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="exportToNotion()" class="border border-zinc-800 text-white px-6 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-900 transition-all">Export_to_Notion</button>
+                <button onclick="exportToJSON()" class="bg-white text-black px-6 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-200 transition-all">Export_JSON</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let answered = new Set();
+
+        function checkAnswer(q) {
+            const card = document.querySelector(`[data-q="${q}"]`);
+            const textarea = card.querySelector('textarea');
+            
+            if (textarea.value.trim().length > 10) {
+                answered.add(q);
+                card.classList.add('answered');
+            } else {
+                answered.delete(q);
+                card.classList.remove('answered');
+            }
+            
+            updateProgress();
+        }
+
+        function updateProgress() {
+            document.getElementById('progress').textContent = `${answered.size}/10 Complete`;
+            
+            if (answered.size === 10) {
+                document.getElementById('kernel-status').textContent = '✓ CALIBRATED — Ready to forge';
+                document.getElementById('kernel-status').classList.add('text-green-500');
+            } else {
+                document.getElementById('kernel-status').textContent = `Awaiting ${10 - answered.size} more answers...`;
+                document.getElementById('kernel-status').classList.remove('text-green-500');
+            }
+        }
+
+        function exportToJSON() {
+            const data = {};
+            document.querySelectorAll('.question-card').forEach((card, i) => {
+                const q = card.querySelector('h2').textContent;
+                const a = card.querySelector('textarea').value;
+                data[`Q${i+1}`] = { question: q, answer: a };
+            });
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'triton-onboarding.json';
+            a.click();
+        }
+
+        function exportToNotion() {
+            let markdown = '# 🔱 TRITON ONBOARDING RESULTS\n\n';
+            document.querySelectorAll('.question-card').forEach((card, i) => {
+                const q = card.querySelector('h2').textContent;
+                const a = card.querySelector('textarea').value;
+                markdown += `## Q${i+1}: ${q}\n\n${a || '_Not answered_'}\n\n---\n\n`;
+            });
+            
+            navigator.clipboard.writeText(markdown);
+            alert('Markdown copied to clipboard! Paste into Notion.');
+        }
+    </script>
+</body>
+</html>
