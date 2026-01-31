@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Generator | SATURNO FORGE</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #050505;
+            --border: rgba(255,255,255,0.1);
+            --accent: #00ffcc;
+            --text-primary: #e4e4e7;
+            --text-secondary: #71717a;
+            --text-muted: #3f3f46;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            height: 64px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .logo span { color: var(--accent); }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            font-size: 10px;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            border-color: white;
+            color: white;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: black;
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            background: white;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Main */
+        .main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
+
+        .section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .section-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            padding: 48px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent);
+        }
+
+        .upload-zone.active {
+            border-color: var(--accent);
+            background: rgba(0, 255, 204, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .upload-hint {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        input[type="file"] { display: none; }
+
+        /* Data Preview */
+        .data-preview {
+            margin-top: 24px;
+            display: none;
+        }
+
+        .data-preview.show { display: block; }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 9px;
+        }
+
+        .data-table td {
+            color: var(--text-secondary);
+        }
+
+        .data-count {
+            font-size: 10px;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        /* Settings */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .setting-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+        }
+
+        .setting-input {
+            padding: 10px;
+            font-size: 12px;
+            font-family: inherit;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: white;
+            outline: none;
+        }
+
+        .setting-input:focus {
+            border-color: var(--accent);
+        }
+
+        /* Progress */
+        .progress-section {
+            display: none;
+        }
+
+        .progress-section.show { display: block; }
+
+        .progress-bar-container {
+            height: 4px;
+            background: var(--border);
+            margin-bottom: 16px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        .progress-log {
+            margin-top: 24px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: var(--bg-primary);
+            padding: 16px;
+            font-size: 10px;
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .log-entry.success { color: #22c55e; }
+        .log-entry.error { color: #ef4444; }
+        .log-entry.info { color: var(--text-secondary); }
+
+        /* Results */
+        .results-section {
+            display: none;
+        }
+
+        .results-section.show { display: block; }
+
+        .result-summary {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .result-stat {
+            padding: 16px 24px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+        }
+
+        .result-stat .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .result-stat .label {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .result-stat.success .value { color: #22c55e; }
+        .result-stat.error .value { color: #ef4444; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            font-size: 11px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 200;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success { border-color: #22c55e; color: #22c55e; }
+        .toast.error { border-color: #ef4444; color: #ef4444; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">BATCH<span>_</span>GENERATOR</div>
+        <div class="nav-links">
+            <a href="index.html" class="btn">FORGE</a>
+            <a href="titan.html" class="btn">TITAN</a>
+            <button class="btn" onclick="openSettings()">SETTINGS</button>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        <!-- Step 1: Upload -->
+        <section class="section">
+            <h2 class="section-title">1. Upload Your Content</h2>
+            <p class="section-desc">Upload a CSV file with your content. Each row becomes one PDF.</p>
+
+            <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+                <div class="upload-icon">+</div>
+                <div class="upload-text">Click to upload CSV file</div>
+                <div class="upload-hint">Format: title, content (one row per document)</div>
+            </div>
+            <input type="file" id="file-input" accept=".csv,.txt" onchange="handleFileUpload(event)">
+
+            <div class="data-preview" id="data-preview">
+                <div class="data-count" id="data-count"></div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Content Preview</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Step 2: Settings -->
+        <section class="section">
+            <h2 class="section-title">2. Configure Settings</h2>
+            <p class="section-desc">Set the voice mode and output preferences for all documents.</p>
+
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <label class="setting-label">Voice Mode</label>
+                    <select class="setting-input" id="voice-mode">
+                        <option value="Raw">/RawMode</option>
+                        <option value="Teacher">/TeacherMode</option>
+                        <option value="Prophet">/ProphetMode</option>
+                        <option value="Philosopher">/PhilosopherMode</option>
+                        <option value="Mystic">/MysticMode</option>
+                        <option value="Rebel">/RebelMode</option>
+                        <option value="Companion">/CompanionMode</option>
+                        <option value="Confessor">/ConfessorMode</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">Certainty (F1)</label>
+                    <select class="setting-input" id="fader-certainty">
+                        <option value="3">3 - Low</option>
+                        <option value="5" selected>5 - Medium</option>
+                        <option value="7">7 - High</option>
+                        <option value="10">10 - Maximum</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">Intensity (F3)</label>
+                    <select class="setting-input" id="fader-intensity">
+                        <option value="3">3 - Calm</option>
+                        <option value="5" selected>5 - Balanced</option>
+                        <option value="7">7 - Strong</option>
+                        <option value="10">10 - Fire</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">Page Size</label>
+                    <select class="setting-input" id="page-size">
+                        <option value="letter">Letter</option>
+                        <option value="a4">A4</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">Font Size</label>
+                    <select class="setting-input" id="font-size">
+                        <option value="10">10pt</option>
+                        <option value="11" selected>11pt</option>
+                        <option value="12">12pt</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">Delay Between (sec)</label>
+                    <select class="setting-input" id="delay">
+                        <option value="1">1 second</option>
+                        <option value="2" selected>2 seconds</option>
+                        <option value="3">3 seconds</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3: Generate -->
+        <section class="section">
+            <h2 class="section-title">3. Generate PDFs</h2>
+            <p class="section-desc">Start the batch process. Each item will be synthesized and converted to PDF.</p>
+
+            <button class="btn btn-primary" id="start-btn" onclick="startBatch()" disabled style="width: 100%; padding: 16px;">
+                START BATCH GENERATION
+            </button>
+
+            <!-- Progress -->
+            <div class="progress-section" id="progress-section">
+                <div style="margin-top: 24px;">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progress-bar"></div>
+                    </div>
+                    <div class="progress-stats">
+                        <span id="progress-text">0 / 0 completed</span>
+                        <span id="progress-percent">0%</span>
+                    </div>
+                </div>
+
+                <div class="progress-log" id="progress-log"></div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-section" id="results-section">
+                <div class="result-summary">
+                    <div class="result-stat success">
+                        <div class="value" id="success-count">0</div>
+                        <div class="label">Successful</div>
+                    </div>
+                    <div class="result-stat error">
+                        <div class="value" id="error-count">0</div>
+                        <div class="label">Failed</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="value" id="total-count">0</div>
+                        <div class="label">Total</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="downloadZip()" style="width: 100%; padding: 16px;">
+                    DOWNLOAD ALL PDFs (ZIP)
+                </button>
+            </div>
+        </section>
+
+        <!-- CSV Template -->
+        <section class="section" style="background: transparent; border: 1px dashed var(--border);">
+            <h2 class="section-title">CSV Template</h2>
+            <p class="section-desc">Use this format for your CSV file:</p>
+            <pre style="background: var(--bg-secondary); padding: 16px; font-size: 11px; overflow-x: auto;">title,content
+Chapter 1: The Weight Lie,"Your raw content here. Can be multiple sentences or paragraphs."
+Chapter 2: Movement Principles,"Another piece of content to be transformed and made into a PDF."
+Chapter 3: The Practice,"Third item content goes here..."</pre>
+            <button class="btn" onclick="downloadTemplate()" style="margin-top: 16px;">Download Template CSV</button>
+        </section>
+    </main>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Scripts -->
+    <script src="js/api-config.js"></script>
+    <script src="js/claude-api.js"></script>
+    <script>
+        // State
+        let uploadedData = [];
+        let generatedPDFs = [];
+
+        // File Upload
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target.result;
+                parseCSV(text);
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSV(text) {
+            const lines = text.split('\n').filter(line => line.trim());
+            const data = [];
+
+            // Skip header if it looks like one
+            const startIndex = lines[0].toLowerCase().includes('title') ? 1 : 0;
+
+            for (let i = startIndex; i < lines.length; i++) {
+                const line = lines[i];
+                // Simple CSV parsing (handles basic cases)
+                const match = line.match(/^"?([^",]*)"?,\s*"?([\s\S]*?)"?$/);
+                if (match) {
+                    data.push({
+                        title: match[1].trim(),
+                        content: match[2].trim().replace(/""/g, '"')
+                    });
+                } else {
+                    // Fallback: split on first comma
+                    const commaIndex = line.indexOf(',');
+                    if (commaIndex > 0) {
+                        data.push({
+                            title: line.substring(0, commaIndex).trim(),
+                            content: line.substring(commaIndex + 1).trim()
+                        });
+                    }
+                }
+            }
+
+            uploadedData = data;
+            displayPreview(data);
+        }
+
+        function displayPreview(data) {
+            const preview = document.getElementById('data-preview');
+            const count = document.getElementById('data-count');
+            const tbody = document.getElementById('data-table-body');
+            const startBtn = document.getElementById('start-btn');
+
+            if (data.length === 0) {
+                preview.classList.remove('show');
+                startBtn.disabled = true;
+                return;
+            }
+
+            count.textContent = `${data.length} items loaded`;
+            tbody.innerHTML = data.slice(0, 10).map((item, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${item.title}</td>
+                    <td>${item.content.substring(0, 80)}${item.content.length > 80 ? '...' : ''}</td>
+                </tr>
+            `).join('') + (data.length > 10 ? `<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">... and ${data.length - 10} more</td></tr>` : '');
+
+            preview.classList.add('show');
+            startBtn.disabled = false;
+
+            document.getElementById('upload-zone').classList.add('active');
+        }
+
+        // Settings check
+        function openSettings() {
+            if (!API_CONFIG.hasApiKey()) {
+                const key = prompt('Enter your Claude API key (sk-ant-...):');
+                if (key) {
+                    if (API_CONFIG.setApiKey(key)) {
+                        showToast('API key saved', 'success');
+                    } else {
+                        showToast('Invalid key format', 'error');
+                    }
+                }
+            } else {
+                if (confirm('API key is configured. Clear it?')) {
+                    API_CONFIG.clearApiKey();
+                    showToast('API key cleared', 'success');
+                }
+            }
+        }
+
+        // Batch Generation
+        async function startBatch() {
+            if (uploadedData.length === 0) {
+                showToast('Upload a CSV first', 'error');
+                return;
+            }
+
+            if (!API_CONFIG.hasApiKey()) {
+                openSettings();
+                return;
+            }
+
+            // Get settings
+            const voiceMode = document.getElementById('voice-mode').value;
+            const faders = {
+                certainty: parseInt(document.getElementById('fader-certainty').value),
+                intensity: parseInt(document.getElementById('fader-intensity').value),
+                formality: 5,
+                intimacy: 5,
+                abstraction: 5,
+                density: 5
+            };
+            const pageSize = document.getElementById('page-size').value;
+            const fontSize = parseInt(document.getElementById('font-size').value);
+            const delay = parseInt(document.getElementById('delay').value) * 1000;
+
+            // Show progress
+            document.getElementById('progress-section').classList.add('show');
+            document.getElementById('results-section').classList.remove('show');
+            document.getElementById('start-btn').disabled = true;
+
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const progressPercent = document.getElementById('progress-percent');
+            const progressLog = document.getElementById('progress-log');
+
+            generatedPDFs = [];
+            let successCount = 0;
+            let errorCount = 0;
+
+            progressLog.innerHTML = '';
+
+            for (let i = 0; i < uploadedData.length; i++) {
+                const item = uploadedData[i];
+
+                addLog(`Processing: ${item.title}`, 'info');
+
+                try {
+                    // Synthesize
+                    const synthesized = await CLAUDE_API.synthesize(item.content, voiceMode, faders);
+
+                    // Generate PDF
+                    const pdfBlob = generatePDF(item.title, synthesized, pageSize, fontSize, voiceMode, faders);
+
+                    generatedPDFs.push({
+                        title: item.title,
+                        blob: pdfBlob,
+                        success: true
+                    });
+
+                    successCount++;
+                    addLog(`Success: ${item.title}`, 'success');
+
+                } catch (error) {
+                    generatedPDFs.push({
+                        title: item.title,
+                        error: error.message,
+                        success: false
+                    });
+
+                    errorCount++;
+                    addLog(`Error: ${item.title} - ${error.message}`, 'error');
+                }
+
+                // Update progress
+                const progress = ((i + 1) / uploadedData.length) * 100;
+                progressBar.style.width = progress + '%';
+                progressText.textContent = `${i + 1} / ${uploadedData.length} completed`;
+                progressPercent.textContent = Math.round(progress) + '%';
+
+                // Delay between requests
+                if (i < uploadedData.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+
+            // Show results
+            document.getElementById('results-section').classList.add('show');
+            document.getElementById('success-count').textContent = successCount;
+            document.getElementById('error-count').textContent = errorCount;
+            document.getElementById('total-count').textContent = uploadedData.length;
+            document.getElementById('start-btn').disabled = false;
+
+            showToast(`Batch complete: ${successCount} success, ${errorCount} failed`, successCount > 0 ? 'success' : 'error');
+        }
+
+        function addLog(message, type) {
+            const log = document.getElementById('progress-log');
+            const time = new Date().toLocaleTimeString();
+            log.innerHTML += `<div class="log-entry ${type}">[${time}] ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function generatePDF(title, content, pageSize, fontSize, voiceMode, faders) {
+            const { jsPDF } = window.jspdf;
+
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: pageSize
+            });
+
+            const margin = 25;
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const contentWidth = pageWidth - (margin * 2);
+
+            // Header
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text('SATURNO FORGE | BATCH GENERATOR', margin, 10);
+            doc.text(new Date().toLocaleDateString(), pageWidth - margin, 10, { align: 'right' });
+
+            // Title
+            doc.setFontSize(16);
+            doc.setTextColor(0);
+            doc.text(title, margin, margin + 8);
+
+            // Mode
+            doc.setFontSize(9);
+            doc.setTextColor(100);
+            doc.text(`/${voiceMode}Mode | Certainty: ${faders.certainty} | Intensity: ${faders.intensity}`, margin, margin + 15);
+
+            // Content
+            doc.setFontSize(fontSize);
+            doc.setTextColor(30);
+
+            const lines = doc.splitTextToSize(content, contentWidth);
+            let y = margin + 25;
+            const lineHeight = fontSize * 0.5;
+
+            lines.forEach(line => {
+                if (y > pageHeight - margin) {
+                    doc.addPage();
+                    y = margin;
+                }
+                doc.text(line, margin, y);
+                y += lineHeight;
+            });
+
+            // Page numbers
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(150);
+                doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, pageHeight - 8, { align: 'center' });
+            }
+
+            return doc.output('blob');
+        }
+
+        // Download ZIP
+        async function downloadZip() {
+            const successfulPDFs = generatedPDFs.filter(p => p.success);
+
+            if (successfulPDFs.length === 0) {
+                showToast('No PDFs to download', 'error');
+                return;
+            }
+
+            const zip = new JSZip();
+
+            successfulPDFs.forEach((pdf, i) => {
+                const filename = pdf.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.pdf';
+                zip.file(filename, pdf.blob);
+            });
+
+            const blob = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `saturno-batch-${new Date().toISOString().split('T')[0]}.zip`;
+            a.click();
+
+            showToast(`Downloaded ${successfulPDFs.length} PDFs`, 'success');
+        }
+
+        // Download template
+        function downloadTemplate() {
+            const template = `title,content
+Chapter 1: The Weight Lie,"The fitness industry sold you a lie. They told you that your body was a problem to be fixed..."
+Chapter 2: Movement Principles,"Movement is not exercise. Exercise is a subset of movement designed to produce specific adaptations..."
+Chapter 3: The Practice,"Consistency beats intensity. The person who shows up every day for 20 minutes beats the one who..."`;
+
+            const blob = new Blob([template], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'batch-template.csv';
+            a.click();
+        }
+
+        // Toast
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type + ' show';
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Drag and drop
+        const uploadZone = document.getElementById('upload-zone');
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('active');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            if (uploadedData.length === 0) {
+                uploadZone.classList.remove('active');
+            }
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (evt) => parseCSV(evt.target.result);
+                reader.readAsText(file);
+            }
+        });
+    </script>
+</body>
+</html>
