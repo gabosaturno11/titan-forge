@@ -5,11 +5,10 @@
 const API_CONFIG = {
     // Storage keys
     STORAGE_KEY: 'claude_api_key',
-    PROXY_KEY: 'cors_proxy_url',
+    BACKEND_KEY: 'beast_api_url',
 
-    // Default CORS proxy (for development/testing only)
-    // For production: deploy your own proxy or use a backend
-    DEFAULT_PROXY: 'https://corsproxy.io/?',
+    // SATURNO BEAST API - YOUR OWN BACKEND (NO CORS ISSUES!)
+    DEFAULT_BACKEND: 'https://saturno-beast-api.vercel.app',
 
     // Get API key from localStorage
     getApiKey() {
@@ -36,20 +35,34 @@ const API_CONFIG = {
         return key && key.startsWith('sk-ant-');
     },
 
-    // Get CORS proxy URL
-    getProxy() {
-        return localStorage.getItem(this.PROXY_KEY) || this.DEFAULT_PROXY;
+    // Get backend URL
+    getBackendUrl() {
+        return localStorage.getItem(this.BACKEND_KEY) || this.DEFAULT_BACKEND;
     },
 
-    // Set custom CORS proxy
-    setProxy(url) {
-        localStorage.setItem(this.PROXY_KEY, url);
+    // Set custom backend URL
+    setBackendUrl(url) {
+        localStorage.setItem(this.BACKEND_KEY, url);
     },
 
-    // Build proxied API URL
-    getApiUrl() {
-        const proxy = this.getProxy();
-        return proxy + encodeURIComponent('https://api.anthropic.com/v1/messages');
+    // Get synthesis endpoint
+    getSynthesizeUrl() {
+        return this.getBackendUrl() + '/api/synthesize';
+    },
+
+    // Get transform endpoint
+    getTransformUrl() {
+        return this.getBackendUrl() + '/api/transform';
+    },
+
+    // Get batch endpoint
+    getBatchUrl() {
+        return this.getBackendUrl() + '/api/batch';
+    },
+
+    // Get modes endpoint
+    getModesUrl() {
+        return this.getBackendUrl() + '/api/modes';
     }
 };
 
@@ -76,14 +89,14 @@ function renderApiKeyModal() {
                     </div>
 
                     <div>
-                        <label class="text-[10px] text-zinc-600 uppercase tracking-widest block mb-2">CORS Proxy (Optional)</label>
+                        <label class="text-[10px] text-zinc-600 uppercase tracking-widest block mb-2">Backend URL</label>
                         <input
                             type="text"
-                            id="proxy-input"
-                            placeholder="https://corsproxy.io/?"
+                            id="backend-input"
+                            placeholder="https://saturno-beast-api.vercel.app"
                             class="w-full bg-zinc-900 border border-zinc-800 p-3 text-sm text-zinc-400 outline-none focus:border-zinc-600"
                         >
-                        <p class="text-[9px] text-zinc-600 mt-1">Leave default for testing. Deploy your own for production.</p>
+                        <p class="text-[9px] text-green-600 mt-1">Using YOUR backend - no CORS issues!</p>
                     </div>
                 </div>
 
@@ -105,14 +118,14 @@ function renderApiKeyModal() {
 function openApiModal() {
     const modal = document.getElementById('api-key-modal');
     const keyInput = document.getElementById('api-key-input');
-    const proxyInput = document.getElementById('proxy-input');
+    const backendInput = document.getElementById('backend-input');
 
     // Pre-fill if exists
     if (API_CONFIG.hasApiKey()) {
         keyInput.value = '••••••••••••••••••••';
         keyInput.dataset.hasKey = 'true';
     }
-    proxyInput.value = API_CONFIG.getProxy();
+    backendInput.value = API_CONFIG.getBackendUrl();
 
     modal.classList.remove('hidden');
 }
@@ -123,7 +136,7 @@ function closeApiModal() {
 
 function saveApiConfig() {
     const keyInput = document.getElementById('api-key-input');
-    const proxyInput = document.getElementById('proxy-input');
+    const backendInput = document.getElementById('backend-input');
     const status = document.getElementById('api-status');
 
     // Only save key if it was changed (not the masked placeholder)
@@ -136,9 +149,9 @@ function saveApiConfig() {
         }
     }
 
-    // Save proxy if provided
-    if (proxyInput.value) {
-        API_CONFIG.setProxy(proxyInput.value);
+    // Save backend URL if provided
+    if (backendInput.value) {
+        API_CONFIG.setBackendUrl(backendInput.value);
     }
 
     status.className = 'mt-4 text-[10px] text-green-500';
