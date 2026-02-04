@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIPELINE BUILDER | SATURNO FORGE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #050505;
+            --bg-card: #0d0d0d;
+            --bg-node: #111;
+            --border: rgba(255,255,255,0.08);
+            --accent: #d4af37;
+            --accent-cyan: #00ffcc;
+            --accent-purple: #a855f7;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --accent-orange: #f97316;
+            --text-primary: #e4e4e7;
+            --text-secondary: #71717a;
+            --text-muted: #3f3f46;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            height: 56px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .logo-icon { color: var(--accent-purple); }
+        .logo span { color: var(--accent-purple); }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            font-size: 10px;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+        .btn-primary { background: var(--accent-cyan); color: black; border-color: var(--accent-cyan); }
+        .btn-primary:hover { background: white; }
+
+        /* Main Layout */
+        .main {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            height: calc(100vh - 56px);
+            margin-top: 56px;
+        }
+
+        /* Sidebar - Pipeline List */
+        .sidebar {
+            border-right: 1px solid var(--border);
+            background: var(--bg-secondary);
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+        }
+
+        .pipeline-list {
+            padding: 12px;
+        }
+
+        .pipeline-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pipeline-card:hover { border-color: var(--accent-purple); }
+        .pipeline-card.active { border-color: var(--accent-cyan); background: rgba(0, 255, 204, 0.05); }
+
+        .pipeline-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .pipeline-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .pipeline-status {
+            font-size: 8px;
+            padding: 2px 6px;
+            text-transform: uppercase;
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--accent-green);
+        }
+
+        .pipeline-status.inactive { background: rgba(113, 113, 122, 0.1); color: var(--text-muted); }
+
+        .pipeline-desc {
+            font-size: 10px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .pipeline-meta {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        /* Canvas - Pipeline Builder */
+        .canvas-container {
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at center, rgba(168, 85, 247, 0.03) 0%, transparent 70%),
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 20px 20px, 20px 20px;
+        }
+
+        .canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3000px;
+            height: 2000px;
+            transform-origin: 0 0;
+        }
+
+        /* Nodes */
+        .node {
+            position: absolute;
+            width: 220px;
+            background: var(--bg-node);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: move;
+            user-select: none;
+        }
+
+        .node:hover { border-color: var(--accent-purple); }
+        .node.selected { border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(0, 255, 204, 0.2); }
+
+        .node-header {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .node-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .node-icon.trigger { background: rgba(249, 115, 22, 0.2); color: var(--accent-orange); }
+        .node-icon.whisper { background: rgba(168, 85, 247, 0.2); color: var(--accent-purple); }
+        .node-icon.prompt { background: rgba(0, 255, 204, 0.2); color: var(--accent-cyan); }
+        .node-icon.output { background: rgba(34, 197, 94, 0.2); color: var(--accent-green); }
+        .node-icon.transform { background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); }
+
+        .node-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            flex: 1;
+        }
+
+        .node-type {
+            font-size: 8px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .node-body {
+            padding: 10px 12px;
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        .node-field {
+            margin-bottom: 8px;
+        }
+
+        .node-field:last-child { margin-bottom: 0; }
+
+        .node-label {
+            font-size: 8px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .node-value {
+            font-size: 10px;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            padding: 6px 8px;
+            border: 1px solid var(--border);
+            word-break: break-all;
+        }
+
+        /* Connectors */
+        .connector-in, .connector-out {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--bg-primary);
+            border: 2px solid var(--accent-purple);
+            border-radius: 50%;
+            cursor: crosshair;
+        }
+
+        .connector-in { left: -6px; top: 50%; transform: translateY(-50%); }
+        .connector-out { right: -6px; top: 50%; transform: translateY(-50%); }
+
+        .connector-in:hover, .connector-out:hover {
+            background: var(--accent-purple);
+        }
+
+        /* SVG Connections */
+        .connections-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .connection-line {
+            stroke: var(--accent-purple);
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.6;
+        }
+
+        .connection-line:hover {
+            opacity: 1;
+            stroke-width: 3;
+        }
+
+        /* Right Panel - Node Config */
+        .config-panel {
+            border-left: 1px solid var(--border);
+            background: var(--bg-secondary);
+            overflow-y: auto;
+        }
+
+        .config-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .config-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .config-subtitle {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .config-body {
+            padding: 16px;
+        }
+
+        .config-field {
+            margin-bottom: 16px;
+        }
+
+        .config-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .config-input {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 11px;
+            font-family: inherit;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .config-input:focus { border-color: var(--accent-cyan); }
+
+        .config-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .config-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2371717a' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        /* Node Palette */
+        .palette {
+            padding: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .palette-title {
+            font-size: 9px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .palette-nodes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .palette-node {
+            padding: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            cursor: grab;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .palette-node:hover {
+            border-color: var(--accent-purple);
+            transform: translateY(-2px);
+        }
+
+        .palette-node-icon {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .palette-node-label {
+            font-size: 9px;
+            color: var(--text-secondary);
+        }
+
+        /* Execution Panel */
+        .execution-panel {
+            position: fixed;
+            bottom: 0;
+            left: 280px;
+            right: 320px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            max-height: 200px;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+
+        .execution-panel.open {
+            transform: translateY(0);
+        }
+
+        .execution-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+        }
+
+        .execution-title {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .execution-steps {
+            padding: 12px 16px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .execution-step {
+            padding: 8px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .execution-step.running { border-color: var(--accent-purple); }
+        .execution-step.complete { border-color: var(--accent-green); }
+        .execution-step.error { border-color: var(--accent-red); }
+
+        .step-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .execution-step.running .step-status { background: var(--accent-purple); animation: pulse 1s infinite; }
+        .execution-step.complete .step-status { background: var(--accent-green); }
+        .execution-step.error .step-status { background: var(--accent-red); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 344px;
+            padding: 12px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            font-size: 11px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 200;
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { border-color: var(--accent-red); color: var(--accent-red); }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">⚡</span>
+            <span>PIPELINE</span> BUILDER
+        </div>
+        <div class="header-actions">
+            <a href="nexus.html" class="btn">NEXUS</a>
+            <a href="capture.html" class="btn">Capture</a>
+            <button class="btn" onclick="savePipeline()">Save</button>
+            <button class="btn btn-primary" onclick="runPipeline()">Run Pipeline</button>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        <!-- Sidebar - Pipeline List -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-title">Pipelines</span>
+                <button class="btn" style="padding: 4px 10px;" onclick="createPipeline()">+ New</button>
+            </div>
+            <div class="pipeline-list" id="pipeline-list">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="palette">
+                <div class="palette-title">Add Nodes</div>
+                <div class="palette-nodes">
+                    <div class="palette-node" draggable="true" data-type="trigger">
+                        <div class="palette-node-icon">🎯</div>
+                        <div class="palette-node-label">Trigger</div>
+                    </div>
+                    <div class="palette-node" draggable="true" data-type="whisper">
+                        <div class="palette-node-icon">🎤</div>
+                        <div class="palette-node-label">Whisper</div>
+                    </div>
+                    <div class="palette-node" draggable="true" data-type="prompt">
+                        <div class="palette-node-icon">🧠</div>
+                        <div class="palette-node-label">Prompt</div>
+                    </div>
+                    <div class="palette-node" draggable="true" data-type="transform">
+                        <div class="palette-node-icon">🔄</div>
+                        <div class="palette-node-label">Transform</div>
+                    </div>
+                    <div class="palette-node" draggable="true" data-type="notion">
+                        <div class="palette-node-icon">📝</div>
+                        <div class="palette-node-label">Notion</div>
+                    </div>
+                    <div class="palette-node" draggable="true" data-type="pdf">
+                        <div class="palette-node-icon">📄</div>
+                        <div class="palette-node-label">PDF</div>
+                    </div>
+                    <div class="palette-node" draggable="true" data-type="webhook">
+                        <div class="palette-node-icon">🔗</div>
+                        <div class="palette-node-label">Webhook</div>
+                    </div>
+                    <div class="palette-node" draggable="true" data-type="client-page">
+                        <div class="palette-node-icon">👤</div>
+                        <div class="palette-node-label">Client Page</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Canvas -->
+        <div class="canvas-container" id="canvas-container">
+            <svg class="connections-svg" id="connections-svg"></svg>
+            <div class="canvas" id="canvas">
+                <!-- Nodes populated by JS -->
+            </div>
+        </div>
+
+        <!-- Config Panel -->
+        <aside class="config-panel">
+            <div class="config-header">
+                <div class="config-title" id="config-title">Select a Node</div>
+                <div class="config-subtitle" id="config-subtitle">Click a node to configure</div>
+            </div>
+            <div class="config-body" id="config-body">
+                <div style="color: var(--text-muted); font-size: 11px; text-align: center; padding: 40px 20px;">
+                    Select a node from the canvas<br>to view and edit its configuration
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Execution Panel -->
+    <div class="execution-panel" id="execution-panel">
+        <div class="execution-header">
+            <span class="execution-title">Pipeline Execution</span>
+            <button class="btn" style="padding: 4px 10px;" onclick="toggleExecutionPanel()">×</button>
+        </div>
+        <div class="execution-steps" id="execution-steps">
+            <!-- Steps populated during execution -->
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // PIPELINE BUILDER - State
+        // ═══════════════════════════════════════════════════════════════
+
+        const API_BASE = 'https://saturno-beast-api.vercel.app/api/pipeline';
+
+        let pipelines = [];
+        let currentPipeline = null;
+        let nodes = [];
+        let connections = [];
+        let selectedNode = null;
+        let dragOffset = { x: 0, y: 0 };
+
+        // ═══════════════════════════════════════════════════════════════
+        // INITIALIZATION
+        // ═══════════════════════════════════════════════════════════════
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadPipelines();
+            setupDragAndDrop();
+            setupCanvasInteraction();
+        });
+
+        async function loadPipelines() {
+            try {
+                const response = await fetch(API_BASE);
+                const data = await response.json();
+                pipelines = data.pipelines || [];
+                renderPipelineList();
+
+                if (pipelines.length > 0) {
+                    selectPipeline(pipelines[0].id);
+                }
+            } catch (error) {
+                console.error('Failed to load pipelines:', error);
+                showToast('Failed to load pipelines', true);
+            }
+        }
+
+        function renderPipelineList() {
+            const list = document.getElementById('pipeline-list');
+            list.innerHTML = pipelines.map(p => `
+                <div class="pipeline-card ${currentPipeline?.id === p.id ? 'active' : ''}"
+                     onclick="selectPipeline('${p.id}')">
+                    <div class="pipeline-card-header">
+                        <span class="pipeline-name">${p.name}</span>
+                        <span class="pipeline-status ${p.active ? '' : 'inactive'}">
+                            ${p.active ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                    <div class="pipeline-desc">${p.description || 'No description'}</div>
+                    <div class="pipeline-meta">
+                        <span>${p.steps?.length || 0} steps</span>
+                        <span>${p.outputs?.length || 0} outputs</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function selectPipeline(id) {
+            const pipeline = pipelines.find(p => p.id === id);
+            if (!pipeline) return;
+
+            currentPipeline = pipeline;
+            renderPipelineList();
+            renderPipelineCanvas(pipeline);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // CANVAS RENDERING
+        // ═══════════════════════════════════════════════════════════════
+
+        function renderPipelineCanvas(pipeline) {
+            const canvas = document.getElementById('canvas');
+            nodes = [];
+            connections = [];
+
+            // Create trigger node
+            if (pipeline.trigger) {
+                nodes.push({
+                    id: 'trigger',
+                    type: 'trigger',
+                    title: 'Trigger',
+                    config: pipeline.trigger,
+                    x: 50,
+                    y: 200
+                });
+            }
+
+            // Create step nodes
+            pipeline.steps?.forEach((step, i) => {
+                nodes.push({
+                    id: step.id,
+                    type: step.type,
+                    title: step.config?.name || step.id,
+                    config: step.config,
+                    x: 320 + (i * 260),
+                    y: 100 + (i % 2) * 150
+                });
+
+                // Connect to previous
+                if (i === 0 && pipeline.trigger) {
+                    connections.push({ from: 'trigger', to: step.id });
+                } else if (i > 0) {
+                    connections.push({ from: pipeline.steps[i - 1].id, to: step.id });
+                }
+            });
+
+            // Create output nodes
+            pipeline.outputs?.forEach((output, i) => {
+                const outputId = `output-${output.type}-${i}`;
+                nodes.push({
+                    id: outputId,
+                    type: output.type,
+                    title: output.type.charAt(0).toUpperCase() + output.type.slice(1),
+                    config: output,
+                    x: 320 + (pipeline.steps?.length || 0) * 260,
+                    y: 50 + i * 120
+                });
+
+                // Connect from last step
+                if (pipeline.steps?.length > 0) {
+                    connections.push({
+                        from: pipeline.steps[pipeline.steps.length - 1].id,
+                        to: outputId
+                    });
+                }
+            });
+
+            renderNodes();
+            renderConnections();
+        }
+
+        function renderNodes() {
+            const canvas = document.getElementById('canvas');
+            canvas.innerHTML = nodes.map(node => `
+                <div class="node ${selectedNode?.id === node.id ? 'selected' : ''}"
+                     id="node-${node.id}"
+                     style="left: ${node.x}px; top: ${node.y}px;"
+                     data-id="${node.id}">
+                    <div class="connector-in"></div>
+                    <div class="node-header">
+                        <div class="node-icon ${node.type}">${getNodeIcon(node.type)}</div>
+                        <div class="node-title">${node.title}</div>
+                        <div class="node-type">${node.type}</div>
+                    </div>
+                    <div class="node-body">
+                        ${renderNodeBody(node)}
+                    </div>
+                    <div class="connector-out"></div>
+                </div>
+            `).join('');
+
+            // Add click handlers
+            document.querySelectorAll('.node').forEach(el => {
+                el.addEventListener('mousedown', startDrag);
+                el.addEventListener('click', (e) => {
+                    if (!e.target.closest('.connector-in, .connector-out')) {
+                        selectNode(el.dataset.id);
+                    }
+                });
+            });
+        }
+
+        function getNodeIcon(type) {
+            const icons = {
+                trigger: '🎯',
+                whisper: '🎤',
+                prompt: '🧠',
+                transform: '🔄',
+                notion: '📝',
+                pdf: '📄',
+                webhook: '🔗',
+                'client-page': '👤',
+                json: '{ }'
+            };
+            return icons[type] || '⚡';
+        }
+
+        function renderNodeBody(node) {
+            switch (node.type) {
+                case 'trigger':
+                    return `
+                        <div class="node-field">
+                            <div class="node-label">Source</div>
+                            <div class="node-value">${node.config?.source || 'any'}</div>
+                        </div>
+                        <div class="node-field">
+                            <div class="node-label">Type</div>
+                            <div class="node-value">${node.config?.type || 'audio'}</div>
+                        </div>
+                    `;
+                case 'prompt':
+                    return `
+                        <div class="node-field">
+                            <div class="node-label">Model</div>
+                            <div class="node-value">${node.config?.model || 'claude-3-haiku'}</div>
+                        </div>
+                        <div class="node-field">
+                            <div class="node-label">Prompt</div>
+                            <div class="node-value">${(node.config?.prompt || '').substring(0, 60)}...</div>
+                        </div>
+                    `;
+                case 'whisper':
+                    return `
+                        <div class="node-field">
+                            <div class="node-label">Language</div>
+                            <div class="node-value">${node.config?.language || 'en'}</div>
+                        </div>
+                    `;
+                default:
+                    return `
+                        <div class="node-field">
+                            <div class="node-value" style="color: var(--text-muted);">
+                                ${JSON.stringify(node.config || {}).substring(0, 80)}
+                            </div>
+                        </div>
+                    `;
+            }
+        }
+
+        function renderConnections() {
+            const svg = document.getElementById('connections-svg');
+            svg.innerHTML = connections.map(conn => {
+                const fromNode = document.getElementById(`node-${conn.from}`);
+                const toNode = document.getElementById(`node-${conn.to}`);
+
+                if (!fromNode || !toNode) return '';
+
+                const fromRect = fromNode.getBoundingClientRect();
+                const toRect = toNode.getBoundingClientRect();
+                const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+
+                const x1 = fromNode.offsetLeft + fromNode.offsetWidth;
+                const y1 = fromNode.offsetTop + fromNode.offsetHeight / 2;
+                const x2 = toNode.offsetLeft;
+                const y2 = toNode.offsetTop + toNode.offsetHeight / 2;
+
+                const midX = (x1 + x2) / 2;
+
+                return `<path class="connection-line" d="M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}"/>`;
+            }).join('');
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // NODE SELECTION & CONFIG
+        // ═══════════════════════════════════════════════════════════════
+
+        function selectNode(id) {
+            selectedNode = nodes.find(n => n.id === id);
+            renderNodes();
+            renderConnections();
+            renderConfig();
+        }
+
+        function renderConfig() {
+            const title = document.getElementById('config-title');
+            const subtitle = document.getElementById('config-subtitle');
+            const body = document.getElementById('config-body');
+
+            if (!selectedNode) {
+                title.textContent = 'Select a Node';
+                subtitle.textContent = 'Click a node to configure';
+                body.innerHTML = `
+                    <div style="color: var(--text-muted); font-size: 11px; text-align: center; padding: 40px 20px;">
+                        Select a node from the canvas<br>to view and edit its configuration
+                    </div>
+                `;
+                return;
+            }
+
+            title.textContent = selectedNode.title;
+            subtitle.textContent = selectedNode.type.toUpperCase();
+
+            if (selectedNode.type === 'prompt') {
+                body.innerHTML = `
+                    <div class="config-field">
+                        <label class="config-label">Name</label>
+                        <input type="text" class="config-input" id="config-name"
+                               value="${selectedNode.config?.name || ''}" onchange="updateNodeConfig()">
+                    </div>
+                    <div class="config-field">
+                        <label class="config-label">Model</label>
+                        <select class="config-input config-select" id="config-model" onchange="updateNodeConfig()">
+                            <option value="claude-3-haiku" ${selectedNode.config?.model === 'claude-3-haiku' ? 'selected' : ''}>Claude 3 Haiku (Fast)</option>
+                            <option value="claude-3-sonnet" ${selectedNode.config?.model === 'claude-3-sonnet' ? 'selected' : ''}>Claude 3 Sonnet</option>
+                            <option value="claude-3-opus" ${selectedNode.config?.model === 'claude-3-opus' ? 'selected' : ''}>Claude 3 Opus</option>
+                        </select>
+                    </div>
+                    <div class="config-field">
+                        <label class="config-label">Prompt Template</label>
+                        <textarea class="config-input config-textarea" id="config-prompt"
+                                  onchange="updateNodeConfig()">${selectedNode.config?.prompt || ''}</textarea>
+                    </div>
+                    <div style="font-size: 9px; color: var(--text-muted); margin-top: 8px;">
+                        Use {{stepId.output}} to reference outputs from previous steps
+                    </div>
+                `;
+            } else if (selectedNode.type === 'trigger') {
+                body.innerHTML = `
+                    <div class="config-field">
+                        <label class="config-label">Trigger Type</label>
+                        <select class="config-input config-select" id="config-trigger-type" onchange="updateNodeConfig()">
+                            <option value="audio" ${selectedNode.config?.type === 'audio' ? 'selected' : ''}>Audio</option>
+                            <option value="text" ${selectedNode.config?.type === 'text' ? 'selected' : ''}>Text</option>
+                            <option value="webhook" ${selectedNode.config?.type === 'webhook' ? 'selected' : ''}>Webhook</option>
+                            <option value="schedule" ${selectedNode.config?.type === 'schedule' ? 'selected' : ''}>Schedule</option>
+                        </select>
+                    </div>
+                    <div class="config-field">
+                        <label class="config-label">Source</label>
+                        <select class="config-input config-select" id="config-source" onchange="updateNodeConfig()">
+                            <option value="whatsapp" ${selectedNode.config?.source === 'whatsapp' ? 'selected' : ''}>WhatsApp</option>
+                            <option value="capture" ${selectedNode.config?.source === 'capture' ? 'selected' : ''}>Capture System</option>
+                            <option value="extension" ${selectedNode.config?.source === 'extension' ? 'selected' : ''}>Chrome Extension</option>
+                            <option value="api" ${selectedNode.config?.source === 'api' ? 'selected' : ''}>Direct API</option>
+                        </select>
+                    </div>
+                `;
+            } else {
+                body.innerHTML = `
+                    <div class="config-field">
+                        <label class="config-label">Configuration (JSON)</label>
+                        <textarea class="config-input config-textarea" id="config-json"
+                                  onchange="updateNodeConfig()">${JSON.stringify(selectedNode.config || {}, null, 2)}</textarea>
+                    </div>
+                `;
+            }
+        }
+
+        function updateNodeConfig() {
+            if (!selectedNode) return;
+
+            if (selectedNode.type === 'prompt') {
+                selectedNode.config = {
+                    ...selectedNode.config,
+                    name: document.getElementById('config-name')?.value,
+                    model: document.getElementById('config-model')?.value,
+                    prompt: document.getElementById('config-prompt')?.value
+                };
+                selectedNode.title = selectedNode.config.name || selectedNode.id;
+            } else if (selectedNode.type === 'trigger') {
+                selectedNode.config = {
+                    type: document.getElementById('config-trigger-type')?.value,
+                    source: document.getElementById('config-source')?.value
+                };
+            } else {
+                try {
+                    selectedNode.config = JSON.parse(document.getElementById('config-json')?.value || '{}');
+                } catch (e) {
+                    console.error('Invalid JSON');
+                }
+            }
+
+            renderNodes();
+            renderConnections();
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // DRAG & DROP
+        // ═══════════════════════════════════════════════════════════════
+
+        function setupDragAndDrop() {
+            // Palette drag
+            document.querySelectorAll('.palette-node').forEach(el => {
+                el.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('nodeType', el.dataset.type);
+                });
+            });
+
+            // Canvas drop
+            const canvas = document.getElementById('canvas');
+            canvas.addEventListener('dragover', (e) => e.preventDefault());
+            canvas.addEventListener('drop', (e) => {
+                const type = e.dataTransfer.getData('nodeType');
+                if (!type) return;
+
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                addNode(type, x, y);
+            });
+        }
+
+        function addNode(type, x, y) {
+            const id = `${type}-${Date.now()}`;
+            const newNode = {
+                id,
+                type,
+                title: type.charAt(0).toUpperCase() + type.slice(1),
+                config: getDefaultConfig(type),
+                x,
+                y
+            };
+
+            nodes.push(newNode);
+            renderNodes();
+            renderConnections();
+            selectNode(id);
+            showToast('Node added');
+        }
+
+        function getDefaultConfig(type) {
+            const defaults = {
+                trigger: { type: 'audio', source: 'whatsapp' },
+                whisper: { language: 'en', prompt: 'Calisthenics coaching' },
+                prompt: { name: 'New Prompt', model: 'claude-3-haiku', prompt: 'Process this:\n\n{{input}}' },
+                notion: { database: '' },
+                pdf: { template: 'default', store: true },
+                webhook: { url: '', method: 'POST' },
+                'client-page': { template: 'session-summary' },
+                transform: { operation: 'passthrough' }
+            };
+            return defaults[type] || {};
+        }
+
+        let isDragging = false;
+        let dragNode = null;
+
+        function startDrag(e) {
+            if (e.target.closest('.connector-in, .connector-out')) return;
+
+            isDragging = true;
+            dragNode = nodes.find(n => n.id === e.currentTarget.dataset.id);
+
+            dragOffset.x = e.clientX - dragNode.x;
+            dragOffset.y = e.clientY - dragNode.y;
+
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function onDrag(e) {
+            if (!isDragging || !dragNode) return;
+
+            dragNode.x = e.clientX - dragOffset.x;
+            dragNode.y = e.clientY - dragOffset.y;
+
+            const el = document.getElementById(`node-${dragNode.id}`);
+            if (el) {
+                el.style.left = dragNode.x + 'px';
+                el.style.top = dragNode.y + 'px';
+            }
+
+            renderConnections();
+        }
+
+        function stopDrag() {
+            isDragging = false;
+            dragNode = null;
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+
+        function setupCanvasInteraction() {
+            // Could add pan/zoom here
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // PIPELINE OPERATIONS
+        // ═══════════════════════════════════════════════════════════════
+
+        async function savePipeline() {
+            if (!currentPipeline) return;
+
+            // Convert nodes back to pipeline format
+            const trigger = nodes.find(n => n.type === 'trigger');
+            const steps = nodes.filter(n => ['whisper', 'prompt', 'transform'].includes(n.type));
+            const outputs = nodes.filter(n => ['notion', 'pdf', 'webhook', 'client-page', 'json'].includes(n.type));
+
+            const updatedPipeline = {
+                ...currentPipeline,
+                trigger: trigger?.config,
+                steps: steps.map(s => ({
+                    id: s.id,
+                    type: s.type,
+                    config: s.config
+                })),
+                outputs: outputs.map(o => ({
+                    type: o.type,
+                    ...o.config
+                }))
+            };
+
+            try {
+                await fetch(`${API_BASE}/${currentPipeline.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedPipeline)
+                });
+                showToast('Pipeline saved!');
+            } catch (error) {
+                showToast('Failed to save pipeline', true);
+            }
+        }
+
+        async function runPipeline() {
+            if (!currentPipeline) return;
+
+            const input = prompt('Enter test input (or paste transcription):');
+            if (!input) return;
+
+            toggleExecutionPanel(true);
+            const stepsEl = document.getElementById('execution-steps');
+            stepsEl.innerHTML = '<div class="execution-step running"><div class="step-status"></div>Starting...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/${currentPipeline.id}/run`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: input })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    renderExecution(result.execution);
+                    showToast('Pipeline executed!');
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                stepsEl.innerHTML = `<div class="execution-step error"><div class="step-status"></div>${error.message}</div>`;
+                showToast('Pipeline failed', true);
+            }
+        }
+
+        function renderExecution(execution) {
+            const stepsEl = document.getElementById('execution-steps');
+            stepsEl.innerHTML = Object.entries(execution.steps).map(([id, step]) => `
+                <div class="execution-step ${step.status}">
+                    <div class="step-status"></div>
+                    <span>${id}</span>
+                    <span style="color: var(--text-muted);">${step.duration || 0}ms</span>
+                </div>
+            `).join('') + Object.entries(execution.outputs).map(([type, out]) => `
+                <div class="execution-step ${out.status}">
+                    <div class="step-status"></div>
+                    <span>→ ${type}</span>
+                </div>
+            `).join('');
+        }
+
+        function toggleExecutionPanel(forceOpen) {
+            const panel = document.getElementById('execution-panel');
+            if (forceOpen === true) {
+                panel.classList.add('open');
+            } else if (forceOpen === false) {
+                panel.classList.remove('open');
+            } else {
+                panel.classList.toggle('open');
+            }
+        }
+
+        function createPipeline() {
+            const name = prompt('Pipeline name:');
+            if (!name) return;
+
+            const newPipeline = {
+                id: `pipeline-${Date.now()}`,
+                name: name,
+                description: 'New pipeline',
+                active: true,
+                trigger: { type: 'audio', source: 'capture' },
+                steps: [],
+                outputs: []
+            };
+
+            pipelines.push(newPipeline);
+            renderPipelineList();
+            selectPipeline(newPipeline.id);
+            showToast('Pipeline created');
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>
