@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SYNAPSE - Prompt Synthesis Engine</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-elevated: #1a1a24;
+      --border: #2a2a3a;
+      --text: #e0e0e0;
+      --text-dim: #888;
+      --accent-cyan: #00ffcc;
+      --accent-gold: #d4af37;
+      --accent-purple: #a855f7;
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-orange: #f97316;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-cyan) 50%, var(--accent-gold) 100%);
+      padding: 3px;
+    }
+
+    .header-inner {
+      background: var(--bg-dark);
+      padding: 20px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .logo h1 {
+      font-size: 28px;
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 4px;
+    }
+
+    .logo span {
+      font-size: 12px;
+      color: var(--text-dim);
+      display: block;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent-cyan);
+      background: rgba(0, 255, 204, 0.1);
+    }
+
+    /* Main Layout */
+    .main-container {
+      display: grid;
+      grid-template-columns: 320px 1fr 380px;
+      min-height: calc(100vh - 100px);
+    }
+
+    /* Left Panel - Artifact Input */
+    .panel-left {
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .panel-title {
+      font-size: 14px;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Mode Selector */
+    .mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .mode-btn {
+      background: var(--bg-elevated);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .mode-btn:hover {
+      border-color: var(--accent-purple);
+    }
+
+    .mode-btn.active {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 255, 204, 0.1);
+    }
+
+    .mode-btn .icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .mode-btn .label {
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* Artifact List */
+    .artifacts-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .artifact-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .artifact-card:hover {
+      border-color: var(--accent-purple);
+    }
+
+    .artifact-card.selected {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 255, 204, 0.05);
+    }
+
+    .artifact-card .name {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .artifact-card .type {
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .artifact-card .preview {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Add Artifact Button */
+    .add-artifact-btn {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+      border: none;
+      border-radius: 8px;
+      padding: 15px;
+      color: var(--bg-dark);
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .add-artifact-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(168, 85, 247, 0.3);
+    }
+
+    /* Center Panel - Workspace */
+    .panel-center {
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Input Area */
+    .input-area {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .input-area textarea {
+      width: 100%;
+      height: 200px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 15px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      resize: vertical;
+    }
+
+    .input-area textarea:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+    }
+
+    .input-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .input-actions button {
+      flex: 1;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .input-actions button:hover {
+      border-color: var(--accent-purple);
+    }
+
+    .input-actions button.primary {
+      background: var(--accent-purple);
+      border-color: var(--accent-purple);
+      color: white;
+    }
+
+    /* Synthesis Output */
+    .synthesis-output {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .output-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .output-content {
+      flex: 1;
+      background: var(--bg-elevated);
+      border-radius: 8px;
+      padding: 20px;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .output-content.empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    /* Right Panel - Controls & History */
+    .panel-right {
+      background: var(--bg-card);
+      border-left: 1px solid var(--border);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Constraints Config */
+    .constraints-section {
+      background: var(--bg-elevated);
+      border-radius: 10px;
+      padding: 15px;
+    }
+
+    .constraint-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .constraint-row:last-child {
+      border-bottom: none;
+    }
+
+    .constraint-label {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .constraint-toggle {
+      width: 40px;
+      height: 22px;
+      background: var(--border);
+      border-radius: 11px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .constraint-toggle.active {
+      background: var(--accent-cyan);
+    }
+
+    .constraint-toggle::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: all 0.2s;
+    }
+
+    .constraint-toggle.active::after {
+      left: 20px;
+    }
+
+    .constraint-input {
+      width: 80px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 5px 10px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 12px;
+      text-align: right;
+    }
+
+    /* Synthesis Button */
+    .synthesize-btn {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+      border: none;
+      border-radius: 12px;
+      padding: 20px;
+      color: var(--bg-dark);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+    }
+
+    .synthesize-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4);
+    }
+
+    .synthesize-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* History */
+    .history-section {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .history-item {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .history-item:hover {
+      border-color: var(--accent-purple);
+    }
+
+    .history-item .mode {
+      font-size: 10px;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .history-item .time {
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    .history-item .artifacts-count {
+      font-size: 11px;
+      margin-top: 5px;
+    }
+
+    /* Export Buttons */
+    .export-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .export-btn {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .export-btn:hover {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 600px;
+      max-height: 80vh;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-size: 16px;
+      color: var(--accent-cyan);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-body textarea {
+      width: 100%;
+      height: 300px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 15px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+    }
+
+    .modal-body input {
+      width: 100%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 15px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      margin-bottom: 15px;
+    }
+
+    .modal-footer {
+      padding: 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .modal-footer button {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+    }
+
+    .modal-footer button.primary {
+      background: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+      color: var(--bg-dark);
+    }
+
+    /* Loading State */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent-cyan);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Skeleton Preview */
+    .skeleton-preview {
+      background: var(--bg-elevated);
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+
+    .skeleton-section {
+      margin-bottom: 12px;
+    }
+
+    .skeleton-section h4 {
+      font-size: 11px;
+      color: var(--accent-purple);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .skeleton-tag {
+      display: inline-block;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 10px;
+      margin: 2px;
+    }
+
+    /* Status Badge */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-badge.demo {
+      background: rgba(249, 115, 22, 0.2);
+      color: var(--accent-orange);
+    }
+
+    .status-badge.live {
+      background: rgba(34, 197, 94, 0.2);
+      color: var(--accent-green);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">🧬</div>
+        <div>
+          <h1>SYNAPSE</h1>
+          <span>Prompt + System Synthesis Engine</span>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="nexus.html">NEXUS</a>
+        <a href="pipelines.html">Pipelines</a>
+        <a href="titan.html">TITAN</a>
+        <a href="capture.html">Capture</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <!-- Left Panel - Artifacts & Modes -->
+    <div class="panel-left">
+      <div class="panel-title">
+        <span>Synthesis Mode</span>
+      </div>
+
+      <div class="mode-grid">
+        <div class="mode-btn active" data-mode="P1_SYNTHESIZE_PROMPT">
+          <div class="icon">🔀</div>
+          <div class="label">Prompt Merge</div>
+        </div>
+        <div class="mode-btn" data-mode="P2_SYNTHESIZE_SYSTEM">
+          <div class="icon">⚙️</div>
+          <div class="label">System Fusion</div>
+        </div>
+        <div class="mode-btn" data-mode="P3_SYNTHESIZE_AGENT">
+          <div class="icon">🤖</div>
+          <div class="label">Agent Upgrade</div>
+        </div>
+        <div class="mode-btn" data-mode="P4_SYNTHESIZE_RECURSION">
+          <div class="icon">🔄</div>
+          <div class="label">Add Recursion</div>
+        </div>
+      </div>
+
+      <div class="panel-title" style="margin-top: 10px;">
+        <span>Loaded Artifacts</span>
+        <span id="artifact-count" style="color: var(--accent-gold);">(0)</span>
+      </div>
+
+      <div class="artifacts-list" id="artifacts-list">
+        <div style="color: var(--text-dim); font-size: 12px; text-align: center; padding: 40px 0;">
+          Add prompts, systems, or agents<br>to begin synthesis
+        </div>
+      </div>
+
+      <button class="add-artifact-btn" onclick="openAddModal()">
+        + Add Artifact
+      </button>
+    </div>
+
+    <!-- Center Panel - Workspace -->
+    <div class="panel-center">
+      <div class="input-area">
+        <div class="panel-title">
+          <span>Quick Input</span>
+          <span class="status-badge demo" id="api-status">DEMO MODE</span>
+        </div>
+        <textarea id="quick-input" placeholder="Paste a prompt, system instructions, or agent definition here..."></textarea>
+        <div class="input-actions">
+          <button onclick="addFromQuickInput()">Add to Artifacts</button>
+          <button onclick="loadSample()">Load Sample</button>
+          <button class="primary" onclick="pasteFromClipboard()">Paste from Clipboard</button>
+        </div>
+      </div>
+
+      <div class="synthesis-output">
+        <div class="output-header">
+          <div class="panel-title" style="border: none; padding: 0;">
+            <span>Synthesis Output</span>
+          </div>
+          <div id="output-actions" style="display: none;">
+            <button onclick="copyOutput()" style="background: var(--bg-elevated); border: 1px solid var(--border); padding: 6px 12px; border-radius: 4px; color: var(--text); cursor: pointer; font-size: 11px;">
+              Copy
+            </button>
+          </div>
+        </div>
+        <div class="output-content empty" id="output-content">
+          Select 2-5 artifacts and click SYNTHESIZE to merge
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel - Controls -->
+    <div class="panel-right">
+      <div class="panel-title">
+        <span>Target Domain</span>
+      </div>
+      <input type="text" class="constraint-input" style="width: 100%; margin-bottom: 15px;" id="target-domain" placeholder="e.g., Calisthenics Coaching">
+
+      <div class="panel-title">
+        <span>Constraints</span>
+      </div>
+      <div class="constraints-section">
+        <div class="constraint-row">
+          <span class="constraint-label">Max Tokens</span>
+          <input type="number" class="constraint-input" id="max-tokens" value="3000">
+        </div>
+        <div class="constraint-row">
+          <span class="constraint-label">Preserve Voice</span>
+          <div class="constraint-toggle active" id="toggle-voice" onclick="toggleConstraint(this)"></div>
+        </div>
+        <div class="constraint-row">
+          <span class="constraint-label">Recursive Ready</span>
+          <div class="constraint-toggle active" id="toggle-recursive" onclick="toggleConstraint(this)"></div>
+        </div>
+        <div class="constraint-row">
+          <span class="constraint-label">Markdown Safe</span>
+          <div class="constraint-toggle active" id="toggle-markdown" onclick="toggleConstraint(this)"></div>
+        </div>
+      </div>
+
+      <button class="synthesize-btn" id="synthesize-btn" onclick="runSynthesis()" disabled>
+        Synthesize
+      </button>
+
+      <div class="panel-title">
+        <span>Export Result</span>
+      </div>
+      <div class="export-section">
+        <button class="export-btn" onclick="exportAs('markdown')">Markdown</button>
+        <button class="export-btn" onclick="exportAs('claude_project')">Claude Project</button>
+        <button class="export-btn" onclick="exportAs('notion')">Notion Block</button>
+        <button class="export-btn" onclick="exportAs('prompt_library')">Prompt Library</button>
+      </div>
+
+      <div class="panel-title">
+        <span>Recent Syntheses</span>
+      </div>
+      <div class="history-section" id="history-list">
+        <div style="color: var(--text-dim); font-size: 11px; text-align: center; padding: 20px;">
+          No syntheses yet
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Artifact Modal -->
+  <div class="modal-overlay" id="add-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Add Artifact</h3>
+        <button class="modal-close" onclick="closeAddModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="artifact-name" placeholder="Artifact name (e.g., 'TITAN System Prompt')">
+        <textarea id="artifact-content" placeholder="Paste the full prompt, system instructions, or agent definition here..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeAddModal()">Cancel</button>
+        <button class="primary" onclick="saveArtifact()">Add Artifact</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://saturno-beast-api.vercel.app/api/synapse';
+
+    let artifacts = [];
+    let selectedArtifacts = [];
+    let currentMode = 'P1_SYNTHESIZE_PROMPT';
+    let currentSynthesis = null;
+    let synthesesHistory = [];
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async () => {
+      await checkAPIStatus();
+      await loadArtifacts();
+      setupModeButtons();
+    });
+
+    async function checkAPIStatus() {
+      try {
+        const res = await fetch(API_BASE);
+        const data = await res.json();
+        if (data.success && process.env?.ANTHROPIC_API_KEY) {
+          document.getElementById('api-status').textContent = 'LIVE';
+          document.getElementById('api-status').className = 'status-badge live';
+        }
+      } catch (e) {
+        console.log('API check failed:', e);
+      }
+    }
+
+    async function loadArtifacts() {
+      try {
+        const res = await fetch(API_BASE);
+        const data = await res.json();
+        if (data.artifacts) {
+          artifacts = data.artifacts;
+          renderArtifacts();
+        }
+        if (data.syntheses) {
+          synthesesHistory = data.syntheses;
+          renderHistory();
+        }
+      } catch (e) {
+        console.log('Load failed:', e);
+      }
+    }
+
+    function setupModeButtons() {
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentMode = btn.dataset.mode;
+        });
+      });
+    }
+
+    function renderArtifacts() {
+      const list = document.getElementById('artifacts-list');
+      document.getElementById('artifact-count').textContent = `(${artifacts.length})`;
+
+      if (artifacts.length === 0) {
+        list.innerHTML = `
+          <div style="color: var(--text-dim); font-size: 12px; text-align: center; padding: 40px 0;">
+            Add prompts, systems, or agents<br>to begin synthesis
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = artifacts.map((a, i) => `
+        <div class="artifact-card ${selectedArtifacts.includes(a.id) ? 'selected' : ''}"
+             data-id="${a.id}"
+             onclick="toggleArtifact('${a.id}')">
+          <div class="name">${a.name}</div>
+          <div class="type">${a.type}</div>
+          <div class="preview">${truncate(typeof a.content === 'string' ? a.content : JSON.stringify(a.content), 60)}</div>
+        </div>
+      `).join('');
+    }
+
+    function toggleArtifact(id) {
+      if (selectedArtifacts.includes(id)) {
+        selectedArtifacts = selectedArtifacts.filter(a => a !== id);
+      } else if (selectedArtifacts.length < 5) {
+        selectedArtifacts.push(id);
+      }
+
+      renderArtifacts();
+      updateSynthesizeButton();
+    }
+
+    function updateSynthesizeButton() {
+      const btn = document.getElementById('synthesize-btn');
+      btn.disabled = selectedArtifacts.length < 2;
+    }
+
+    function openAddModal() {
+      document.getElementById('add-modal').classList.add('active');
+      document.getElementById('artifact-name').focus();
+    }
+
+    function closeAddModal() {
+      document.getElementById('add-modal').classList.remove('active');
+      document.getElementById('artifact-name').value = '';
+      document.getElementById('artifact-content').value = '';
+    }
+
+    async function saveArtifact() {
+      const name = document.getElementById('artifact-name').value.trim();
+      const content = document.getElementById('artifact-content').value.trim();
+
+      if (!content) {
+        alert('Please enter artifact content');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/ingest`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: [{ name: name || `Artifact ${artifacts.length + 1}`, content }]
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          artifacts.push(...data.artifacts);
+          renderArtifacts();
+          closeAddModal();
+        }
+      } catch (e) {
+        console.error('Save failed:', e);
+        // Fallback: add locally
+        const artifact = {
+          id: `local_${Date.now()}`,
+          name: name || `Artifact ${artifacts.length + 1}`,
+          type: 'prompt',
+          content,
+          timestamp: new Date().toISOString()
+        };
+        artifacts.push(artifact);
+        renderArtifacts();
+        closeAddModal();
+      }
+    }
+
+    function addFromQuickInput() {
+      const content = document.getElementById('quick-input').value.trim();
+      if (!content) return;
+
+      document.getElementById('artifact-content').value = content;
+      document.getElementById('artifact-name').value = '';
+      openAddModal();
+    }
+
+    async function pasteFromClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('quick-input').value = text;
+      } catch (e) {
+        alert('Could not access clipboard');
+      }
+    }
+
+    function loadSample() {
+      const samples = [
+        {
+          name: 'TITAN Core System',
+          content: `You are TITAN, a recursive prompt evolution engine. Your purpose is to take any prompt and make it more powerful through systematic enhancement.
+
+RULES:
+1. Analyze the prompt's structure and intent
+2. Identify weaknesses and gaps
+3. Add recursive self-improvement hooks
+4. Preserve original voice while amplifying capability
+5. Output the evolved prompt with clear improvements noted`
+        },
+        {
+          name: 'Content Empire Agent',
+          content: `You are the Content Empire Agent. Your role is to multiply a single idea into 20+ content pieces.
+
+CAPABILITIES:
+- Hook generation (Dan Koe style)
+- Thread creation
+- Script writing
+- Caption optimization
+
+OUTPUT: For each idea, provide hooks, threads, scripts, and captions.`
+        }
+      ];
+
+      const sample = samples[Math.floor(Math.random() * samples.length)];
+      document.getElementById('quick-input').value = sample.content;
+      document.getElementById('artifact-name').value = sample.name;
+    }
+
+    async function runSynthesis() {
+      if (selectedArtifacts.length < 2) return;
+
+      const btn = document.getElementById('synthesize-btn');
+      const output = document.getElementById('output-content');
+
+      btn.disabled = true;
+      btn.innerHTML = '<div class="loading"><div class="spinner"></div> Synthesizing...</div>';
+      output.classList.remove('empty');
+      output.textContent = 'Running synthesis...';
+
+      const constraints = {
+        maxTokens: parseInt(document.getElementById('max-tokens').value) || 3000,
+        preserveVoice: document.getElementById('toggle-voice').classList.contains('active'),
+        recursiveReady: document.getElementById('toggle-recursive').classList.contains('active'),
+        markdownSafe: document.getElementById('toggle-markdown').classList.contains('active')
+      };
+
+      const targetDomain = document.getElementById('target-domain').value.trim();
+
+      try {
+        const res = await fetch(`${API_BASE}/merge`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            artifactIds: selectedArtifacts,
+            mode: currentMode,
+            constraints,
+            targetDomain
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          currentSynthesis = data.synthesis;
+          const result = typeof data.synthesis.output === 'string'
+            ? data.synthesis.output
+            : JSON.stringify(data.synthesis.output, null, 2);
+
+          output.textContent = result;
+          document.getElementById('output-actions').style.display = 'block';
+
+          // Add to history
+          synthesesHistory.unshift(data.synthesis);
+          renderHistory();
+        } else {
+          output.textContent = 'Error: ' + (data.error || 'Synthesis failed');
+        }
+      } catch (e) {
+        output.textContent = 'Error: ' + e.message;
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Synthesize';
+      updateSynthesizeButton();
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('history-list');
+
+      if (synthesesHistory.length === 0) {
+        list.innerHTML = `
+          <div style="color: var(--text-dim); font-size: 11px; text-align: center; padding: 20px;">
+            No syntheses yet
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = synthesesHistory.slice(0, 10).map(s => `
+        <div class="history-item" onclick="loadSynthesis('${s.id}')">
+          <div class="mode">${getModeLabel(s.mode)}</div>
+          <div class="time">${formatTime(s.timestamp)}</div>
+          <div class="artifacts-count">${s.inputArtifacts?.length || 0} artifacts merged</div>
+        </div>
+      `).join('');
+    }
+
+    function loadSynthesis(id) {
+      const synthesis = synthesesHistory.find(s => s.id === id);
+      if (synthesis) {
+        currentSynthesis = synthesis;
+        const output = document.getElementById('output-content');
+        output.classList.remove('empty');
+        output.textContent = typeof synthesis.output === 'string'
+          ? synthesis.output
+          : JSON.stringify(synthesis.output, null, 2);
+        document.getElementById('output-actions').style.display = 'block';
+      }
+    }
+
+    async function exportAs(format) {
+      if (!currentSynthesis) {
+        alert('No synthesis to export');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/export`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            synthesisId: currentSynthesis.id,
+            format
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          const content = typeof data.exported.content === 'string'
+            ? data.exported.content
+            : JSON.stringify(data.exported.content, null, 2);
+
+          await navigator.clipboard.writeText(content);
+          alert(`Exported as ${data.exported.format} and copied to clipboard!`);
+        }
+      } catch (e) {
+        // Fallback: just copy the raw output
+        const content = typeof currentSynthesis.output === 'string'
+          ? currentSynthesis.output
+          : JSON.stringify(currentSynthesis.output, null, 2);
+        await navigator.clipboard.writeText(content);
+        alert('Copied synthesis output to clipboard!');
+      }
+    }
+
+    function copyOutput() {
+      const output = document.getElementById('output-content').textContent;
+      navigator.clipboard.writeText(output);
+      alert('Copied to clipboard!');
+    }
+
+    function toggleConstraint(el) {
+      el.classList.toggle('active');
+    }
+
+    function truncate(str, len) {
+      return str.length > len ? str.substring(0, len) + '...' : str;
+    }
+
+    function getModeLabel(mode) {
+      const labels = {
+        'P1_SYNTHESIZE_PROMPT': 'Prompt Merge',
+        'P2_SYNTHESIZE_SYSTEM': 'System Fusion',
+        'P3_SYNTHESIZE_AGENT': 'Agent Upgrade',
+        'P4_SYNTHESIZE_RECURSION': 'Add Recursion'
+      };
+      return labels[mode] || mode;
+    }
+
+    function formatTime(ts) {
+      const d = new Date(ts);
+      return d.toLocaleString();
+    }
+  </script>
+</body>
+</html>
