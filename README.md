@@ -1,46 +1,77 @@
 # TITAN FORGE V1.2
 
-**Saturno Linguistic Console + Voice System + Claude API Integration + Batch PDF Generator**
+**Complete Saturno Tooling Arsenal - AI Synthesis + Capture + Pipelines + BEAST API Backend**
 
 ## Live Demo
 [**https://gabosaturno11.github.io/titan-forge/**](https://gabosaturno11.github.io/titan-forge/)
 
-## OPEN THE APPS
+## FULL ARSENAL
 
 | App | Description | Link |
 |-----|-------------|------|
-| **SATURNO FORGE** | Main console with voice modes & faders | [Open](https://gabosaturno11.github.io/titan-forge/) |
+| **APSIS NEXUS** | Command center - all tools unified | [Open](https://gabosaturno11.github.io/titan-forge/nexus.html) |
 | **TITAN V1.2** | AI synthesis + PDF export | [Open](https://gabosaturno11.github.io/titan-forge/titan.html) |
+| **SYNAPSE** | Prompt synthesis engine | [Open](https://gabosaturno11.github.io/titan-forge/synapse.html) |
+| **CAPTURE** | Highlights, audio, screenshots | [Open](https://gabosaturno11.github.io/titan-forge/capture.html) |
+| **PIPELINES** | Visual workflow automation | [Open](https://gabosaturno11.github.io/titan-forge/pipelines.html) |
 | **BATCH GENERATOR** | CSV to 100 PDFs | [Open](https://gabosaturno11.github.io/titan-forge/batch-generator.html) |
-| **TRITON Onboarding** | 10-question identity sequence | [Open](https://gabosaturno11.github.io/titan-forge/onboarding.html) |
+| **SATURNO FORGE** | Main console with voice modes | [Open](https://gabosaturno11.github.io/titan-forge/) |
 | **APOAPSIS Writer** | Double-panel markdown editor | [Open](https://gabosaturno11.github.io/titan-forge/writer.html) |
 | **Mission Logs** | Task tracking & timeline | [Open](https://gabosaturno11.github.io/titan-forge/logs.html) |
+| **TRITON Onboarding** | 10-question identity sequence | [Open](https://gabosaturno11.github.io/titan-forge/onboarding.html) |
+
+## BACKEND
+
+| Service | URL | Status |
+|---------|-----|--------|
+| **BEAST API** | https://saturno-beast-api.vercel.app | LIVE |
+
+Endpoints: /api/health, /api/capture, /api/sessions, /api/transcribe, /api/synthesize, /api/pipeline
 
 ---
 
-## NEW IN V1.2
+## CHROME EXTENSION
 
-### Claude API Integration
-- Direct AI synthesis from browser
-- Stores API key in localStorage (never leaves your machine)
-- CORS proxy for browser compatibility
+**SATURNO CAPTURE** - Highlight text on ANY website
 
-### TITAN Editor
-- Full 6-fader Linguistic Console
-- 8 Voice Modes with AI-powered transformation
-- Professional PDF export with margins, page numbers, headers
+Location: `saturno-capture-extension/`
 
-### Batch Generator
-- Upload CSV with titles + content
-- Process 100+ documents automatically
-- Download all as ZIP file
-- Progress tracking and error handling
+### Install
+1. Go to `chrome://extensions`
+2. Enable Developer mode
+3. Click "Load unpacked"
+4. Select the `saturno-capture-extension/` folder
+
+### Features
+- 8 color categories (idea, quote, code, insight, todo, book, research, thought)
+- Floating capture button on text selection
+- Tags system
+- Highlight persistence (highlights stay on page revisit)
+- Export JSON or Markdown (right-click Export)
+- Syncs to NEXUS backend
+- Syncs to Notion (optional)
+
+### Keyboard Shortcuts
+- `Cmd+Shift+S` - Capture selection
+- `Escape` - Close modal
+- `Cmd+Enter` - Save capture
 
 ---
 
-## Features
+## NEXUS COMMAND CENTER
 
-### Voice System
+Central dashboard showing:
+- All deployed tools
+- Session history (from SESSION_CARDS/)
+- Recent learnings (capture cards)
+- Gabo preferences
+- Pending tasks
+- API status
+
+---
+
+## Voice System
+
 8 Modes: `/RawMode`, `/TeacherMode`, `/ProphetMode`, `/PhilosopherMode`, `/MysticMode`, `/RebelMode`, `/CompanionMode`, `/ConfessorMode`
 
 ### Master Faders
@@ -51,38 +82,35 @@
 - F5: Abstraction (0-10)
 - F6: Density (0-10)
 
-### Preset Stacks
-- Gentle Authority
-- Trust-First Explanation
-- Non-Coercive Persuasion
-- High-Precision Warmth
-
 ---
 
 ## Files
 
 ```
 titan-forge/
-├── index.html           # Main Forge console
-├── titan.html           # TITAN V1.2 (AI + PDF)
-├── batch-generator.html # Batch PDF generator
-├── writer.html          # APOAPSIS writer
-├── onboarding.html      # TRITON sequence (LOCKED)
-├── logs.html            # Mission control
+├── index.html                 # Main Forge console
+├── titan.html                 # TITAN V1.2 (AI + PDF)
+├── nexus.html                 # APSIS NEXUS command center
+├── synapse.html               # Prompt synthesis
+├── capture.html               # Web capture tool
+├── pipelines.html             # Visual workflows
+├── batch-generator.html       # Batch PDF generator
+├── writer.html                # APOAPSIS writer
+├── onboarding.html            # TRITON sequence
+├── logs.html                  # Mission control
 ├── js/
-│   ├── api-config.js    # API key management
-│   └── claude-api.js    # Claude API integration
+│   ├── api-config.js          # API key management
+│   └── claude-api.js          # Claude API integration
+├── saturno-capture-extension/ # Chrome extension
+│   ├── manifest.json
+│   ├── content.js
+│   ├── content.css
+│   ├── background.js
+│   ├── popup.html
+│   ├── popup.js
+│   └── icons/
 └── README.md
 ```
-
-## Setup
-
-1. Open any HTML file in browser
-2. Click SETTINGS to add your Claude API key
-3. Start synthesizing
-
-**Note:** Claude API requires a CORS proxy for browser use. Default proxy works for testing.
-For production, deploy your own proxy or use a backend server.
 
 ---
 
@@ -95,13 +123,30 @@ accent: #00ffcc;
 ```
 
 - Dark theme only
-- No gradients
+- No emojis in UI (custom icons only)
+- No gradients (unless blue/purple for special elements)
 - No rounded corners > 4px
 - Industrial aesthetic
+- "If it can exist without a box, do not box it"
+
+---
+
+## Capture -> Card -> Pipeline Flow
+
+```
+[CAPTURE]              [CARD]                [PIPELINE]
+Highlight    -->    Categorized     -->    Routed to:
+Screenshot   -->    Tagged          -->    - Notion
+Voice        -->    Timestamped     -->    - Content queue
+Quick note   -->    Stored          -->    - AI processing
+                                           - Export
+```
+
+Rails prevent automation chaos. Every card needs human approval before mass execution.
 
 ---
 
 **Creator:** Gabo Saturno
-**Stack:** Claude Code + Claude API
-**Updated:** January 31, 2026
+**Stack:** Claude Code + BEAST API + Vercel
+**Updated:** February 4, 2026
 **Status:** LIVE
