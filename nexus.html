@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APSIS NEXUS | SATURNO FORGE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #050505;
+            --bg-card: #0d0d0d;
+            --border: rgba(255,255,255,0.08);
+            --border-hover: rgba(255,255,255,0.15);
+            --accent: #d4af37;
+            --accent-cyan: #00ffcc;
+            --accent-purple: #a855f7;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --text-primary: #e4e4e7;
+            --text-secondary: #71717a;
+            --text-muted: #3f3f46;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            height: 64px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            color: var(--accent);
+            font-size: 24px;
+        }
+
+        .logo-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 1px;
+        }
+
+        .logo-text span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            font-size: 10px;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Main Layout */
+        .main {
+            display: grid;
+            grid-template-columns: 300px 1fr 320px;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            border-right: 1px solid var(--border);
+            background: var(--bg-secondary);
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .stat-card.accent .stat-value { color: var(--accent); }
+        .stat-card.cyan .stat-value { color: var(--accent-cyan); }
+        .stat-card.purple .stat-value { color: var(--accent-purple); }
+        .stat-card.green .stat-value { color: var(--accent-green); }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .action-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .content-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+        }
+
+        /* Deploy Cards Grid */
+        .deploy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .deploy-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 20px;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+        }
+
+        .deploy-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .deploy-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .deploy-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .deploy-status {
+            font-size: 9px;
+            padding: 4px 8px;
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--accent-green);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .deploy-status.locked {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+        }
+
+        .deploy-status.deploying {
+            background: rgba(168, 85, 247, 0.1);
+            color: var(--accent-purple);
+        }
+
+        .deploy-url {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            word-break: break-all;
+        }
+
+        .deploy-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 9px;
+            color: var(--text-secondary);
+        }
+
+        /* Session Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 24px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 4px;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .timeline-date {
+            font-size: 9px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
+        }
+
+        .timeline-title {
+            font-size: 12px;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .timeline-details {
+            font-size: 10px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .timeline-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .tag {
+            font-size: 9px;
+            padding: 2px 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        /* Right Panel */
+        .panel {
+            border-left: 1px solid var(--border);
+            background: var(--bg-secondary);
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* Memory Display */
+        .memory-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .memory-title {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .memory-content {
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .memory-list {
+            list-style: none;
+        }
+
+        .memory-list li {
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        .memory-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Preferences */
+        .pref-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 10px;
+        }
+
+        .pref-label { color: var(--text-secondary); }
+        .pref-value { color: var(--accent-cyan); }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 11px;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">&#9939;</span>
+            <span class="logo-text">APSIS <span>NEXUS</span></span>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="btn">Forge</a>
+            <a href="titan.html" class="btn">Titan</a>
+            <a href="batch-generator.html" class="btn">Batch</a>
+            <a href="writer.html" class="btn">Writer</a>
+        </nav>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <!-- Stats -->
+            <section class="sidebar-section">
+                <h3 class="section-title">System Stats</h3>
+                <div class="stats-grid">
+                    <div class="stat-card accent">
+                        <div class="stat-value" id="stat-deploys">12</div>
+                        <div class="stat-label">Deployed</div>
+                    </div>
+                    <div class="stat-card cyan">
+                        <div class="stat-value" id="stat-sessions">1</div>
+                        <div class="stat-label">Sessions</div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-value" id="stat-prompts">752</div>
+                        <div class="stat-label">Prompts</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-value" id="stat-scripts">64</div>
+                        <div class="stat-label">Scripts</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="sidebar-section">
+                <h3 class="section-title">Quick Actions</h3>
+                <div class="quick-actions">
+                    <a href="titan.html" class="action-btn">
+                        <span class="action-icon">&#9889;</span>
+                        <span>New Synthesis</span>
+                    </a>
+                    <a href="batch-generator.html" class="action-btn">
+                        <span class="action-icon">&#128203;</span>
+                        <span>Batch Generate</span>
+                    </a>
+                    <a href="writer.html" class="action-btn">
+                        <span class="action-icon">&#9997;</span>
+                        <span>Open Writer</span>
+                    </a>
+                    <button class="action-btn" onclick="refreshMemory()">
+                        <span class="action-icon">&#128260;</span>
+                        <span>Refresh Memory</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- API Status -->
+            <section class="sidebar-section">
+                <h3 class="section-title">Backend Status</h3>
+                <div class="memory-card">
+                    <div id="api-status" class="loading">
+                        <div class="spinner"></div>
+                        Checking...
+                    </div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- Main Content -->
+        <section class="content">
+            <!-- Deployed Apps -->
+            <div class="content-header">
+                <h2 class="content-title">Deployed Applications</h2>
+            </div>
+            <div class="deploy-grid" id="deploy-grid">
+                <!-- Cards will be populated by JS -->
+            </div>
+
+            <!-- Session History -->
+            <div class="content-header">
+                <h2 class="content-title">Session History</h2>
+            </div>
+            <div class="timeline" id="timeline">
+                <!-- Timeline will be populated by JS -->
+            </div>
+        </section>
+
+        <!-- Right Panel -->
+        <aside class="panel">
+            <!-- Active Projects -->
+            <section class="sidebar-section">
+                <h3 class="section-title">Active Projects</h3>
+                <div id="active-projects">
+                    <!-- Will be populated by JS -->
+                </div>
+            </section>
+
+            <!-- Learnings -->
+            <section class="sidebar-section">
+                <h3 class="section-title">Recent Learnings</h3>
+                <div class="memory-card">
+                    <ul class="memory-list" id="learnings-list">
+                        <!-- Will be populated by JS -->
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Preferences -->
+            <section class="sidebar-section">
+                <h3 class="section-title">Gabo Preferences</h3>
+                <div class="memory-card" id="preferences">
+                    <!-- Will be populated by JS -->
+                </div>
+            </section>
+
+            <!-- Pending Tasks -->
+            <section class="sidebar-section">
+                <h3 class="section-title">Pending</h3>
+                <div class="memory-card">
+                    <ul class="memory-list" id="pending-list">
+                        <!-- Will be populated by JS -->
+                    </ul>
+                </div>
+            </section>
+        </aside>
+    </main>
+
+    <script>
+        // Memory data (normally would be fetched from backend)
+        const MEMORY = {
+            sessions: [
+                {
+                    id: "2026-02-03-titan-forge",
+                    date: "2026-02-03",
+                    machine: "C1-MacBook",
+                    summary: "Built TITAN V1.2 + Claude API integration + Batch Generator. Deployed SATURNO BEAST API backend.",
+                    files_created: [
+                        "titan.html",
+                        "batch-generator.html",
+                        "js/api-config.js",
+                        "js/claude-api.js",
+                        "nexus.html"
+                    ],
+                    deployments: [
+                        "saturno-beast-api.vercel.app",
+                        "titan-forge/titan.html",
+                        "titan-forge/batch-generator.html"
+                    ],
+                    pending: [
+                        "Build capture system for highlights/audio",
+                        "Add semantic retrieval",
+                        "WhatsApp voice pipeline"
+                    ],
+                    learnings: [
+                        "TITAN V1.2 source is on iMac, not MacBook",
+                        "Claude API has CORS restrictions - use backend",
+                        "Gabo prefers custom builds over off-the-shelf",
+                        "Vercel free tier doesn't support multi-region"
+                    ]
+                }
+            ],
+            active_projects: {
+                book_submission: { priority: 1, status: "ACTIVE", next: "Complete submission package" },
+                titan_forge: { priority: 2, status: "DEPLOYED", next: "Add NEXUS dashboard" },
+                saturno_beast_api: { priority: 3, status: "LIVE", next: "Monitor usage" },
+                memory_system: { priority: 4, status: "DEPLOYED", next: "Build capture hooks" },
+                nexus_dashboard: { priority: 5, status: "BUILDING", next: "Deploy and test" }
+            },
+            gabo_preferences: {
+                custom_over_saas: true,
+                visual_control: true,
+                no_delete_policy: true,
+                book_is_priority: true,
+                dark_theme_only: true,
+                jetbrains_mono_font: true
+            }
+        };
+
+        const PROJECTS = {
+            deployed_apps: [
+                { name: "Victory Belt CC", url: "gabosaturno11.github.io/victory-belt-cc/", status: "LIVE", repo: "victory-belt-cc" },
+                { name: "TITAN V1.2", url: "gabosaturno11.github.io/titan-forge/titan.html", status: "LIVE", repo: "titan-forge" },
+                { name: "Batch Generator", url: "gabosaturno11.github.io/titan-forge/batch-generator.html", status: "LIVE", repo: "titan-forge" },
+                { name: "Saturno Forge", url: "gabosaturno11.github.io/titan-forge/", status: "LIVE", repo: "titan-forge" },
+                { name: "APSIS NEXUS", url: "gabosaturno11.github.io/titan-forge/nexus.html", status: "LIVE", repo: "titan-forge" },
+                { name: "TRITON Onboarding", url: "gabosaturno11.github.io/titan-forge/onboarding.html", status: "LOCKED", repo: "titan-forge" },
+                { name: "Apoapsis Writer", url: "gabosaturno11.github.io/titan-forge/writer.html", status: "LIVE", repo: "titan-forge" },
+                { name: "Mission Logs", url: "gabosaturno11.github.io/titan-forge/logs.html", status: "LIVE", repo: "titan-forge" },
+                { name: "Interactive TOC", url: "gabosaturno11.github.io/interactive-toc-editor/", status: "LIVE", repo: "interactive-toc-editor" },
+                { name: "Solar System", url: "gabosaturno11.github.io/saturno-solar-system/", status: "LIVE", repo: "saturno-solar-system" },
+                { name: "VB Command Center", url: "gabosaturno11.github.io/VB-COMMAND-CENTER/", status: "LIVE", repo: "VB-COMMAND-CENTER" },
+                { name: "Saturno Hub", url: "gabosaturno11.github.io/saturno-hub/", status: "LIVE", repo: "saturno-hub" }
+            ],
+            backends: [
+                { name: "BEAST API", url: "saturno-beast-api.vercel.app", status: "LIVE", platform: "Vercel" }
+            ]
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDeployCards();
+            renderTimeline();
+            renderActiveProjects();
+            renderLearnings();
+            renderPreferences();
+            renderPending();
+            checkApiStatus();
+            updateStats();
+        });
+
+        // Render deploy cards
+        function renderDeployCards() {
+            const grid = document.getElementById('deploy-grid');
+            const allApps = [...PROJECTS.deployed_apps, ...PROJECTS.backends.map(b => ({...b, type: 'backend'}))];
+
+            grid.innerHTML = allApps.map(app => `
+                <a href="https://${app.url}" target="_blank" class="deploy-card">
+                    <div class="deploy-card-header">
+                        <span class="deploy-name">${app.name}</span>
+                        <span class="deploy-status ${app.status.toLowerCase()}">${app.status}</span>
+                    </div>
+                    <div class="deploy-url">${app.url}</div>
+                    <div class="deploy-meta">
+                        <span>${app.repo || app.platform || ''}</span>
+                        ${app.type === 'backend' ? '<span>Backend</span>' : '<span>Frontend</span>'}
+                    </div>
+                </a>
+            `).join('');
+        }
+
+        // Render timeline
+        function renderTimeline() {
+            const timeline = document.getElementById('timeline');
+
+            timeline.innerHTML = MEMORY.sessions.map(session => `
+                <div class="timeline-item">
+                    <div class="timeline-date">${session.date} | ${session.machine}</div>
+                    <div class="timeline-title">${session.id}</div>
+                    <div class="timeline-details">${session.summary}</div>
+                    <div class="timeline-tags">
+                        ${session.files_created.slice(0, 4).map(f => `<span class="tag">${f}</span>`).join('')}
+                        ${session.files_created.length > 4 ? `<span class="tag">+${session.files_created.length - 4} more</span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render active projects
+        function renderActiveProjects() {
+            const container = document.getElementById('active-projects');
+            const projects = Object.entries(MEMORY.active_projects);
+
+            container.innerHTML = projects.map(([key, proj]) => `
+                <div class="memory-card">
+                    <div class="memory-title">#${proj.priority} ${key.replace(/_/g, ' ').toUpperCase()}</div>
+                    <div class="memory-content">
+                        <strong style="color: ${proj.status === 'ACTIVE' ? 'var(--accent-green)' : proj.status === 'DEPLOYED' || proj.status === 'LIVE' ? 'var(--accent-cyan)' : 'var(--accent-purple)'}">${proj.status}</strong><br>
+                        Next: ${proj.next}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render learnings
+        function renderLearnings() {
+            const list = document.getElementById('learnings-list');
+            const learnings = MEMORY.sessions[0]?.learnings || [];
+
+            list.innerHTML = learnings.map(l => `<li>${l}</li>`).join('');
+        }
+
+        // Render preferences
+        function renderPreferences() {
+            const container = document.getElementById('preferences');
+            const prefs = MEMORY.gabo_preferences;
+
+            container.innerHTML = Object.entries(prefs).map(([key, value]) => `
+                <div class="pref-item">
+                    <span class="pref-label">${key.replace(/_/g, ' ')}</span>
+                    <span class="pref-value">${value ? 'ON' : 'OFF'}</span>
+                </div>
+            `).join('');
+        }
+
+        // Render pending
+        function renderPending() {
+            const list = document.getElementById('pending-list');
+            const pending = MEMORY.sessions[0]?.pending || [];
+
+            list.innerHTML = pending.map(p => `<li>${p}</li>`).join('');
+        }
+
+        // Check API status
+        async function checkApiStatus() {
+            const container = document.getElementById('api-status');
+
+            try {
+                const response = await fetch('https://saturno-beast-api.vercel.app/api/health');
+                const data = await response.json();
+
+                container.innerHTML = `
+                    <div style="color: var(--accent-green);">&#10003; BEAST API Online</div>
+                    <div style="font-size: 9px; color: var(--text-muted); margin-top: 8px;">
+                        v${data.version || '2.0.0'} | ${data.modes?.length || 10} modes
+                    </div>
+                `;
+            } catch (error) {
+                container.innerHTML = `
+                    <div style="color: var(--accent-red);">&#10007; API Offline</div>
+                    <div style="font-size: 9px; color: var(--text-muted); margin-top: 8px;">
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('stat-deploys').textContent = PROJECTS.deployed_apps.length + PROJECTS.backends.length;
+            document.getElementById('stat-sessions').textContent = MEMORY.sessions.length;
+        }
+
+        // Refresh memory (placeholder - would fetch from backend)
+        function refreshMemory() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
