@@ -663,13 +663,37 @@ Examples:
                             <span class="record-btn-inner"></span>
                         </button>
                     </div>
+                    <div style="margin-top: 16px; font-size: 9px; color: var(--text-muted);">
+                        Powered by OpenAI Whisper
+                    </div>
                 </div>
 
                 <div class="audio-result" id="audio-result" style="display: none;">
                     <audio class="audio-player" id="audio-player" controls></audio>
-                    <div class="meta-label" style="margin: 16px 0 8px;">Transcription</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0 8px;">
+                        <div class="meta-label" style="margin: 0;">Transcription</div>
+                        <button class="btn" style="padding: 4px 12px; font-size: 9px;" onclick="retryTranscription()">
+                            Retry
+                        </button>
+                    </div>
                     <div class="transcription-box" id="transcription">
                         Transcription will appear here after processing...
+                    </div>
+                    <div class="capture-meta" style="margin-top: 12px;">
+                        <div class="meta-field">
+                            <div class="meta-label">Category</div>
+                            <select class="meta-input" id="audio-category">
+                                <option value="voice-note">Voice Note</option>
+                                <option value="idea">Idea</option>
+                                <option value="program">Program</option>
+                                <option value="client">Client Session</option>
+                                <option value="research">Research</option>
+                            </select>
+                        </div>
+                        <div class="meta-field">
+                            <div class="meta-label">Tags</div>
+                            <input type="text" class="meta-input" id="audio-tags" placeholder="coaching, calisthenics">
+                        </div>
                     </div>
                     <div class="capture-actions">
                         <button class="btn" onclick="discardAudio()">Discard</button>
@@ -864,8 +888,12 @@ Examples:
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // AUDIO CAPTURE
+        // AUDIO CAPTURE - Whisper Transcription
         // ═══════════════════════════════════════════════════════════════
+
+        const TRANSCRIBE_API = 'https://saturno-beast-api.vercel.app/api/transcribe';
+        let currentAudioBlob = null;
+        let recordingStartTime = null;
 
         async function toggleRecording() {
             const btn = document.getElementById('record-btn');
@@ -875,31 +903,33 @@ Examples:
                 // Stop recording
                 mediaRecorder.stop();
                 btn.classList.remove('recording');
-                status.textContent = 'Processing...';
+                status.textContent = 'Transcribing with Whisper...';
             } else {
                 // Start recording
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
                     audioChunks = [];
+                    recordingStartTime = Date.now();
 
                     mediaRecorder.ondataavailable = (e) => {
                         audioChunks.push(e.data);
                     };
 
-                    mediaRecorder.onstop = () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                        const audioUrl = URL.createObjectURL(audioBlob);
+                    mediaRecorder.onstop = async () => {
+                        currentAudioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const audioUrl = URL.createObjectURL(currentAudioBlob);
                         document.getElementById('audio-player').src = audioUrl;
                         document.getElementById('audio-result').style.display = 'block';
-                        status.textContent = 'Recording complete';
 
-                        // Simulate transcription (in real implementation, send to Whisper API)
-                        document.getElementById('transcription').textContent =
-                            'Audio captured. In a full implementation, this would be transcribed using Whisper API or similar service.';
+                        const duration = ((Date.now() - recordingStartTime) / 1000).toFixed(1);
+                        status.textContent = `Recorded ${duration}s - Transcribing...`;
 
                         // Stop all tracks
                         stream.getTracks().forEach(track => track.stop());
+
+                        // Send to Whisper API
+                        await transcribeAudio(currentAudioBlob);
                     };
 
                     mediaRecorder.start();
@@ -913,26 +943,99 @@ Examples:
             }
         }
 
+        async function transcribeAudio(audioBlob) {
+            const status = document.getElementById('audio-status');
+            const transcriptionBox = document.getElementById('transcription');
+
+            transcriptionBox.innerHTML = '<span style="color: var(--accent-purple);">Transcribing with Whisper AI...</span>';
+
+            try {
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'recording.webm');
+                formData.append('language', 'en');
+                // Custom prompt helps Whisper recognize calisthenics terms
+                formData.append('prompt', 'Calisthenics, handstand, planche, front lever, muscle up, hollow body, pike, straddle, L-sit, Gabo Saturno, Saturno Movement, C4W3D1, scapula, biomechanics');
+
+                const response = await fetch(TRANSCRIBE_API, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.text) {
+                    transcriptionBox.textContent = result.text;
+                    status.textContent = `Transcribed (${result.duration?.toFixed(1) || '?'}s audio)`;
+                    showToast('Transcription complete!');
+                } else {
+                    throw new Error(result.error || 'Transcription failed');
+                }
+
+            } catch (error) {
+                console.error('Transcription error:', error);
+                transcriptionBox.innerHTML = `
+                    <span style="color: var(--accent-red);">Transcription failed: ${error.message}</span>
+                    <br><br>
+                    <span style="color: var(--text-muted);">Audio is still saved. You can try again or save without transcription.</span>
+                `;
+                status.textContent = 'Transcription failed - audio saved';
+                showToast('Transcription failed', true);
+            }
+        }
+
+        // Retry transcription button
+        async function retryTranscription() {
+            if (currentAudioBlob) {
+                document.getElementById('audio-status').textContent = 'Retrying transcription...';
+                await transcribeAudio(currentAudioBlob);
+            }
+        }
+
         function saveAudio() {
             const transcription = document.getElementById('transcription').textContent;
+            const category = document.getElementById('audio-category').value;
+            const tagsInput = document.getElementById('audio-tags').value;
+            const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
 
             const capture = {
                 id: Date.now(),
                 type: 'audio',
                 content: transcription,
+                category: category,
+                tags: tags,
                 hasAudio: true,
                 timestamp: new Date().toISOString()
             };
 
             saveCapture(capture);
+
+            // Also send to backend for storage
+            syncAudioToBackend(capture);
+
             discardAudio();
             showToast('Audio note saved!');
+        }
+
+        async function syncAudioToBackend(capture) {
+            try {
+                await fetch('https://saturno-beast-api.vercel.app/api/capture', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(capture)
+                });
+            } catch (e) {
+                console.log('Backend sync failed:', e);
+            }
         }
 
         function discardAudio() {
             document.getElementById('audio-result').style.display = 'none';
             document.getElementById('audio-status').textContent = 'Click to start recording';
+            document.getElementById('audio-category').value = 'voice-note';
+            document.getElementById('audio-tags').value = '';
+            document.getElementById('transcription').textContent = 'Transcription will appear here after processing...';
             audioChunks = [];
+            currentAudioBlob = null;
         }
 
         // ═══════════════════════════════════════════════════════════════
