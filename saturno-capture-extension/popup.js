@@ -217,3 +217,64 @@ function formatTime(isoString) {
   if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
   return date.toLocaleDateString();
 }
+
+// ═══════════════════════════════════════════════════════════════
+// MARKDOWN EXPORT (Added by overnight script)
+// ═══════════════════════════════════════════════════════════════
+
+async function exportAsMarkdown() {
+  const result = await chrome.storage.local.get(['captures']);
+  const captures = result.captures || [];
+
+  if (captures.length === 0) {
+    alert('No captures to export');
+    return;
+  }
+
+  // Group by date
+  const byDate = {};
+  captures.forEach(c => {
+    const date = new Date(c.timestamp).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    if (!byDate[date]) byDate[date] = [];
+    byDate[date].push(c);
+  });
+
+  // Build Markdown
+  let md = `# SATURNO CAPTURES\n`;
+  md += `> Exported: ${new Date().toLocaleString()}\n`;
+  md += `> Total: ${captures.length} highlights\n\n`;
+  md += `---\n\n`;
+
+  Object.entries(byDate).forEach(([date, items]) => {
+    md += `## ${date}\n\n`;
+    items.forEach(c => {
+      const category = c.category ? `[${c.category.toUpperCase()}]` : '';
+      const tags = c.tags?.length ? `\`${c.tags.join('` `')}\`` : '';
+
+      md += `### ${category} ${c.title || 'Untitled'}\n\n`;
+      md += `> ${c.content}\n\n`;
+      if (c.source) md += `**Source:** [${new URL(c.source).hostname}](${c.source})\n\n`;
+      if (tags) md += `**Tags:** ${tags}\n\n`;
+      md += `---\n\n`;
+    });
+  });
+
+  // Download
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+
+  chrome.downloads.download({
+    url: url,
+    filename: `saturno-captures-${new Date().toISOString().split('T')[0]}.md`
+  });
+}
+
+// Update export button to show options
+document.getElementById('btn-export').addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  exportAsMarkdown();
+});
