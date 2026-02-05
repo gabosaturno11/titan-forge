@@ -454,7 +454,14 @@
         </div>
         <div class="header-actions">
             <a href="index.html" class="btn">FORGE</a>
+            <a href="capture.html" class="btn">CAPTURE</a>
+            <a href="pipelines.html" class="btn">PIPELINES</a>
+            <a href="synapse.html" class="btn">SYNAPSE</a>
+            <a href="writer.html" class="btn">WRITER</a>
             <a href="batch-generator.html" class="btn">BATCH</a>
+            <a href="nexus.html" class="btn">NEXUS</a>
+            <a href="logs.html" class="btn">LOGS</a>
+            <a href="onboarding.html" class="btn">TRITON</a>
             <button class="btn" onclick="openSettings()">SETTINGS</button>
             <button class="btn btn-primary" onclick="synthesize()">SYNTHESIZE</button>
         </div>
@@ -530,6 +537,15 @@
                     <button class="mode-btn" data-mode="Companion" onclick="setMode('Companion')">/CompanionMode</button>
                     <button class="mode-btn" data-mode="Confessor" onclick="setMode('Confessor')">/ConfessorMode</button>
                 </div>
+            </div>
+
+            <!-- 7-Pass Pipeline -->
+            <div class="panel">
+                <div class="panel-title">TITAN 7-Pass</div>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 10px; cursor: pointer;">
+                    <input type="checkbox" id="toggle-7pass"> Enable 7-Pass Pipeline
+                </label>
+                <p class="text-[9px] text-zinc-600 mt-2" style="line-height:1.4">P1 Promptify, P2 Evaluate, P3 Compress, P4 Deploy, P5 Critique, P6 Seed, P7 Ship</p>
             </div>
 
             <!-- Toggles -->
@@ -746,10 +762,47 @@ The Forge will synthesize through your active voice mode..."></textarea>
             showToast('Settings saved', 'success');
         }
 
+        // TITAN 7-Pass prompt template
+        const SEVEN_PASS_PROMPT = `Apply the TITAN 7-Pass pipeline to the content below. Output valid JSON only, no markdown.
+
+Structure:
+{
+  "meta": { "passes_completed": 7, "mode": "MODE", "timestamp": "ISO8601" },
+  "core_insight": "PASS 1 PROMPTIFY: One sentence core insight",
+  "strengths_weaknesses_patches": "PASS 2 EVALUATE: Strengths, weaknesses, patches",
+  "essential_rules": "PASS 3 COMPRESS: Essential rules only, bullet points",
+  "system_blueprint": "PASS 4 DEPLOY: System blueprint / architecture",
+  "critique": "PASS 5 CRITIQUE: Devil's advocate objections and responses",
+  "seed_variations": { "core_principle": "...", "variation_1": "...", "variation_2": "...", "variation_3": "..." },
+  "next_actions": { "notion_cards": ["card1", "card2"], "actions": ["action1", "action2"] }
+}
+
+---CONTENT TO PROCESS---
+`;
+
+        function renderSevenPassOutput(data) {
+            if (typeof data === 'string') {
+                try { data = JSON.parse(data.replace(/```json\n?|\n?```/g, '').trim()); } catch (e) { return data; }
+            }
+            if (!data || typeof data !== 'object') return JSON.stringify(data);
+            let html = '<div class="seven-pass-output" style="font-size:11px;line-height:1.6">';
+            if (data.core_insight) html += `<div style="margin-bottom:12px"><strong style="color:#00ffcc">P1 Core Insight</strong><br><span style="color:#a1a1aa">${escapeHtml(data.core_insight)}</span></div>`;
+            if (data.strengths_weaknesses_patches) html += `<div style="margin-bottom:12px"><strong style="color:#00ffcc">P2 Evaluate</strong><br><span style="color:#a1a1aa">${escapeHtml(data.strengths_weaknesses_patches)}</span></div>`;
+            if (data.essential_rules) html += `<div style="margin-bottom:12px"><strong style="color:#00ffcc">P3 Compress</strong><br><span style="color:#a1a1aa">${escapeHtml(data.essential_rules)}</span></div>`;
+            if (data.system_blueprint) html += `<div style="margin-bottom:12px"><strong style="color:#00ffcc">P4 Deploy</strong><br><span style="color:#a1a1aa">${escapeHtml(data.system_blueprint)}</span></div>`;
+            if (data.critique) html += `<div style="margin-bottom:12px"><strong style="color:#00ffcc">P5 Critique</strong><br><span style="color:#a1a1aa">${escapeHtml(data.critique)}</span></div>`;
+            if (data.seed_variations) html += `<div style="margin-bottom:12px"><strong style="color:#00ffcc">P6 Seed</strong><br><pre style="white-space:pre-wrap;font-size:10px;color:#71717a">${escapeHtml(JSON.stringify(data.seed_variations, null, 2))}</pre></div>`;
+            if (data.next_actions) html += `<div><strong style="color:#00ffcc">P7 Ship</strong><br><pre style="white-space:pre-wrap;font-size:10px;color:#71717a">${escapeHtml(JSON.stringify(data.next_actions, null, 2))}</pre></div>`;
+            html += '</div>';
+            return html;
+        }
+        function escapeHtml(s) { const d=document.createElement('div'); d.textContent=String(s); return d.innerHTML; }
+
         // Synthesize
         async function synthesize() {
             const input = document.getElementById('input-text').value;
             const output = document.getElementById('output-text');
+            const use7Pass = document.getElementById('toggle-7pass') && document.getElementById('toggle-7pass').checked;
 
             if (!input.trim()) {
                 showToast('Enter some content first', 'error');
@@ -761,11 +814,10 @@ The Forge will synthesize through your active voice mode..."></textarea>
                 return;
             }
 
-            // Show loading
-            output.innerHTML = '<div class="loading"><div class="spinner"></div>Synthesizing...</div>';
+            const passLabel = use7Pass ? ' (7-Pass)' : '';
+            output.innerHTML = '<div class="loading"><div class="spinner"></div>Synthesizing' + passLabel + '...</div>';
 
             try {
-                // Build faders object for API
                 const faderSettings = {
                     certainty: faders.f1,
                     formality: faders.f2,
@@ -775,13 +827,23 @@ The Forge will synthesize through your active voice mode..."></textarea>
                     density: faders.f6
                 };
 
-                const result = await CLAUDE_API.synthesize(input, currentMode, faderSettings);
+                let contentToSend = input;
+                if (use7Pass) {
+                    contentToSend = SEVEN_PASS_PROMPT.replace('MODE', currentMode) + input;
+                }
+
+                const result = await CLAUDE_API.synthesize(contentToSend, currentMode, faderSettings);
                 outputContent = result;
-                output.textContent = result;
+
+                if (use7Pass) {
+                    output.innerHTML = renderSevenPassOutput(result);
+                } else {
+                    output.textContent = result;
+                }
                 showToast('Synthesis complete', 'success');
 
             } catch (error) {
-                output.innerHTML = `<span style="color: #ef4444;">${error.message}</span>`;
+                output.innerHTML = '<span style="color: #ef4444;">' + escapeHtml(error.message) + '</span>';
                 showToast('Synthesis failed', 'error');
             }
         }

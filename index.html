@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/framework-loader.js"></script>
+    <script src="js/api-config.js"></script>
     <title>🔱 SATURNO FORGE V1.0</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
@@ -23,16 +25,20 @@
                 <span class="text-green-500">● Prompts: 752 Loaded</span>
                 <span class="text-blue-500">● Orbit: Periapsis</span>
                 <span id="mode-display" class="text-amber-500">● Mode: /RawMode</span>
+                <span id="task-sync" class="text-zinc-500 cursor-pointer hover:text-white" onclick="toggleStatusLog()" title="Open task list">● Tasks: 0/0</span>
             </div>
         </div>
-        <div class="flex gap-4">
-            <a href="https://gabosaturno11.github.io/saturno-hub/" target="_blank" class="text-[10px] border border-blue-900 text-blue-500 px-4 py-2 hover:border-blue-500 transition-all">MOVEMENT STUDIO</a>
-            <a href="nexus.html" class="text-[10px] border border-yellow-700 text-yellow-500 px-4 py-2 hover:border-yellow-400 transition-all">NEXUS</a>
+        <div class="flex gap-4 flex-wrap">
+            <a href="index.html" class="text-[10px] border border-white text-white px-4 py-2 hover:border-white transition-all">FORGE</a>
             <a href="capture.html" class="text-[10px] border border-emerald-900 text-emerald-400 px-4 py-2 hover:border-emerald-400 transition-all">CAPTURE</a>
+            <a href="pipelines.html" class="text-[10px] border border-cyan-900 text-cyan-400 px-4 py-2 hover:border-cyan-400 transition-all">PIPELINES</a>
             <a href="titan.html" class="text-[10px] border border-cyan-900 text-cyan-400 px-4 py-2 hover:border-cyan-400 transition-all">TITAN</a>
-            <a href="batch-generator.html" class="text-[10px] border border-purple-900 text-purple-400 px-4 py-2 hover:border-purple-400 transition-all">BATCH</a>
-            <a href="logs.html" class="text-[10px] border border-amber-900 text-amber-500 px-4 py-2 hover:border-amber-500 transition-all">LOGS</a>
+            <a href="synapse.html" class="text-[10px] border border-purple-900 text-purple-400 px-4 py-2 hover:border-purple-400 transition-all">SYNAPSE</a>
             <a href="writer.html" class="text-[10px] border border-zinc-800 px-4 py-2 hover:border-white transition-all">WRITER</a>
+            <a href="batch-generator.html" class="text-[10px] border border-purple-900 text-purple-400 px-4 py-2 hover:border-purple-400 transition-all">BATCH</a>
+            <a href="nexus.html" class="text-[10px] border border-yellow-700 text-yellow-500 px-4 py-2 hover:border-yellow-400 transition-all">NEXUS</a>
+            <a href="logs.html" class="text-[10px] border border-amber-900 text-amber-500 px-4 py-2 hover:border-amber-500 transition-all">LOGS</a>
+            <a href="onboarding.html" class="text-[10px] border border-zinc-800 px-4 py-2 hover:border-white transition-all">TRITON</a>
         </div>
     </div>
     
@@ -44,50 +50,17 @@
                 <button onclick="toggleStatusLog()" class="text-zinc-600 hover:text-white">✕</button>
             </div>
             
-            <!-- EXECUTION TIMELINE -->
+            <!-- TASK LIST -->
             <div class="mb-8">
-                <p class="text-[9px] text-zinc-600 uppercase tracking-widest mb-4">EXECUTION TIMELINE</p>
-                <div class="space-y-3">
-                    <div class="flex items-center gap-3 task-item" data-task="mirror">
-                        <span class="w-2 h-2 rounded-full bg-zinc-700" id="dot-mirror"></span>
-                        <div class="flex-grow">
-                            <p class="text-[11px] text-zinc-400">3:00 PM — Mirror & Secure</p>
-                            <p class="text-[10px] text-zinc-600">gemini-mirror-v1.1.sh</p>
-                        </div>
-                        <button onclick="completeTask('mirror')" class="text-[9px] border border-zinc-800 px-2 py-1 hover:border-green-500 hover:text-green-500">✓</button>
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-[9px] text-zinc-600 uppercase tracking-widest">TASKS</p>
+                    <div class="flex gap-1">
+                        <input type="text" id="new-task-title" placeholder="New task..." class="w-28 bg-zinc-900 border border-zinc-800 p-1 text-[9px] outline-none focus:border-white" onkeypress="if(event.key==='Enter')addTaskFromInput()">
+                        <button onclick="addTaskFromInput()" class="text-[9px] border border-zinc-800 px-2 py-1 hover:border-green-500 hover:text-green-500">+</button>
                     </div>
-                    <div class="flex items-center gap-3 task-item" data-task="vercel">
-                        <span class="w-2 h-2 rounded-full bg-zinc-700" id="dot-vercel"></span>
-                        <div class="flex-grow">
-                            <p class="text-[11px] text-zinc-400">3:30 PM — Vercel Deploy</p>
-                            <p class="text-[10px] text-zinc-600">saturno-apsis-v1.vercel.app</p>
-                        </div>
-                        <button onclick="completeTask('vercel')" class="text-[9px] border border-zinc-800 px-2 py-1 hover:border-green-500 hover:text-green-500">✓</button>
-                    </div>
-                    <div class="flex items-center gap-3 task-item" data-task="triton">
-                        <span class="w-2 h-2 rounded-full bg-zinc-700" id="dot-triton"></span>
-                        <div class="flex-grow">
-                            <p class="text-[11px] text-zinc-400">4:00 PM — Triton Onboarding</p>
-                            <p class="text-[10px] text-zinc-600">10 Questions Answered</p>
-                        </div>
-                        <button onclick="completeTask('triton')" class="text-[9px] border border-zinc-800 px-2 py-1 hover:border-green-500 hover:text-green-500">✓</button>
-                    </div>
-                    <div class="flex items-center gap-3 task-item" data-task="chapter1">
-                        <span class="w-2 h-2 rounded-full bg-zinc-700" id="dot-chapter1"></span>
-                        <div class="flex-grow">
-                            <p class="text-[11px] text-zinc-400">4:30 PM — VB Synthesis</p>
-                            <p class="text-[10px] text-zinc-600">Chapter 1: The Weight Lie</p>
-                        </div>
-                        <button onclick="completeTask('chapter1')" class="text-[9px] border border-zinc-800 px-2 py-1 hover:border-green-500 hover:text-green-500">✓</button>
-                    </div>
-                    <div class="flex items-center gap-3 task-item" data-task="photos">
-                        <span class="w-2 h-2 rounded-full bg-zinc-700" id="dot-photos"></span>
-                        <div class="flex-grow">
-                            <p class="text-[11px] text-zinc-400">5:30 PM — Photo Harvest</p>
-                            <p class="text-[10px] text-zinc-600">saturno-vision.py --auto</p>
-                        </div>
-                        <button onclick="completeTask('photos')" class="text-[9px] border border-zinc-800 px-2 py-1 hover:border-green-500 hover:text-green-500">✓</button>
-                    </div>
+                </div>
+                <div id="task-list" class="space-y-3">
+                    <!-- Rendered by JS -->
                 </div>
             </div>
             
@@ -143,6 +116,14 @@
         
         <!-- LINGUISTIC CONSOLE SIDEBAR -->
         <div class="w-72 border-r border-zinc-900 p-6 space-y-6 bg-black overflow-y-auto">
+            
+            <!-- FRAMEWORK LOADER -->
+            <div class="p-4 border border-zinc-900 rounded">
+                <p class="text-[9px] uppercase mb-2 tracking-[0.2em] text-zinc-600">00 / FRAMEWORK</p>
+                <select id="framework-select" onchange="onFrameworkChange(this.value)" class="w-full bg-zinc-900 border border-zinc-800 p-2 text-[10px] text-zinc-300 outline-none focus:border-white">
+                    <option value="">-- Select --</option>
+                </select>
+            </div>
             
             <!-- MASTER FADERS -->
             <div class="dial-glow p-4 border border-zinc-900 rounded">
@@ -330,6 +311,37 @@ The Forge will synthesize through your active voice mode..." oninput="updateWord
             }
         }
 
+        async function initFrameworks() {
+            await FrameworkLoader.loadRegistry();
+            const sel = document.getElementById('framework-select');
+            if (!sel || !FrameworkLoader.registry?.frameworks) return;
+            FrameworkLoader.registry.frameworks.forEach(fw => {
+                const opt = document.createElement('option');
+                opt.value = fw.id;
+                opt.textContent = fw.name;
+                sel.appendChild(opt);
+            });
+        }
+
+        async function onFrameworkChange(id) {
+            if (!id) return;
+            const fw = await FrameworkLoader.loadFramework(id);
+            if (fw?.presets?.[0]) {
+                const p = fw.presets[0];
+                Object.keys(p.values || p).forEach(key => {
+                    const el = document.getElementById(key);
+                    if (el) {
+                        const v = (p.values || p)[key];
+                        el.value = v;
+                        const valEl = document.getElementById(key + '-val');
+                        if (valEl) valEl.textContent = v;
+                        if (consoleState) consoleState[key] = v;
+                    }
+                });
+                if (p.values?.mode) setMode(p.values.mode);
+            }
+        }
+
         function updateWordCount() {
             const text = document.getElementById('raw-input').value;
             const words = text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -391,37 +403,108 @@ Transform this through the active voice mode and console settings.`;
         }
         
         // ═══════════════════════════════════════════════════════════════
-        // STATUS LOG FUNCTIONS
+        // TASK LIST (localStorage persistent)
         // ═══════════════════════════════════════════════════════════════
         
-        let completedTasks = JSON.parse(localStorage.getItem('forge-tasks') || '{}');
+        const TASKS_STORAGE = 'forge-task-list';
+        const COMPLETED_STORAGE = 'forge-tasks';
+        const DEFAULT_TASKS = [
+            { id: 'mirror', title: 'Mirror & Secure', subtitle: 'gemini-mirror-v1.1.sh' },
+            { id: 'vercel', title: 'Vercel Deploy', subtitle: 'saturno-apsis-v1.vercel.app' },
+            { id: 'triton', title: 'Triton Onboarding', subtitle: '10 Questions Answered' },
+            { id: 'chapter1', title: 'VB Synthesis', subtitle: 'Chapter 1: The Weight Lie' },
+            { id: 'photos', title: 'Photo Harvest', subtitle: 'saturno-vision.py --auto' }
+        ];
         
-        // Initialize task states on load
+        let taskList = JSON.parse(localStorage.getItem(TASKS_STORAGE) || 'null');
+        let completedTasks = JSON.parse(localStorage.getItem(COMPLETED_STORAGE) || '{}');
+        
+        if (!taskList) {
+            taskList = DEFAULT_TASKS;
+            saveTasks();
+        }
+        
+        function saveTasks() {
+            localStorage.setItem(TASKS_STORAGE, JSON.stringify(taskList));
+            localStorage.setItem(COMPLETED_STORAGE, JSON.stringify(completedTasks));
+            renderTasks();
+            updateTaskSyncHeader();
+        }
+        
+        function updateTaskSyncHeader() {
+            const el = document.getElementById('task-sync');
+            if (el) {
+                const total = taskList.length;
+                const done = taskList.filter(t => completedTasks[t.id]).length;
+                el.textContent = `● Tasks: ${done}/${total}`;
+                el.className = done === total && total > 0 ? 'text-green-500' : 'text-zinc-500';
+            }
+        }
+        
+        function renderTasks() {
+            const container = document.getElementById('task-list');
+            if (!container) return;
+            container.innerHTML = taskList.map(t => {
+                const done = completedTasks[t.id];
+                return `
+                <div class="flex items-center gap-3 task-item ${done ? 'opacity-60' : ''}" data-task="${t.id}">
+                    <span class="w-2 h-2 rounded-full flex-shrink-0 ${done ? 'bg-green-500' : 'bg-zinc-700'}" id="dot-${t.id}"></span>
+                    <div class="flex-grow min-w-0">
+                        <p class="text-[11px] text-zinc-400">${escapeHtml(t.title)}</p>
+                        <p class="text-[10px] text-zinc-600">${escapeHtml(t.subtitle || '')}</p>
+                    </div>
+                    <div class="flex gap-1 flex-shrink-0">
+                        <button onclick="completeTask('${t.id}')" class="text-[9px] border border-zinc-800 px-2 py-1 hover:border-green-500 hover:text-green-500">${done ? '↺' : '✓'}</button>
+                        <button onclick="deleteTask('${t.id}')" class="text-[9px] border border-zinc-800 px-2 py-1 hover:border-red-500 hover:text-red-500">✕</button>
+                    </div>
+                </div>`;
+            }).join('');
+            updateTaskSyncHeader();
+        }
+        
+        function escapeHtml(s) {
+            if (!s) return '';
+            const div = document.createElement('div');
+            div.textContent = s;
+            return div.innerHTML;
+        }
+        
+        function completeTask(taskId) {
+            completedTasks[taskId] = !completedTasks[taskId];
+            saveTasks();
+            addLogEntry(`Task ${completedTasks[taskId] ? 'completed' : 'unmarked'}: ${taskId}`);
+        }
+        
+        function deleteTask(taskId) {
+            taskList = taskList.filter(t => t.id !== taskId);
+            delete completedTasks[taskId];
+            saveTasks();
+            addLogEntry(`Task deleted: ${taskId}`);
+        }
+        
+        function addTask(title, subtitle) {
+            const id = 'task-' + Date.now();
+            taskList.push({ id, title: title || 'New Task', subtitle: subtitle || '' });
+            saveTasks();
+            addLogEntry(`Task added: ${title || id}`);
+        }
+        
+        function addTaskFromInput() {
+            const input = document.getElementById('new-task-title');
+            if (input && input.value.trim()) {
+                addTask(input.value.trim(), '');
+                input.value = '';
+            }
+        }
+        
+        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            Object.keys(completedTasks).forEach(task => {
-                if (completedTasks[task]) {
-                    markTaskComplete(task);
-                }
-            });
+            renderTasks();
+            initFrameworks();
         });
         
         function toggleStatusLog() {
             document.getElementById('status-log').classList.toggle('hidden');
-        }
-        
-        function completeTask(taskId) {
-            completedTasks[taskId] = true;
-            localStorage.setItem('forge-tasks', JSON.stringify(completedTasks));
-            markTaskComplete(taskId);
-            addLogEntry(`Task completed: ${taskId}`);
-        }
-        
-        function markTaskComplete(taskId) {
-            const dot = document.getElementById('dot-' + taskId);
-            if (dot) {
-                dot.classList.remove('bg-zinc-700');
-                dot.classList.add('bg-green-500');
-            }
         }
         
         function addLogEntry(text) {
@@ -447,12 +530,12 @@ Transform this through the active voice mode and console settings.`;
         }
         
         function exportLog() {
-            const tasks = completedTasks;
             const logs = JSON.parse(localStorage.getItem('forge-logs') || '[]');
             
             const exportData = {
                 timestamp: new Date().toISOString(),
-                completedTasks: tasks,
+                tasks: taskList,
+                completedTasks: completedTasks,
                 logs: logs,
                 consoleState: consoleState
             };
@@ -469,11 +552,10 @@ Transform this through the active voice mode and console settings.`;
         // BEAST API INTEGRATION
         // ═══════════════════════════════════════════════════════════════
         
-        const BEAST_API = 'https://saturno-beast-api.vercel.app';
-        
         async function synthesizeWithBeast(text, mode, consoleState) {
             try {
-                const response = await fetch(BEAST_API + '/api/transform', {
+                const url = typeof API_CONFIG !== 'undefined' ? API_CONFIG.getTransformUrl() : 'https://saturno-beast-api.vercel.app/api/transform';
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

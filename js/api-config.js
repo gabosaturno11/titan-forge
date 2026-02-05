@@ -63,6 +63,11 @@ const API_CONFIG = {
     // Get modes endpoint
     getModesUrl() {
         return this.getBackendUrl() + '/api/modes';
+    },
+
+    // Get synapse endpoint (prompt/system synthesis)
+    getSynapseUrl() {
+        return this.getBackendUrl() + '/api/synapse';
     }
 };
 

@@ -1,0 +1,18 @@
+{
+  "id": "persuasion-system",
+  "name": "Persuasion System",
+  "version": "1.0",
+  "dials": [
+    { "id": "ethos", "name": "Ethos", "min": 0, "max": 10, "default": 5 },
+    { "id": "pathos", "name": "Pathos", "min": 0, "max": 10, "default": 5 },
+    { "id": "logos", "name": "Logos", "min": 0, "max": 10, "default": 5 }
+  ],
+  "knobs": [],
+  "sliders": [],
+  "switches": [],
+  "presets": [
+    { "name": "Balanced", "values": { "ethos": 5, "pathos": 5, "logos": 5 } },
+    { "name": "Logic First", "values": { "ethos": 4, "pathos": 3, "logos": 9 } },
+    { "name": "Emotion First", "values": { "ethos": 6, "pathos": 9, "logos": 4 } }
+  ]
+}

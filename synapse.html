@@ -679,10 +679,15 @@
         </div>
       </div>
       <div class="nav-links">
-        <a href="nexus.html">NEXUS</a>
-        <a href="pipelines.html">Pipelines</a>
+        <a href="index.html">FORGE</a>
+        <a href="capture.html">CAPTURE</a>
+        <a href="pipelines.html">PIPELINES</a>
         <a href="titan.html">TITAN</a>
-        <a href="capture.html">Capture</a>
+        <a href="writer.html">WRITER</a>
+        <a href="batch-generator.html">BATCH</a>
+        <a href="nexus.html">NEXUS</a>
+        <a href="logs.html">LOGS</a>
+        <a href="onboarding.html">TRITON</a>
       </div>
     </div>
   </div>
@@ -833,8 +838,9 @@
     </div>
   </div>
 
+  <script src="js/api-config.js"></script>
   <script>
-    const API_BASE = 'https://saturno-beast-api.vercel.app/api/synapse';
+    const API_BASE = (typeof API_CONFIG !== 'undefined' ? API_CONFIG.getSynapseUrl() : 'https://saturno-beast-api.vercel.app/api/synapse');
 
     let artifacts = [];
     let selectedArtifacts = [];

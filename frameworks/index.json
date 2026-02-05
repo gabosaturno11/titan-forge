@@ -1,0 +1,24 @@
+{
+  "id": "framework-registry",
+  "version": "1.0",
+  "frameworks": [
+    {
+      "id": "linguistic-console",
+      "name": "Linguistic Console",
+      "file": "linguistic-console.json",
+      "description": "130 controls for voice synthesis"
+    },
+    {
+      "id": "collision-matrix",
+      "name": "Collision Matrix",
+      "file": "collision-matrix.json",
+      "description": "100+ dials for content collision"
+    },
+    {
+      "id": "persuasion-system",
+      "name": "Persuasion System",
+      "file": "persuasion-system.json",
+      "description": "100+ dials for persuasion modes"
+    }
+  ]
+}
