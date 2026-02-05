@@ -1,36 +1,55 @@
 # OVERNIGHT CHANGELOG - TITAN FORGE
-## Started: $(date)
+## 2026-02-05 | Saturno SaaS Unification
 ## Operator: Claude (Cursor)
 
 ---
 
-## PHASE 1: TITAN FORGE DEPLOYMENT
+## COMPLETED: Saturno SaaS Unification Plan
 
-### Changes Made:
-- [ ] Fixed stray </div> in index.html (line 37)
-- [ ] Added BEAST API integration
-- [ ] Added Movement Studio cross-links
-- [ ] Added voice-movement sync mapping
-- [ ] Updated writer.html with AOC chapter structure
-- [ ] Updated onboarding.html with identity bridge
-- [ ] Updated logs.html with current deliverables
+### Phase 1: Merge Bonus Vault
+- [x] hub.html, command.html -> titan-forge root
+- [x] transcript-to-pdf, music-organizer -> tools/
+- [x] pdfs/ folder (structure; PDFs gitignored, copy from bonus-vault)
+- [x] nexus.html nav: Hub, Command, Tools, PDFs
 
-### Deployment:
-- [ ] Git commit
-- [ ] Git push
-- [ ] Verify live at gabosaturno11.github.io/titan-forge/
+### Phase 2: 3-Panel Layout
+- [x] Draggable resizable panels (Input/Process/Output)
+- [x] js/draggable-panels.js, localStorage persistence
+- [x] Collapsible panel headers
+
+### Phase 3: Task List
+- [x] Hub sidebar task widget
+- [x] Emergency/Priority/Backlog categories
+- [x] js/task-list.js, syncs with saturno-command-tasks
+
+### Phase 4: Capture->Pipeline->Synthesis
+- [x] Capture cards: TITAN + Pipeline route buttons
+- [x] titan.html, pipelines.html pre-fill from saturno_pipeline_input
+- [x] Unified saturno_captures localStorage (hub, nexus, capture)
+
+### Phase 5: MVP Fixes
+- [x] Calisthenics Ecosystem: null checks, canvas init
+- [x] Bonus panel links: Calisthenics, Writing Hub, Transcript-to-PDF
+- [x] apps/ folder with calisthenics-ecosystem, saturno-command, writing-hub-kortex
+
+### Phase 6: Chrome Extension
+- [x] titan-forge saturno-capture-extension verified (8 categories, floating button)
+
+### Phase 7: Design Cleanup
+- [x] New pages (pdfs.html, tools/index.html) follow design lock
+
+### Phase 8: Deploy
+- [x] Git commit, push to main
+- [x] Live: https://gabosaturno11.github.io/titan-forge/
 
 ---
 
-## PHASE 2: VERIFICATION (after deployment)
-
-- [ ] Test index.html loads
-- [ ] Test faders work
-- [ ] Test voice modes work
-- [ ] Test navigation to writer.html
-- [ ] Test navigation to onboarding.html
-- [ ] Test navigation to logs.html
+## POST-DEPLOY: Copy PDFs
+PDFs are gitignored (254MB). For full PDF library:
+```bash
+cp /path/to/saturno-bonus-vault/pdfs/*.pdf titan-forge/pdfs/
+```
 
 ---
 
-## NOTES:
+## NOTES
