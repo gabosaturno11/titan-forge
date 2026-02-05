@@ -26,10 +26,12 @@
             </div>
         </div>
         <div class="flex gap-4">
+            <a href="https://gabosaturno11.github.io/saturno-hub/" target="_blank" class="text-[10px] border border-blue-900 text-blue-500 px-4 py-2 hover:border-blue-500 transition-all">MOVEMENT STUDIO</a>
             <a href="nexus.html" class="text-[10px] border border-yellow-700 text-yellow-500 px-4 py-2 hover:border-yellow-400 transition-all">NEXUS</a>
             <a href="capture.html" class="text-[10px] border border-emerald-900 text-emerald-400 px-4 py-2 hover:border-emerald-400 transition-all">CAPTURE</a>
             <a href="titan.html" class="text-[10px] border border-cyan-900 text-cyan-400 px-4 py-2 hover:border-cyan-400 transition-all">TITAN</a>
             <a href="batch-generator.html" class="text-[10px] border border-purple-900 text-purple-400 px-4 py-2 hover:border-purple-400 transition-all">BATCH</a>
+            <a href="logs.html" class="text-[10px] border border-amber-900 text-amber-500 px-4 py-2 hover:border-amber-500 transition-all">LOGS</a>
             <a href="writer.html" class="text-[10px] border border-zinc-800 px-4 py-2 hover:border-white transition-all">WRITER</a>
         </div>
     </div>
@@ -462,6 +464,67 @@ Transform this through the active voice mode and console settings.`;
             a.download = `saturno-forge-log-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
         }
+
+        // ═══════════════════════════════════════════════════════════════
+        // BEAST API INTEGRATION
+        // ═══════════════════════════════════════════════════════════════
+        
+        const BEAST_API = 'https://saturno-beast-api.vercel.app';
+        
+        async function synthesizeWithBeast(text, mode, consoleState) {
+            try {
+                const response = await fetch(BEAST_API + '/api/transform', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        mode: mode,
+                        console_state: consoleState
+                    })
+                });
+                const data = await response.json();
+                return data.result || data.error || 'Transform failed';
+            } catch (e) {
+                console.log('BEAST API offline, using prompt export');
+                return null;
+            }
+        }
+        
+        // Movement-Voice Mapping (connects to Movement Studio)
+        const VOICE_MOVEMENT_MAP = {
+            'Raw': { bpm: 140, emotion: 'Aggression', training: 'Beast Mode' },
+            'Teacher': { bpm: 100, emotion: 'Clarity', training: 'Standard' },
+            'Prophet': { bpm: 75, emotion: 'Vision', training: 'Skill Focus' },
+            'Philosopher': { bpm: 65, emotion: 'Depth', training: 'Monk Mode' },
+            'Mystic': { bpm: 55, emotion: 'Transcendence', training: 'Flow Ritual' },
+            'Rebel': { bpm: 150, emotion: 'Defiance', training: 'Beast Mode' },
+            'Companion': { bpm: 90, emotion: 'Warmth', training: 'Recovery' },
+            'Confessor': { bpm: 70, emotion: 'Vulnerability', training: 'Slow Strength' }
+        };
+        
+        // Display movement mapping when mode changes
+        function showMovementSync(mode) {
+            const mapping = VOICE_MOVEMENT_MAP[mode];
+            if (mapping) {
+                console.log('Voice → Movement Sync:', mapping);
+                // Could send to Movement Studio via postMessage or localStorage
+                localStorage.setItem('titan_voice_sync', JSON.stringify({
+                    mode: mode,
+                    ...mapping,
+                    timestamp: Date.now()
+                }));
+            }
+        }
+        
+        // Enhanced setMode with movement sync
+        const origSetMode = setMode;
+        setMode = function(mode) {
+            origSetMode(mode);
+            showMovementSync(mode);
+        };
+        
+        console.log('TITAN FORGE - BEAST API + Movement Sync loaded');
+
     </script>
 </body>
 </html>

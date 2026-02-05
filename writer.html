@@ -24,7 +24,9 @@
     <!-- HEADER -->
     <div class="h-14 border-b border-zinc-900 flex items-center justify-between px-6 bg-black">
         <div class="flex gap-4 items-center">
-            <a href="index.html" class="text-white font-bold hover:text-zinc-300 transition-all">← FORGE</a>
+            <a href="index.html" class="text-white font-bold hover:text-zinc-300 transition-all">FORGE</a>
+            <span class="text-zinc-700">|</span>
+            <a href="https://gabosaturno11.github.io/saturno-hub/" target="_blank" class="text-blue-500 hover:text-blue-400 transition-all text-[10px]">MOVEMENT STUDIO</a>
             <span class="text-zinc-700">|</span>
             <span class="text-white font-bold">APOAPSIS_WRITER</span>
             <span id="mode-badge" class="bg-zinc-800 text-[10px] px-3 py-1 rounded text-zinc-400">MODE: /TeacherMode</span>
@@ -295,6 +297,66 @@ The weight isn't waiting for you to be ready. The weight is *making* you ready.
                 chapters = JSON.parse(saved);
             } catch(e) {}
         }
+
+        // ═══════════════════════════════════════════════════════════════
+        // ART OF CALISTHENICS - FULL CHAPTER STRUCTURE
+        // ═══════════════════════════════════════════════════════════════
+        
+        const AOC_CHAPTERS = [
+            { num: 1, title: 'The Weight Lie', theme: 'Mindset Shift' },
+            { num: 2, title: 'Movement First Language', theme: 'Philosophy' },
+            { num: 3, title: 'The Spiral Architecture', theme: 'Progression' },
+            { num: 4, title: 'Embodied Philosophy', theme: 'Body-Mind' },
+            { num: 5, title: 'The Backward Motion', theme: 'Regression' },
+            { num: 6, title: 'Gravity as Teacher', theme: 'Physics' },
+            { num: 7, title: 'The 7 Movement Patterns', theme: 'Foundation' },
+            { num: 8, title: 'Push: The Expression', theme: 'Pattern' },
+            { num: 9, title: 'Pull: The Integration', theme: 'Pattern' },
+            { num: 10, title: 'Legs: The Foundation', theme: 'Pattern' },
+            { num: 11, title: 'Core: The Bridge', theme: 'Pattern' },
+            { num: 12, title: 'Skills: The Art', theme: 'Pattern' },
+            { num: 13, title: 'The Handstand Journey', theme: 'Skill Deep-Dive' },
+            { num: 14, title: 'Muscle-Up Mastery', theme: 'Skill Deep-Dive' },
+            { num: 15, title: 'The Front Lever Path', theme: 'Skill Deep-Dive' },
+            { num: 16, title: 'Programming Principles', theme: 'System' },
+            { num: 17, title: 'The Movement DNA', theme: 'Methodology' },
+            { num: 18, title: 'Recovery as Training', theme: 'Balance' },
+            { num: 19, title: 'Nutrition for Movement', theme: 'Fuel' },
+            { num: 20, title: 'The Saturno Method', theme: 'Integration' },
+            { num: 21, title: 'Building Your Practice', theme: 'Application' },
+            { num: 22, title: 'The Community Effect', theme: 'Social' },
+            { num: 23, title: 'Teaching Movement', theme: 'Leadership' },
+            { num: 24, title: 'The Lifetime Practice', theme: 'Legacy' },
+            { num: 25, title: 'Movement as Medicine', theme: 'Healing' },
+            { num: 26, title: 'The Artist Athlete', theme: 'Identity' },
+            { num: 27, title: 'Your Movement Story', theme: 'Conclusion' }
+        ];
+        
+        // Voice mode presets for writing
+        const WRITING_VOICE_PRESETS = {
+            'Teacher': { f1: 7, f3: 5, f7: 8, f10: 5, desc: 'Clear instruction, accessible wisdom' },
+            'Prophet': { f1: 8, f3: 7, f7: 9, f10: 6, desc: 'Visionary, future-pulling' },
+            'Raw': { f1: 3, f3: 8, f7: 6, f10: 2, desc: 'Unfiltered, authentic voice' },
+            'Philosopher': { f1: 9, f3: 6, f7: 7, f10: 7, desc: 'Deep, contemplative' },
+            'Confessor': { f1: 6, f3: 8, f7: 4, f10: 5, desc: 'Vulnerable, personal' },
+            'Rebel': { f1: 4, f3: 9, f7: 10, f10: 3, desc: 'Challenging, provocative' }
+        };
+        
+        // Sync voice mode to Movement Studio
+        document.getElementById('mode-select')?.addEventListener('change', (e) => {
+            const mode = e.target.value;
+            const preset = WRITING_VOICE_PRESETS[mode];
+            if (preset) {
+                localStorage.setItem('titan_writer_voice', JSON.stringify({
+                    mode: mode,
+                    preset: preset,
+                    timestamp: Date.now()
+                }));
+            }
+        });
+        
+        console.log('APOAPSIS WRITER - AOC structure loaded');
+
     </script>
 </body>
 </html>
