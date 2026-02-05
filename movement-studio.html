@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATURNO MOVEMENT STUDIO V1.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-dark: #050508; --bg-panel: #0a0a10; --bg-card: #0f0f18; --bg-hover: #14141f;
+            --border: rgba(255,255,255,0.06); --text: #fff; --text-secondary: rgba(255,255,255,0.7);
+            --text-muted: rgba(255,255,255,0.4); --accent-blue: #3b82f6; --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4; --accent-green: #22c55e; --accent-orange: #f97316;
+            --gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg-dark); color: var(--text); height: 100vh; overflow: hidden; }
+        .app { display: grid; grid-template-rows: 48px 1fr auto; height: 100vh; }
+        .header { background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; }
+        .logo-text { font-size: 12px; font-weight: 700; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo-sub { font-size: 10px; color: var(--text-muted); }
+        .header-nav { display: flex; gap: 8px; }
+        .nav-btn { padding: 6px 12px; font-size: 10px; font-family: inherit; background: transparent; border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .nav-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+        .main { display: grid; grid-template-columns: 220px 1fr 260px; overflow: hidden; }
+        .panel-left, .panel-right { background: var(--bg-panel); overflow-y: auto; }
+        .panel-left { border-right: 1px solid var(--border); }
+        .panel-right { border-left: 1px solid var(--border); }
+        .panel-header { padding: 12px; border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+        .movement-category { border-bottom: 1px solid var(--border); }
+        .category-header { padding: 10px 12px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .category-header:hover { background: var(--bg-hover); }
+        .category-color { width: 8px; height: 8px; border-radius: 2px; }
+        .movement-list { padding: 4px 8px 8px; }
+        .movement-item { padding: 8px 10px; margin: 2px 0; font-size: 11px; background: var(--bg-card); border: 1px solid var(--border); cursor: grab; transition: all 0.15s; display: flex; align-items: center; gap: 8px; }
+        .movement-item:hover { border-color: var(--accent-cyan); background: var(--bg-hover); }
+        .movement-icon { width: 24px; height: 24px; background: var(--bg-dark); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+        .panel-center { display: flex; flex-direction: column; overflow: hidden; }
+        .transport { background: var(--bg-panel); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 16px; }
+        .transport-buttons { display: flex; gap: 4px; }
+        .transport-btn { width: 32px; height: 32px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+        .transport-btn:hover { border-color: var(--accent-cyan); }
+        .transport-btn.active { background: var(--accent-green); border-color: var(--accent-green); color: black; }
+        .time-display { font-size: 24px; font-weight: 500; font-variant-numeric: tabular-nums; min-width: 140px; }
+        .bpm-control { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+        .bpm-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+        .bpm-input { width: 60px; padding: 6px 8px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text); font-family: inherit; font-size: 14px; text-align: center; }
+        .bpm-input:focus { outline: none; border-color: var(--accent-cyan); }
+        .timeline-container { flex: 1; overflow: auto; background: var(--bg-dark); }
+        .timeline-ruler { height: 24px; background: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; position: sticky; top: 0; z-index: 10; }
+        .ruler-mark { flex: 1; min-width: 80px; border-right: 1px solid var(--border); padding: 4px 8px; font-size: 9px; color: var(--text-muted); }
+        .timeline-tracks { min-height: 300px; position: relative; }
+        .track { height: 60px; border-bottom: 1px solid var(--border); display: flex; }
+        .track-header { width: 120px; background: var(--bg-panel); border-right: 1px solid var(--border); padding: 8px; display: flex; flex-direction: column; justify-content: center; }
+        .track-name { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .track-controls { display: flex; gap: 4px; margin-top: 4px; }
+        .track-btn { width: 20px; height: 16px; font-size: 8px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; }
+        .track-btn:hover { border-color: var(--text); color: var(--text); }
+        .track-content { flex: 1; position: relative; background: repeating-linear-gradient(90deg, transparent, transparent 79px, var(--border) 79px, var(--border) 80px); }
+        .clip { position: absolute; height: 48px; top: 6px; background: var(--accent-purple); border: 1px solid rgba(255,255,255,0.2); cursor: move; display: flex; align-items: center; padding: 0 8px; font-size: 10px; font-weight: 500; user-select: none; }
+        .clip.upper-push { background: var(--accent-blue); }
+        .clip.upper-pull { background: var(--accent-purple); }
+        .clip.core { background: var(--accent-orange); }
+        .clip.lower-body { background: var(--accent-green); }
+        .clip-resize { position: absolute; right: 0; top: 0; bottom: 0; width: 6px; cursor: ew-resize; background: rgba(255,255,255,0.2); }
+        .playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent-cyan); z-index: 20; pointer-events: none; left: 120px; }
+        .playhead::before { content: ''; position: absolute; top: 0; left: -4px; width: 10px; height: 10px; background: var(--accent-cyan); clip-path: polygon(50% 100%, 0 0, 100% 0); }
+        .mixer-section { padding: 12px; border-bottom: 1px solid var(--border); }
+        .mixer-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 12px; }
+        .fader-group { display: flex; gap: 12px; justify-content: center; }
+        .fader { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .fader-label { font-size: 8px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); text-align: center; max-width: 40px; }
+        .fader-track { width: 8px; height: 100px; background: var(--bg-dark); border-radius: 4px; position: relative; }
+        .fader-fill { position: absolute; bottom: 0; left: 0; right: 0; background: var(--gradient); border-radius: 4px; }
+        .fader-handle { position: absolute; left: -4px; width: 16px; height: 8px; background: var(--text); border-radius: 2px; cursor: ns-resize; }
+        .fader-value { font-size: 11px; font-weight: 500; }
+        .knob-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .knob { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .knob-dial { width: 40px; height: 40px; background: var(--bg-dark); border: 2px solid var(--border); border-radius: 50%; position: relative; cursor: pointer; }
+        .knob-dial:hover { border-color: var(--accent-cyan); }
+        .knob-indicator { position: absolute; width: 2px; height: 12px; background: var(--accent-cyan); top: 4px; left: 50%; transform-origin: bottom center; transform: translateX(-50%); }
+        .knob-label { font-size: 8px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); text-align: center; }
+        .export-btn { padding: 8px 16px; background: var(--gradient); border: none; color: white; font-family: inherit; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; width: 100%; }
+        .export-btn:hover { opacity: 0.9; }
+        .bottom-bar { background: var(--bg-panel); border-top: 1px solid var(--border); padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; font-size: 10px; color: var(--text-muted); }
+        .status-item { display: flex; align-items: center; gap: 6px; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green); }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="logo"><div class="logo-text">SATURNO MOVEMENT STUDIO</div><div class="logo-sub">V1.0 / Program Builder</div></div>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-btn">FORGE</a>
+                <a href="titan.html" class="nav-btn">TITAN</a>
+                <a href="nexus.html" class="nav-btn">NEXUS</a>
+                <button class="nav-btn" onclick="saveSession()">SAVE</button>
+                <button class="nav-btn" onclick="exportWorkout()">EXPORT</button>
+            </nav>
+        </header>
+        <main class="main">
+            <aside class="panel-left">
+                <div class="panel-header">Movement Library</div>
+                <div class="movement-category">
+                    <div class="category-header"><span>Upper Push</span><div class="category-color" style="background: var(--accent-blue)"></div></div>
+                    <div class="movement-list">
+                        <div class="movement-item" draggable="true" data-category="upper-push" data-name="Push-up"><div class="movement-icon">P</div><span>Push-up</span></div>
+                        <div class="movement-item" draggable="true" data-category="upper-push" data-name="Dip"><div class="movement-icon">D</div><span>Dip</span></div>
+                        <div class="movement-item" draggable="true" data-category="upper-push" data-name="HSPU"><div class="movement-icon">H</div><span>HSPU</span></div>
+                        <div class="movement-item" draggable="true" data-category="upper-push" data-name="Planche"><div class="movement-icon">PL</div><span>Planche</span></div>
+                    </div>
+                </div>
+                <div class="movement-category">
+                    <div class="category-header"><span>Upper Pull</span><div class="category-color" style="background: var(--accent-purple)"></div></div>
+                    <div class="movement-list">
+                        <div class="movement-item" draggable="true" data-category="upper-pull" data-name="Pull-up"><div class="movement-icon">PU</div><span>Pull-up</span></div>
+                        <div class="movement-item" draggable="true" data-category="upper-pull" data-name="Muscle-up"><div class="movement-icon">MU</div><span>Muscle-up</span></div>
+                        <div class="movement-item" draggable="true" data-category="upper-pull" data-name="Front Lever"><div class="movement-icon">FL</div><span>Front Lever</span></div>
+                        <div class="movement-item" draggable="true" data-category="upper-pull" data-name="Row"><div class="movement-icon">R</div><span>Row</span></div>
+                    </div>
+                </div>
+                <div class="movement-category">
+                    <div class="category-header"><span>Core</span><div class="category-color" style="background: var(--accent-orange)"></div></div>
+                    <div class="movement-list">
+                        <div class="movement-item" draggable="true" data-category="core" data-name="Hollow Hold"><div class="movement-icon">HH</div><span>Hollow Hold</span></div>
+                        <div class="movement-item" draggable="true" data-category="core" data-name="L-sit"><div class="movement-icon">L</div><span>L-sit</span></div>
+                        <div class="movement-item" draggable="true" data-category="core" data-name="V-sit"><div class="movement-icon">V</div><span>V-sit</span></div>
+                        <div class="movement-item" draggable="true" data-category="core" data-name="Dragon Flag"><div class="movement-icon">DF</div><span>Dragon Flag</span></div>
+                    </div>
+                </div>
+                <div class="movement-category">
+                    <div class="category-header"><span>Lower Body</span><div class="category-color" style="background: var(--accent-green)"></div></div>
+                    <div class="movement-list">
+                        <div class="movement-item" draggable="true" data-category="lower-body" data-name="Squat"><div class="movement-icon">SQ</div><span>Squat</span></div>
+                        <div class="movement-item" draggable="true" data-category="lower-body" data-name="Pistol"><div class="movement-icon">PI</div><span>Pistol Squat</span></div>
+                        <div class="movement-item" draggable="true" data-category="lower-body" data-name="Lunge"><div class="movement-icon">LU</div><span>Lunge</span></div>
+                        <div class="movement-item" draggable="true" data-category="lower-body" data-name="Nordic"><div class="movement-icon">N</div><span>Nordic Curl</span></div>
+                    </div>
+                </div>
+            </aside>
+            <section class="panel-center">
+                <div class="transport">
+                    <div class="transport-buttons">
+                        <button class="transport-btn" onclick="rewind()">&#9198;</button>
+                        <button class="transport-btn" id="play-btn" onclick="togglePlay()">&#9654;</button>
+                        <button class="transport-btn" onclick="stop()">&#9632;</button>
+                        <button class="transport-btn" onclick="forward()">&#9197;</button>
+                    </div>
+                    <div class="time-display" id="time-display">00:00:00</div>
+                    <div class="bpm-control">
+                        <span class="bpm-label">BPM</span>
+                        <input type="number" class="bpm-input" id="bpm-input" value="120" min="40" max="200" onchange="updateBPM()">
+                    </div>
+                </div>
+                <div class="timeline-container" id="timeline-container">
+                    <div class="timeline-ruler">
+                        <div class="ruler-mark">0:00</div><div class="ruler-mark">0:15</div><div class="ruler-mark">0:30</div><div class="ruler-mark">0:45</div><div class="ruler-mark">1:00</div><div class="ruler-mark">1:15</div><div class="ruler-mark">1:30</div><div class="ruler-mark">1:45</div><div class="ruler-mark">2:00</div><div class="ruler-mark">2:15</div>
+                    </div>
+                    <div class="timeline-tracks" id="timeline-tracks">
+                        <div class="playhead" id="playhead"></div>
+                        <div class="track" data-track="upper-push"><div class="track-header"><div class="track-name">Upper Push</div><div class="track-controls"><button class="track-btn">M</button><button class="track-btn">S</button></div></div><div class="track-content" data-track="upper-push"></div></div>
+                        <div class="track" data-track="upper-pull"><div class="track-header"><div class="track-name">Upper Pull</div><div class="track-controls"><button class="track-btn">M</button><button class="track-btn">S</button></div></div><div class="track-content" data-track="upper-pull"></div></div>
+                        <div class="track" data-track="core"><div class="track-header"><div class="track-name">Core</div><div class="track-controls"><button class="track-btn">M</button><button class="track-btn">S</button></div></div><div class="track-content" data-track="core"></div></div>
+                        <div class="track" data-track="lower-body"><div class="track-header"><div class="track-name">Lower Body</div><div class="track-controls"><button class="track-btn">M</button><button class="track-btn">S</button></div></div><div class="track-content" data-track="lower-body"></div></div>
+                    </div>
+                </div>
+            </section>
+            <aside class="panel-right">
+                <div class="mixer-section">
+                    <div class="mixer-title">Master Faders</div>
+                    <div class="fader-group">
+                        <div class="fader"><div class="fader-label">Intensity</div><div class="fader-track"><div class="fader-fill" style="height: 70%"></div><div class="fader-handle" style="bottom: 67%"></div></div><div class="fader-value">7</div></div>
+                        <div class="fader"><div class="fader-label">Volume</div><div class="fader-track"><div class="fader-fill" style="height: 50%"></div><div class="fader-handle" style="bottom: 47%"></div></div><div class="fader-value">5</div></div>
+                        <div class="fader"><div class="fader-label">Density</div><div class="fader-track"><div class="fader-fill" style="height: 60%"></div><div class="fader-handle" style="bottom: 57%"></div></div><div class="fader-value">6</div></div>
+                        <div class="fader"><div class="fader-label">Rest</div><div class="fader-track"><div class="fader-fill" style="height: 40%"></div><div class="fader-handle" style="bottom: 37%"></div></div><div class="fader-value">4</div></div>
+                    </div>
+                </div>
+                <div class="mixer-section">
+                    <div class="mixer-title">Blend Controls</div>
+                    <div class="knob-group">
+                        <div class="knob"><div class="knob-dial"><div class="knob-indicator" style="transform: translateX(-50%) rotate(-45deg)"></div></div><div class="knob-label">Str/Mob</div></div>
+                        <div class="knob"><div class="knob-dial"><div class="knob-indicator" style="transform: translateX(-50%) rotate(30deg)"></div></div><div class="knob-label">Pwr/Ctrl</div></div>
+                        <div class="knob"><div class="knob-dial"><div class="knob-indicator" style="transform: translateX(-50%) rotate(0deg)"></div></div><div class="knob-label">Sta/Dyn</div></div>
+                    </div>
+                </div>
+                <div class="mixer-section"><button class="export-btn" onclick="exportWorkout()">Export Workout</button></div>
+            </aside>
+        </main>
+        <footer class="bottom-bar">
+            <div class="status-item"><div class="status-dot"></div><span>Ready</span></div>
+            <div><span>Clips: <span id="clip-count">0</span></span><span style="margin-left: 16px">Duration: <span id="total-duration">0:00</span></span></div>
+            <div>"Design Your Workout. Design Your Life."</div>
+        </footer>
+    </div>
+    <script>
+        let isPlaying = false, currentTime = 0, bpm = 120, playInterval = null;
+        document.addEventListener('DOMContentLoaded', () => { initDragDrop(); loadSession(); });
+        function initDragDrop() {
+            document.querySelectorAll('.movement-item').forEach(item => {
+                item.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', JSON.stringify({name: item.dataset.name, category: item.dataset.category})); item.style.opacity = '0.5'; });
+                item.addEventListener('dragend', () => { item.style.opacity = '1'; });
+            });
+            document.querySelectorAll('.track-content').forEach(track => {
+                track.addEventListener('dragover', e => { e.preventDefault(); track.style.background = 'rgba(59, 130, 246, 0.1)'; });
+                track.addEventListener('dragleave', () => { track.style.background = ''; });
+                track.addEventListener('drop', e => { e.preventDefault(); track.style.background = ''; const data = JSON.parse(e.dataTransfer.getData('text/plain')); const rect = track.getBoundingClientRect(); const x = e.clientX - rect.left; if (data.category === track.dataset.track) addClip(track, data.name, data.category, x); });
+            });
+        }
+        function addClip(track, name, category, x) {
+            const clip = document.createElement('div'); clip.className = 'clip ' + category; clip.textContent = name; clip.style.left = x + 'px'; clip.style.width = '80px';
+            const resize = document.createElement('div'); resize.className = 'clip-resize'; clip.appendChild(resize);
+            clip.addEventListener('mousedown', e => { if (e.target === resize) return; const startX = e.clientX, startLeft = parseInt(clip.style.left); const onMove = e => { clip.style.left = Math.max(0, startLeft + e.clientX - startX) + 'px'; }; const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); saveSession(); }; document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); });
+            resize.addEventListener('mousedown', e => { e.stopPropagation(); const startX = e.clientX, startW = parseInt(clip.style.width); const onMove = e => { clip.style.width = Math.max(40, startW + e.clientX - startX) + 'px'; }; const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); saveSession(); }; document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); });
+            clip.addEventListener('dblclick', () => { clip.remove(); updateClipCount(); saveSession(); });
+            track.appendChild(clip); updateClipCount(); saveSession();
+        }
+        function updateClipCount() { const count = document.querySelectorAll('.clip').length; document.getElementById('clip-count').textContent = count; let maxRight = 0; document.querySelectorAll('.clip').forEach(clip => { const r = parseInt(clip.style.left) + parseInt(clip.style.width); if (r > maxRight) maxRight = r; }); const secs = Math.round(maxRight / 80 * 15); document.getElementById('total-duration').textContent = Math.floor(secs/60) + ':' + (secs%60).toString().padStart(2,'0'); }
+        function togglePlay() { isPlaying = !isPlaying; const btn = document.getElementById('play-btn'); if (isPlaying) { btn.classList.add('active'); btn.innerHTML = '&#9616;&#9616;'; playInterval = setInterval(updatePlayhead, 50); } else { btn.classList.remove('active'); btn.innerHTML = '&#9654;'; clearInterval(playInterval); } }
+        function stop() { isPlaying = false; currentTime = 0; document.getElementById('play-btn').classList.remove('active'); document.getElementById('play-btn').innerHTML = '&#9654;'; clearInterval(playInterval); updateTimeDisplay(); updatePlayheadPosition(); }
+        function rewind() { currentTime = Math.max(0, currentTime - 15); updateTimeDisplay(); updatePlayheadPosition(); }
+        function forward() { currentTime += 15; updateTimeDisplay(); updatePlayheadPosition(); }
+        function updatePlayhead() { currentTime += 0.05; updateTimeDisplay(); updatePlayheadPosition(); }
+        function updateTimeDisplay() { const mins = Math.floor(currentTime / 60), secs = Math.floor(currentTime % 60), ms = Math.floor((currentTime % 1) * 100); document.getElementById('time-display').textContent = mins.toString().padStart(2,'0') + ':' + secs.toString().padStart(2,'0') + ':' + ms.toString().padStart(2,'0'); }
+        function updatePlayheadPosition() { const pps = 80 / 15; document.getElementById('playhead').style.left = (120 + currentTime * pps) + 'px'; }
+        function updateBPM() { bpm = parseInt(document.getElementById('bpm-input').value) || 120; saveSession(); }
+        function saveSession() { const session = {bpm: bpm, clips: []}; document.querySelectorAll('.clip').forEach(clip => { session.clips.push({name: clip.textContent.replace(/\s+/g,''), category: clip.className.split(' ')[1], left: clip.style.left, width: clip.style.width, track: clip.parentElement.dataset.track}); }); localStorage.setItem('movement_studio_session', JSON.stringify(session)); }
+        function loadSession() { const saved = localStorage.getItem('movement_studio_session'); if (!saved) return; try { const s = JSON.parse(saved); bpm = s.bpm || 120; document.getElementById('bpm-input').value = bpm; s.clips.forEach(c => { const track = document.querySelector('.track-content[data-track="' + c.track + '"]'); if (track) { const clip = document.createElement('div'); clip.className = 'clip ' + c.category; clip.textContent = c.name; clip.style.left = c.left; clip.style.width = c.width; const resize = document.createElement('div'); resize.className = 'clip-resize'; clip.appendChild(resize); clip.addEventListener('mousedown', e => { if (e.target === resize) return; const startX = e.clientX, startLeft = parseInt(clip.style.left); const onMove = e => { clip.style.left = Math.max(0, startLeft + e.clientX - startX) + 'px'; }; const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); saveSession(); }; document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); }); resize.addEventListener('mousedown', e => { e.stopPropagation(); const startX = e.clientX, startW = parseInt(clip.style.width); const onMove = e => { clip.style.width = Math.max(40, startW + e.clientX - startX) + 'px'; }; const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); saveSession(); }; document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); }); clip.addEventListener('dblclick', () => { clip.remove(); updateClipCount(); saveSession(); }); track.appendChild(clip); } }); updateClipCount(); } catch (e) { console.error('Load failed:', e); } }
+        function exportWorkout() { const workout = {name: 'Movement Studio Export', timestamp: new Date().toISOString(), bpm: bpm, tracks: {}}; document.querySelectorAll('.track').forEach(track => { const tn = track.dataset.track; workout.tracks[tn] = []; track.querySelectorAll('.clip').forEach(clip => { workout.tracks[tn].push({movement: clip.textContent.replace(/\s+/g,''), startTime: parseInt(clip.style.left) / 80 * 15, duration: parseInt(clip.style.width) / 80 * 15}); }); }); const blob = new Blob([JSON.stringify(workout, null, 2)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'workout-' + new Date().toISOString().split('T')[0] + '.json'; a.click(); }
+    </script>
+</body>
+</html>
