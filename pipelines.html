@@ -1113,7 +1113,12 @@
         async function runPipeline() {
             if (!currentPipeline) return;
 
-            const input = prompt('Enter test input (or paste transcription):');
+            let input = null;
+            try {
+                input = localStorage.getItem('saturno_pipeline_input');
+                if (input) localStorage.removeItem('saturno_pipeline_input');
+            } catch (e) {}
+            if (!input) input = prompt('Enter test input (or paste transcription):');
             if (!input) return;
 
             toggleExecutionPanel(true);

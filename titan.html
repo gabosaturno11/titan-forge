@@ -660,6 +660,17 @@ The Forge will synthesize through your active voice mode..."></textarea>
             updateApiStatus();
             setupWordCount();
 
+            // Pre-fill from Hub capture -> pipeline flow
+            try {
+                const prefill = localStorage.getItem('saturno_pipeline_input');
+                if (prefill) {
+                    document.getElementById('input-text').value = prefill;
+                    localStorage.removeItem('saturno_pipeline_input');
+                    const words = prefill.trim() ? prefill.trim().split(/\s+/).length : 0;
+                    document.getElementById('word-count').textContent = words + ' words';
+                }
+            } catch (e) {}
+
             // Load saved proxy
             document.getElementById('proxy-input').value = API_CONFIG.getProxy();
         });

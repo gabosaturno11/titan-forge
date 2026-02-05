@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transcript to PDF | SATURNO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #050508;
+      --card: #0a0a10;
+      --border: rgba(255,255,255,0.08);
+      --text: #fff;
+      --muted: rgba(255,255,255,0.5);
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle { color: var(--muted); margin-bottom: 32px; }
+    .input-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    input, textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+    }
+    input:focus, textarea:focus { outline: none; border-color: var(--blue); }
+    textarea { height: 300px; resize: vertical; }
+    .btn-row { display: flex; gap: 12px; margin-top: 16px; }
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      color: white;
+    }
+    .btn-secondary {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    #preview {
+      background: white;
+      color: #1a1a1a;
+      padding: 40px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.8;
+      display: none;
+    }
+    #preview h1 { color: #1a1a1a; -webkit-text-fill-color: #1a1a1a; font-size: 28px; margin-bottom: 8px; }
+    #preview .meta { color: #666; font-size: 12px; margin-bottom: 24px; }
+    #preview p { margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Transcript to PDF</h1>
+    <p class="subtitle">Paste a video transcript and convert it to a formatted PDF</p>
+
+    <div class="input-section">
+      <label>Document Title</label>
+      <input type="text" id="title" placeholder="e.g., HBS Module 1: Foundation">
+
+      <label style="margin-top: 16px;">Transcript</label>
+      <textarea id="transcript" placeholder="Paste your transcript here..."></textarea>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
+        <button class="btn btn-secondary" onclick="previewPDF()">Preview</button>
+        <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+      </div>
+    </div>
+
+    <div id="preview"></div>
+  </div>
+
+  <script>
+    function formatTranscript(text) {
+      // Split into paragraphs
+      const paragraphs = text.split(/\n\n+/).filter(p => p.trim());
+      return paragraphs.map(p => `<p>${p.trim()}</p>`).join('');
+    }
+
+    function previewPDF() {
+      const title = document.getElementById('title').value || 'Untitled';
+      const transcript = document.getElementById('transcript').value;
+      const preview = document.getElementById('preview');
+
+      preview.innerHTML = `
+        <h1>${title}</h1>
+        <div class="meta">SATURNO MOVEMENT | Generated ${new Date().toLocaleDateString()}</div>
+        ${formatTranscript(transcript)}
+      `;
+      preview.style.display = 'block';
+    }
+
+    function generatePDF() {
+      previewPDF();
+      const preview = document.getElementById('preview');
+      const title = document.getElementById('title').value || 'transcript';
+
+      const opt = {
+        margin: [15, 15],
+        filename: `${title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(preview).save();
+    }
+
+    function clearAll() {
+      document.getElementById('title').value = '';
+      document.getElementById('transcript').value = '';
+      document.getElementById('preview').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
