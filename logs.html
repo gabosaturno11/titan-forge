@@ -19,17 +19,18 @@
             50% { opacity: 0.5; }
         }
     </style>
+    <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body class="bg-[#050505] text-zinc-400 min-h-screen">
     
     <!-- HEADER -->
-    <div class="h-16 border-b border-zinc-900 bg-black flex items-center justify-between px-10 sticky top-0 z-50">
+    <div class="h-16 border-b border-zinc-900 bg-black flex items-center justify-between px-10 sticky top-0 z-50 mobile-nav-wrap">
         <div class="flex items-center gap-6">
             <a href="index.html" class="text-white text-xl font-black italic tracking-tighter hover:text-zinc-300 transition-all">FORGE</a>
             <span class="text-zinc-700 mx-2">|</span>
             <h1 class="text-zinc-500">MISSION_CONTROL</h1>
         </div>
-        <div class="flex gap-4 flex-wrap">
+        <div class="flex gap-4 flex-wrap mobile-touch">
             <a href="capture.html" class="text-[10px] border border-emerald-900 text-emerald-400 px-3 py-1 hover:border-emerald-400 transition-all">CAPTURE</a>
             <a href="pipelines.html" class="text-[10px] border border-cyan-900 text-cyan-400 px-3 py-1 hover:border-cyan-400 transition-all">PIPELINES</a>
             <a href="titan.html" class="text-[10px] border border-cyan-900 text-cyan-400 px-3 py-1 hover:border-cyan-400 transition-all">TITAN</a>
@@ -114,7 +115,53 @@
                     </div>
                 </div>
             </div>
-            
+
+            <!-- SCRIPTS LIBRARY -->
+            <div class="border border-zinc-900 rounded p-4">
+                <p class="text-[9px] uppercase tracking-[0.2em] text-zinc-600 mb-4">Scripts Library (64)</p>
+                <div class="space-y-2 max-h-48 overflow-y-auto" id="scripts-list">
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>SATURNO_CLI_V2.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>gemini-mirror.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>DIGITAL_ARCHAEOLOGIST_V6.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>GDRIVE_CLEANUP.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>OVERNIGHT_AUTONOMOUS.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>AOC_OVERNIGHT_ORGANIZER.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>build_empire.py</span>
+                        <span class="text-cyan-500">PY</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>deploy-final.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>launch-all-repos.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span class="text-zinc-600">+ 55 more scripts...</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- TIMELINE -->
             <div class="border border-zinc-900 rounded p-4">
                 <p class="text-[9px] uppercase tracking-[0.2em] text-zinc-600 mb-4">Execution Timeline</p>
