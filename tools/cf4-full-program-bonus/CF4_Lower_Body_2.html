@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lower Body 2 - CF4 Mars</title>
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --bg: #08090c;
+    --glass: rgba(255,255,255,0.03);
+    --glass-border: rgba(255,255,255,0.08);
+    --glass-hover: rgba(255,255,255,0.06);
+    --text: #f4f4f5;
+    --text-dim: #a1a1aa;
+    --text-muted: #52525b;
+    --accent: #8b5cf6;
+    --accent-glow: rgba(139,92,246,0.12);
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+    --shadow-lg: 0 24px 64px rgba(0,0,0,0.5);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    background-image:
+        radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-glow), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(139,92,246,0.08), transparent);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 16px;
+    min-height: 100vh;
+    padding: 60px 24px;
+}
+
+.container { max-width: 680px; margin: 0 auto; }
+
+header {
+    text-align: center;
+    margin-bottom: 64px;
+    animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tag {
+    display: inline-block;
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    padding: 8px 20px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+}
+
+h1 {
+    font-size: 52px;
+    font-weight: 600;
+    letter-spacing: -2px;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    font-size: 16px;
+    color: var(--text-dim);
+    font-weight: 400;
+}
+
+.block {
+    background: var(--glass);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    margin: 20px 0;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: slideUp 0.6s ease backwards;
+}
+
+.block:nth-child(2) { animation-delay: 0.1s; }
+.block:nth-child(3) { animation-delay: 0.2s; }
+.block:nth-child(4) { animation-delay: 0.3s; }
+.block:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.block:hover {
+    border-color: rgba(255,255,255,0.12);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.block-header {
+    padding: 22px 28px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.block-header::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.block.open .block-header::before { opacity: 1; }
+
+.block-header:hover { background: var(--glass-hover); }
+
+.block-title {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.block-toggle {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.block.open .block-toggle { transform: rotate(180deg); background: var(--accent-glow); }
+
+.block-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.block.open .block-content { max-height: 2000px; }
+
+.block-inner { padding: 0 28px 28px; }
+
+.exercise {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.exercise:last-child { border-bottom: none; }
+
+.exercise:hover { padding-left: 8px; }
+
+.exercise-name {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--text);
+}
+
+.exercise-details {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.7;
+}
+
+.tags {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.pill {
+    background: var(--accent-glow);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.pill:hover {
+    border-color: var(--accent);
+    transform: scale(1.05);
+}
+
+.tip {
+    background: linear-gradient(135deg, var(--accent-glow), transparent);
+    border-left: 2px solid var(--accent);
+    padding: 14px 18px;
+    margin-top: 12px;
+    border-radius: 0 12px 12px 0;
+    font-size: 13px;
+    color: var(--text-dim);
+}
+
+.tip strong {
+    color: var(--accent);
+    font-weight: 500;
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+footer {
+    text-align: center;
+    margin-top: 80px;
+    padding-top: 40px;
+    border-top: 1px solid var(--glass-border);
+    animation: fadeIn 0.8s ease 0.5s backwards;
+}
+
+.footer-brand {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.8;
+}
+
+.footer-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="tag">CF4 Mars Program</div>
+        <h1>Lower Body 2</h1>
+        <p class="subtitle">Hinge Patterns & Posterior Chain</p>
+    </header>
+
+    <div class="block open">
+        <div class="block-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="block-title">Warm Up & Activation</span>
+            <span class="block-toggle">v</span>
+        </div>
+        <div class="block-content"><div class="block-inner">
+            <div class="exercise">
+                <div class="exercise-name">Cat-Cow Flow</div>
+                <div class="exercise-details">Spinal mobility. Arch and round with breath.</div>
+                <div class="tags"><span class="pill">10 cycles</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Glute Bridges</div>
+                <div class="exercise-details">Squeeze hard at top for 2 seconds</div>
+                <div class="tags"><span class="pill">15 reps</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Good Morning Stretch</div>
+                <div class="exercise-details">Hands behind head, hinge at hips</div>
+                <div class="tags"><span class="pill">10 reps</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Fire Hydrants & Donkey Kicks</div>
+                <div class="exercise-details">Glute activation. Control the movement.</div>
+                <div class="tags"><span class="pill">10 each</span></div>
+            </div>
+        </div></div>
+    </div>
+
+    <div class="block">
+        <div class="block-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="block-title">Primary Strength</span>
+            <span class="block-toggle">v</span>
+        </div>
+        <div class="block-content"><div class="block-inner">
+            <div class="exercise">
+                <div class="exercise-name">Single-Leg Romanian Deadlift</div>
+                <div class="exercise-details">Balance + posterior chain. Neutral spine.</div>
+                <div class="tags"><span class="pill">4 sets</span><span class="pill">8-10 each</span></div>
+                <div class="tip"><strong>Form</strong>Soft knee. Reach towards floor. Squeeze glute to return.</div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Nordic Curl Progression</div>
+                <div class="exercise-details">Ultimate hamstring builder. Control eccentric.</div>
+                <div class="tags"><span class="pill">4 sets</span><span class="pill">4-8 reps</span><span class="pill">90s rest</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Reverse Nordic Curl</div>
+                <div class="exercise-details">Quad lengthening. Kneel, lean back.</div>
+                <div class="tags"><span class="pill">3 sets</span><span class="pill">8-12 reps</span></div>
+            </div>
+        </div></div>
+    </div>
+
+    <div class="block">
+        <div class="block-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="block-title">Glute Focus</span>
+            <span class="block-toggle">v</span>
+        </div>
+        <div class="block-content"><div class="block-inner">
+            <div class="exercise">
+                <div class="exercise-name">Hip Thrust</div>
+                <div class="exercise-details">Back on bench, drive through heels</div>
+                <div class="tags"><span class="pill">4 sets</span><span class="pill">10-15 reps</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Single-Leg Hip Thrust</div>
+                <div class="exercise-details">Unilateral. Fixes imbalances.</div>
+                <div class="tags"><span class="pill">3 sets</span><span class="pill">10-12 each</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Frog Pumps</div>
+                <div class="exercise-details">Soles together, knees out. High reps.</div>
+                <div class="tags"><span class="pill">2 sets</span><span class="pill">20-30 reps</span></div>
+            </div>
+        </div></div>
+    </div>
+
+    <div class="block">
+        <div class="block-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="block-title">Flexibility & Recovery</span>
+            <span class="block-toggle">v</span>
+        </div>
+        <div class="block-content"><div class="block-inner">
+            <div class="exercise">
+                <div class="exercise-name">Jefferson Curl</div>
+                <div class="exercise-details">Light weight, round down vertebra by vertebra</div>
+                <div class="tags"><span class="pill">2 sets x 8</span></div>
+                <div class="tip"><strong>Caution</strong>Start bodyweight only. Never rush.</div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Couch Stretch</div>
+                <div class="exercise-details">Deep hip flexor and quad stretch</div>
+                <div class="tags"><span class="pill">90s each</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Figure-4 Stretch</div>
+                <div class="exercise-details">Glute and piriformis release</div>
+                <div class="tags"><span class="pill">60s each</span></div>
+            </div>
+        </div></div>
+    </div>
+
+    <footer>
+        <div class="footer-brand">Saturno Movement</div>
+        <p class="footer-sub">CF4 Mars Program</p>
+    </footer>
+</div>
+<script>document.querySelectorAll('.block').forEach((b,i)=>{if(i===0)b.classList.add('open')});</script>
+</body>
+</html>

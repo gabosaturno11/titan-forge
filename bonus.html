@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Saturno Movement - Black Friday Bonus Vault</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -193,6 +193,12 @@
         }
 
         .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
         .vault-highlight {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--border);
@@ -243,12 +249,7 @@
             color: var(--accent);
             text-decoration: none;
             font-weight: 600;
-        }
-
             font-size: 0.9rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         /* Main Container */
@@ -609,6 +610,136 @@
             scroll-behavior: smooth;
         }
 
+        /* Password Gate */
+        #passwordGate {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            transition: opacity 0.4s ease;
+        }
+        #passwordGate.unlocked { pointer-events: none; opacity: 0; }
+        .gate-form {
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+        }
+        .gate-form h2 { margin-bottom: 8px; font-size: 1.5rem; }
+        .gate-form p { color: var(--text-secondary); margin-bottom: 24px; font-size: 0.95rem; }
+        .gate-form input {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 16px;
+            outline: none;
+        }
+        .gate-form input:focus { border-color: var(--accent); }
+        .gate-form button {
+            width: 100%;
+            padding: 14px;
+            background: var(--gradient-1);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .gate-form button:hover { transform: translateY(-2px); box-shadow: 0 10px 30px var(--accent-glow); }
+        .gate-error { color: #ef4444; font-size: 0.85rem; margin-top: 8px; display: none; }
+        .gate-error.show { display: block; }
+
+        /* Black Hole Door — Email Capture */
+        .black-hole-door {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #1a1a2e, #0a0a12);
+            border: 2px solid rgba(139, 92, 246, 0.5);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+            z-index: 900;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .black-hole-door:hover { transform: scale(1.1); box-shadow: 0 0 50px rgba(139, 92, 246, 0.6); }
+        .black-hole-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 910;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .black-hole-modal.open { display: flex; }
+        .black-hole-modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 400px;
+            width: 100%;
+            position: relative;
+        }
+        .black-hole-modal h3 { margin-bottom: 8px; font-size: 1.4rem; }
+        .black-hole-modal .sub { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px; }
+        .black-hole-modal input {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 12px;
+            outline: none;
+        }
+        .black-hole-modal input:focus { border-color: var(--accent); }
+        .black-hole-modal button {
+            width: 100%;
+            padding: 14px;
+            background: var(--gradient-1);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .black-hole-modal .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: auto;
+            padding: 4px;
+        }
+        @media (max-width: 480px) {
+            .black-hole-door { width: 60px; height: 60px; font-size: 28px; bottom: 16px; right: 16px; }
+        }
+
         /* Category specific colors */
         .category-programs .section-icon { background: linear-gradient(135deg, #3B82F6, #1D4ED8); }
         .category-routines .section-icon { background: linear-gradient(135deg, #10B981, #059669); }
@@ -915,6 +1046,30 @@
 </head>
 <body>
     <div class="bg-animation"></div>
+
+    <!-- Password Gate -->
+    <div id="passwordGate">
+        <div class="gate-form">
+            <h2>🪐 Saturno Vault</h2>
+            <p>Enter your access code</p>
+            <input type="password" id="gatePassword" placeholder="Password" autocomplete="off">
+            <button onclick="checkGate()">Enter</button>
+            <div class="gate-error" id="gateError">Incorrect password</div>
+        </div>
+    </div>
+
+    <!-- Black Hole Door (Email Capture) -->
+    <div class="black-hole-door" onclick="openBlackHoleModal()" title="Register for our upcoming secret product">👽</div>
+    <div class="black-hole-modal" id="blackHoleModal">
+        <div class="black-hole-modal-content">
+            <button class="close-btn" onclick="closeBlackHoleModal()">&times;</button>
+            <h3>👽 Register for Our Secret Product</h3>
+            <p class="sub">Be the first to know when we launch.</p>
+            <input type="text" id="bhName" placeholder="Your name">
+            <input type="email" id="bhEmail" placeholder="Your email">
+            <button onclick="submitBlackHole()">Register</button>
+        </div>
+    </div>
 
     <!-- Navigation -->
     <nav class="nav">
@@ -1395,6 +1550,12 @@
                 <div class="section-count">9 Apps</div>
             </div>
             <div class="app-grid">
+                <div class="app-card" style="border: 2px solid var(--accent); box-shadow: 0 0 40px var(--accent-glow);">
+                    <div class="app-badge" style="background: linear-gradient(135deg, #F59E0B, #EF4444);">★ MAIN PROGRAM</div>
+                    <div class="app-title">CF4 Calisthenics Foundation</div>
+                    <div class="app-description">The complete CF4 program — Upper Body, Lower Body, Olympus Mons Challenge. Your Mars-level calisthenics foundation.</div>
+                    <a href="tools/cf4-full-program-bonus/CF4_COMPLETE_PROGRAM.html" class="app-btn">Launch CF4 →</a>
+                </div>
                 <div class="app-card">
                     <div class="app-badge">Featured</div>
                     <div class="app-title">Handstand Movement Lab</div>
@@ -1484,6 +1645,41 @@
     </footer>
 
     <script>
+        // Password gate — default: saturno2025 (change in production)
+        const VAULT_PASSWORD = 'saturno2025';
+        function checkGate() {
+            const input = document.getElementById('gatePassword');
+            const gate = document.getElementById('passwordGate');
+            const err = document.getElementById('gateError');
+            if (input.value === VAULT_PASSWORD) {
+                gate.classList.add('unlocked');
+                sessionStorage.setItem('vaultUnlocked', '1');
+                setTimeout(() => gate.style.display = 'none', 500);
+            } else {
+                err.classList.add('show');
+                input.value = '';
+            }
+        }
+        if (sessionStorage.getItem('vaultUnlocked')) {
+            document.getElementById('passwordGate').style.display = 'none';
+        }
+        document.getElementById('gatePassword')?.addEventListener('keypress', e => { if (e.key === 'Enter') checkGate(); });
+
+        // Black Hole modal
+        function openBlackHoleModal() { document.getElementById('blackHoleModal').classList.add('open'); }
+        function closeBlackHoleModal() { document.getElementById('blackHoleModal').classList.remove('open'); }
+        function submitBlackHole() {
+            const name = document.getElementById('bhName').value.trim();
+            const email = document.getElementById('bhEmail').value.trim();
+            if (!email) return alert('Please enter your email.');
+            // TODO: send to Brevo API
+            console.log('Black Hole signup:', { name, email });
+            alert('Thanks! You\'re on the list. 👽');
+            closeBlackHoleModal();
+            document.getElementById('bhName').value = '';
+            document.getElementById('bhEmail').value = '';
+        }
+
         // Download PDF function
         function downloadPDF(path) {
             window.open(path, '_blank');

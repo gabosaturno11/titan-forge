@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CF4 Calisthenics Foundation: Mars - Complete Program</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --bg-base: #0B0D10;
+            --bg-card: #14171B;
+            --bg-elevated: #1a1d22;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B8B8B8;
+            --text-muted: #6B7280;
+            --yellow: #F59E0B;
+            --green: #10B981;
+            --red: #EF4444;
+            --purple: #8B5CF6;
+            --blue: #3B82F6;
+            --border: rgba(255,255,255,0.08);
+            --radius: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(180deg, var(--bg-base) 0%, #101216 100%);
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 17px;
+            min-height: 100vh;
+            padding: 48px 24px;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; }
+
+        header { text-align: center; margin-bottom: 56px; }
+
+        .program-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.2));
+            padding: 8px 20px;
+            border-radius: 24px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        h1 {
+            font-size: 52px;
+            font-weight: 700;
+            letter-spacing: -2px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle { color: var(--text-secondary); font-size: 20px; }
+
+        /* Routine Sections */
+        .routine-section {
+            margin: 48px 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .routine-header {
+            padding: 28px 32px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .routine-header:hover { filter: brightness(1.1); }
+
+        .routine-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .routine-subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        .routine-toggle {
+            font-size: 24px;
+            transition: transform 0.3s;
+        }
+
+        .routine-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+            background: var(--bg-card);
+        }
+
+        .routine-section.open .routine-content {
+            max-height: 10000px;
+        }
+
+        .routine-section.open .routine-toggle {
+            transform: rotate(180deg);
+        }
+
+        /* Color themes */
+        .routine-yellow .routine-header { background: linear-gradient(135deg, #F59E0B, #D97706); }
+        .routine-yellow { --accent: #F59E0B; --accent-glow: rgba(245,158,11,0.15); }
+
+        .routine-green .routine-header { background: linear-gradient(135deg, #10B981, #059669); }
+        .routine-green { --accent: #10B981; --accent-glow: rgba(16,185,129,0.15); }
+
+        .routine-red .routine-header { background: linear-gradient(135deg, #EF4444, #DC2626); }
+        .routine-red { --accent: #EF4444; --accent-glow: rgba(239,68,68,0.15); }
+
+        .routine-purple .routine-header { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+        .routine-purple { --accent: #8B5CF6; --accent-glow: rgba(139,92,246,0.15); }
+
+        .routine-blue .routine-header { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+        .routine-blue { --accent: #3B82F6; --accent-glow: rgba(59,130,246,0.15); }
+
+        /* Blocks inside routines */
+        .block {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .block:last-child { border-bottom: none; }
+
+        .block-header {
+            background: var(--bg-elevated);
+            padding: 18px 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--accent);
+        }
+
+        .block-header:hover { background: rgba(255,255,255,0.03); }
+        .block-title { font-size: 18px; font-weight: 600; }
+        .block-toggle { color: var(--accent); font-size: 18px; transition: transform 0.3s; }
+
+        .block-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.4s ease;
+        }
+
+        .block.open .block-content { max-height: 3000px; padding: 20px 24px; }
+        .block.open .block-toggle { transform: rotate(180deg); }
+
+        /* Exercises */
+        .exercise { padding: 16px 0; border-bottom: 1px solid var(--border); }
+        .exercise:last-child { border-bottom: none; }
+        .exercise-name { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+        .exercise-details { color: var(--text-secondary); font-size: 15px; }
+
+        .exercise-meta { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+        .meta-tag {
+            background: var(--accent-glow);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tips {
+            background: var(--accent-glow);
+            border-left: 3px solid var(--accent);
+            padding: 12px 16px;
+            margin-top: 10px;
+            border-radius: 0 10px 10px 0;
+        }
+        .tips-title { font-weight: 600; color: var(--accent); margin-bottom: 4px; font-size: 13px; }
+        .tips p { color: var(--text-secondary); font-size: 13px; margin: 0; }
+
+        /* Challenge special */
+        .challenge-intro {
+            background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04));
+            border: 1px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin: 20px 24px;
+            text-align: center;
+        }
+        .challenge-intro h3 { color: var(--accent); font-size: 18px; margin-bottom: 8px; }
+        .round-counter {
+            background: var(--accent);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            display: inline-block;
+            margin: 16px 0;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 72px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+        }
+        .footer-brand {
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+        .footer-text { color: var(--text-muted); font-size: 14px; margin-top: 8px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="program-badge">6-Week Program</div>
+        <h1>CF4: Mars</h1>
+        <p class="subtitle">Calisthenics Foundation - Complete Program</p>
+    </header>
+
+    <!-- ============================================ -->
+    <!-- UPPER BODY 1 - YELLOW -->
+    <!-- ============================================ -->
+    <div class="routine-section routine-yellow">
+        <div class="routine-header" onclick="this.parentElement.classList.toggle('open')">
+            <div>
+                <div class="routine-title">Upper Body 1</div>
+                <div class="routine-subtitle">Foundation Push & Pull Strength</div>
+            </div>
+            <span class="routine-toggle">▼</span>
+        </div>
+        <div class="routine-content">
+            <div class="block open">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">🔥 Warm Up</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Joint Circles</div>
+                        <div class="exercise-details">Wrists, elbows, shoulders - 10 circles each direction</div>
+                        <div class="exercise-meta"><span class="meta-tag">2-3 min</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Scapular Push-Ups</div>
+                        <div class="exercise-details">Protract and retract shoulder blades in plank position.</div>
+                        <div class="exercise-meta"><span class="meta-tag">10-15 reps</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Band Pull-Aparts</div>
+                        <div class="exercise-details">Pull apart while squeezing shoulder blades together.</div>
+                        <div class="exercise-meta"><span class="meta-tag">15-20 reps</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Arm Circles & Shoulder Dislocates</div>
+                        <div class="exercise-details">Progressive range of motion work.</div>
+                        <div class="exercise-meta"><span class="meta-tag">10 each</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">💎 Cornerstones of Strength</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Handstand Push-Up Progression</div>
+                        <div class="exercise-details">Pike push-ups → Elevated pike → Wall HSPU negatives → Full HSPU</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">4 sets</span>
+                            <span class="meta-tag">5-8 reps</span>
+                            <span class="meta-tag">90s rest</span>
+                        </div>
+                        <div class="tips">
+                            <div class="tips-title">Form Tip</div>
+                            <p>Keep core tight, head neutral. Lower with control. Hands slightly wider than shoulders.</p>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Pull-Up Progression</div>
+                        <div class="exercise-details">Australian rows → Negatives → Band-assisted → Full pull-ups → Weighted</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">4 sets</span>
+                            <span class="meta-tag">5-10 reps</span>
+                            <span class="meta-tag">90s rest</span>
+                        </div>
+                        <div class="tips">
+                            <div class="tips-title">Form Tip</div>
+                            <p>Initiate with scapular depression. Pull elbows down and back. Control the negative.</p>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Dip Progression</div>
+                        <div class="exercise-details">Bench dips → Negative dips → Parallel bar dips → Weighted dips</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">4 sets</span>
+                            <span class="meta-tag">6-10 reps</span>
+                            <span class="meta-tag">90s rest</span>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Row Progression</div>
+                        <div class="exercise-details">Australian rows (feet elevated) → Archer rows → Front lever rows</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">4 sets</span>
+                            <span class="meta-tag">8-12 reps</span>
+                            <span class="meta-tag">60s rest</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">🎯 Accessory Push & Pull</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Push-Up Variations</div>
+                        <div class="exercise-details">Diamond, wide grip, archer, or pseudo planche. Pick 2 variations.</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">3 sets</span>
+                            <span class="meta-tag">10-15 reps</span>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Face Pulls / Rear Delt Work</div>
+                        <div class="exercise-details">Using bands or rings. Critical for shoulder health.</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">3 sets</span>
+                            <span class="meta-tag">15-20 reps</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">🧱 Core Compression</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">L-Sit Progression</div>
+                        <div class="exercise-details">Tucked → One leg extended → Full L-sit → V-sit</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">4 sets</span>
+                            <span class="meta-tag">10-30s holds</span>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Hollow Body Hold</div>
+                        <div class="exercise-details">Arms overhead, lower back pressed into floor. Foundation of gymnastics core.</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">3 sets</span>
+                            <span class="meta-tag">20-45s</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">🛡️ Shoulder Stability</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Cuban Rotation</div>
+                        <div class="exercise-details">Light weight or band. Elbows at 90°, rotate externally.</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">3 sets</span>
+                            <span class="meta-tag">12-15 reps</span>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Prone Y-T-W Raises</div>
+                        <div class="exercise-details">Lying face down, lift arms in Y, T, and W positions.</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">2 sets</span>
+                            <span class="meta-tag">8 each</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- LOWER BODY 1 - GREEN -->
+    <!-- ============================================ -->
+    <div class="routine-section routine-green">
+        <div class="routine-header" onclick="this.parentElement.classList.toggle('open')">
+            <div>
+                <div class="routine-title">Lower Body 1</div>
+                <div class="routine-subtitle">Squat Patterns & Hip Mobility</div>
+            </div>
+            <span class="routine-toggle">▼</span>
+        </div>
+        <div class="routine-content">
+            <div class="block open">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">🔥 Warm Up & Mobility</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Hip Circles</div>
+                        <div class="exercise-details">Standing hip circles, both directions. Then lying 90/90 hip switches.</div>
+                        <div class="exercise-meta"><span class="meta-tag">10 each way</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Deep Squat Hold</div>
+                        <div class="exercise-details">Sit in deep squat, shifting weight side to side.</div>
+                        <div class="exercise-meta"><span class="meta-tag">2 min total</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Leg Swings</div>
+                        <div class="exercise-details">Front-to-back and side-to-side. Progressive range.</div>
+                        <div class="exercise-meta"><span class="meta-tag">15 each leg</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Cossack Squat Flow</div>
+                        <div class="exercise-details">Side-to-side lateral squat. Great for adductors.</div>
+                        <div class="exercise-meta"><span class="meta-tag">8 each side</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">💎 Primary Strength</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Pistol Squat Progression</div>
+                        <div class="exercise-details">Box pistols → Assisted → Negative → Full → Weighted</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">4 sets</span>
+                            <span class="meta-tag">3-6 each leg</span>
+                            <span class="meta-tag">90s rest</span>
+                        </div>
+                        <div class="tips">
+                            <div class="tips-title">Form Tip</div>
+                            <p>Counterbalance with arms forward. Keep heel down. Control the descent.</p>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Nordic Curl Progression</div>
+                        <div class="exercise-details">Negative-only → Band-assisted → Partial range → Full Nordic</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">4 sets</span>
+                            <span class="meta-tag">4-8 reps</span>
+                            <span class="meta-tag">90s rest</span>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Bulgarian Split Squat</div>
+                        <div class="exercise-details">Rear foot elevated. Deep stretch at bottom. Add weight progressively.</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">3 sets</span>
+                            <span class="meta-tag">8-12 each leg</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">🎯 Accessory Work</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Sissy Squat</div>
+                        <div class="exercise-details">Quad isolation. Lean back, knees travel forward.</div>
+                        <div class="exercise-meta"><span class="meta-tag">3 sets</span><span class="meta-tag">10-15 reps</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Glute Bridge / Hip Thrust</div>
+                        <div class="exercise-details">Single leg or weighted. Full hip extension, 2 second hold.</div>
+                        <div class="exercise-meta"><span class="meta-tag">3 sets</span><span class="meta-tag">12-15 reps</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Calf Raises</div>
+                        <div class="exercise-details">Single leg, full range. Pause at bottom and top.</div>
+                        <div class="exercise-meta"><span class="meta-tag">3 sets</span><span class="meta-tag">15-20 each</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">🧘 Flexibility Finisher</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Pancake Stretch</div>
+                        <div class="exercise-details">Legs wide, fold forward from hips. PNF method.</div>
+                        <div class="exercise-meta"><span class="meta-tag">3 min total</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Pigeon Pose</div>
+                        <div class="exercise-details">Deep hip flexor and glute stretch. Breathe and relax.</div>
+                        <div class="exercise-meta"><span class="meta-tag">90s each side</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Standing Pike</div>
+                        <div class="exercise-details">Hamstring focus. Goal: palms flat with straight legs.</div>
+                        <div class="exercise-meta"><span class="meta-tag">2 min</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- OLYMPUS MONS CHALLENGE - RED -->
+    <!-- ============================================ -->
+    <div class="routine-section routine-red">
+        <div class="routine-header" onclick="this.parentElement.classList.toggle('open')">
+            <div>
+                <div class="routine-title">⚠️ Olympus Mons</div>
+                <div class="routine-subtitle">The Ultimate Full-Body Challenge</div>
+            </div>
+            <span class="routine-toggle">▼</span>
+        </div>
+        <div class="routine-content">
+            <div class="challenge-intro">
+                <h3>🏔️ CONQUER THE MOUNTAIN</h3>
+                <p>Named after the tallest volcano in the solar system. Complete all rounds for time.</p>
+            </div>
+
+            <div class="block open">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">⚡ The Challenge Circuit</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="round-counter">Complete 5 Rounds</div>
+                    <div class="exercise">
+                        <div class="exercise-name">Burpees</div>
+                        <div class="exercise-details">Full burpee with push-up and jump. Chest to floor, explosive jump.</div>
+                        <div class="exercise-meta"><span class="meta-tag">10 reps</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Pull-Ups</div>
+                        <div class="exercise-details">Dead hang to chin over bar. Full range of motion.</div>
+                        <div class="exercise-meta"><span class="meta-tag">10 reps</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Pistol Squats</div>
+                        <div class="exercise-details">Alternating legs. Use assistance if needed.</div>
+                        <div class="exercise-meta"><span class="meta-tag">10 total (5 each)</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Dips</div>
+                        <div class="exercise-details">Full depth - shoulders below elbows.</div>
+                        <div class="exercise-meta"><span class="meta-tag">10 reps</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">V-Ups</div>
+                        <div class="exercise-details">Simultaneous lift of legs and torso. Touch toes at top.</div>
+                        <div class="exercise-meta"><span class="meta-tag">10 reps</span></div>
+                    </div>
+                    <div class="tips">
+                        <div class="tips-title">Challenge Rules</div>
+                        <p>Rest as needed. Record total time. Beat it each week while maintaining form.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">📊 Progression</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Week 1-2: Foundation</div>
+                        <div class="exercise-details">Focus on completing all rounds with good form. Time doesn't matter.</div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Week 3-4: Speed</div>
+                        <div class="exercise-details">Start timing. Push the pace while maintaining form.</div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Week 5-6: Mastery</div>
+                        <div class="exercise-details">Beat your best time. Upgrade progressions. Own the mountain.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">🔄 Scaling Options</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Burpees → Step-Back Burpees</div>
+                        <div class="exercise-details">Step back instead of jump. Remove jump at top.</div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Pull-Ups → Australian Rows</div>
+                        <div class="exercise-details">Feet elevated for more difficulty.</div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Pistols → Box Pistols</div>
+                        <div class="exercise-details">Sit and stand on one leg from a box.</div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Dips → Bench Dips</div>
+                        <div class="exercise-details">Progress to parallel bar negatives.</div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">V-Ups → Tuck-Ups</div>
+                        <div class="exercise-details">Knees bent instead of straight legs.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- LOWER BODY 2 - PURPLE -->
+    <!-- ============================================ -->
+    <div class="routine-section routine-purple">
+        <div class="routine-header" onclick="this.parentElement.classList.toggle('open')">
+            <div>
+                <div class="routine-title">Lower Body 2</div>
+                <div class="routine-subtitle">Hinge Patterns & Posterior Chain</div>
+            </div>
+            <span class="routine-toggle">▼</span>
+        </div>
+        <div class="routine-content">
+            <div class="block open">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">🔥 Warm Up & Activation</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Cat-Cow Flow</div>
+                        <div class="exercise-details">Spinal mobility. Arch and round through full range.</div>
+                        <div class="exercise-meta"><span class="meta-tag">10 cycles</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Glute Bridges</div>
+                        <div class="exercise-details">Squeeze hard at top for 2 seconds.</div>
+                        <div class="exercise-meta"><span class="meta-tag">15 reps</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Good Morning Stretch</div>
+                        <div class="exercise-details">Hands behind head, hinge at hips. Practice the pattern.</div>
+                        <div class="exercise-meta"><span class="meta-tag">10 reps</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Fire Hydrants & Donkey Kicks</div>
+                        <div class="exercise-details">Glute activation. Control the movement.</div>
+                        <div class="exercise-meta"><span class="meta-tag">10 each</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">💎 Primary Strength</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Single-Leg Romanian Deadlift</div>
+                        <div class="exercise-details">Balance + posterior chain. Maintain neutral spine.</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">4 sets</span>
+                            <span class="meta-tag">8-10 each leg</span>
+                        </div>
+                        <div class="tips">
+                            <div class="tips-title">Form Tip</div>
+                            <p>Soft knee on standing leg. Reach towards floor, not down. Squeeze glute to return.</p>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Nordic Curl Progression</div>
+                        <div class="exercise-details">The ultimate hamstring builder. Control the eccentric.</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">4 sets</span>
+                            <span class="meta-tag">4-8 reps</span>
+                            <span class="meta-tag">90s rest</span>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Reverse Nordic Curl</div>
+                        <div class="exercise-details">Quad lengthening under load. Kneel, lean back with control.</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">3 sets</span>
+                            <span class="meta-tag">8-12 reps</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">🎯 Glute Focus</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Hip Thrust</div>
+                        <div class="exercise-details">Back on bench, drive through heels. Full hip extension.</div>
+                        <div class="exercise-meta"><span class="meta-tag">4 sets</span><span class="meta-tag">10-15 reps</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Single-Leg Hip Thrust</div>
+                        <div class="exercise-details">Unilateral. Fixes imbalances.</div>
+                        <div class="exercise-meta"><span class="meta-tag">3 sets</span><span class="meta-tag">10-12 each</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Frog Pumps</div>
+                        <div class="exercise-details">Soles together, knees out. High reps, feel the burn.</div>
+                        <div class="exercise-meta"><span class="meta-tag">2 sets</span><span class="meta-tag">20-30 reps</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">🧘 Flexibility & Recovery</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Jefferson Curl</div>
+                        <div class="exercise-details">Spinal flexion with control. Light weight, round down vertebra by vertebra.</div>
+                        <div class="exercise-meta"><span class="meta-tag">2 sets × 8 reps</span></div>
+                        <div class="tips">
+                            <div class="tips-title">Caution</div>
+                            <p>Start with bodyweight only. Never rush this movement.</p>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Couch Stretch</div>
+                        <div class="exercise-details">Deep hip flexor and quad stretch. Game-changer for hip health.</div>
+                        <div class="exercise-meta"><span class="meta-tag">90s each side</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Figure-4 Stretch</div>
+                        <div class="exercise-details">Deep glute and piriformis release.</div>
+                        <div class="exercise-meta"><span class="meta-tag">60s each side</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- UPPER BODY 3 - BLUE -->
+    <!-- ============================================ -->
+    <div class="routine-section routine-blue">
+        <div class="routine-header" onclick="this.parentElement.classList.toggle('open')">
+            <div>
+                <div class="routine-title">Upper Body 3</div>
+                <div class="routine-subtitle">Skill Work & Straight Arm Strength</div>
+            </div>
+            <span class="routine-toggle">▼</span>
+        </div>
+        <div class="routine-content">
+            <div class="block open">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">🔥 Warm Up & Wrist Prep</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Wrist Circles & Stretches</div>
+                        <div class="exercise-details">Essential for straight arm work. Circles, prayer stretch, reverse prayer.</div>
+                        <div class="exercise-meta"><span class="meta-tag">3-5 min</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Plank to Downward Dog Flow</div>
+                        <div class="exercise-details">Dynamic shoulder and wrist prep.</div>
+                        <div class="exercise-meta"><span class="meta-tag">10 reps</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Scapular Pulls</div>
+                        <div class="exercise-details">Hang from bar, pull shoulders down without bending elbows.</div>
+                        <div class="exercise-meta"><span class="meta-tag">2 × 10</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Support Hold</div>
+                        <div class="exercise-details">On dip bars or rings. Depress shoulders, lock arms.</div>
+                        <div class="exercise-meta"><span class="meta-tag">2 × 20-30s</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">🎯 Skill Work</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Handstand Practice</div>
+                        <div class="exercise-details">Wall-assisted or freestanding. Focus on alignment.</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">10-15 min</span>
+                            <span class="meta-tag">Multiple attempts</span>
+                        </div>
+                        <div class="tips">
+                            <div class="tips-title">Focus Points</div>
+                            <p>Fingers spread, push through shoulders, squeeze glutes and core. Daily practice beats weekly.</p>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">L-Sit Practice</div>
+                        <div class="exercise-details">Floor, parallettes, or rings. Focus on shoulder depression.</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">5-8 sets</span>
+                            <span class="meta-tag">10-30s holds</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">💎 Straight Arm Strength</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">Planche Lean</div>
+                        <div class="exercise-details">Plank position, lean forward past wrists. Foundation of planche.</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">4 sets</span>
+                            <span class="meta-tag">15-30s</span>
+                        </div>
+                        <div class="tips">
+                            <div class="tips-title">Form Tip</div>
+                            <p>Arms MUST stay locked. Round upper back. Core tight, don't let hips sag.</p>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Tuck Front Lever Hold</div>
+                        <div class="exercise-details">Pull into horizontal tuck position. Arms straight.</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">4 sets</span>
+                            <span class="meta-tag">10-20s</span>
+                            <span class="meta-tag">90s rest</span>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Ring Support Holds</div>
+                        <div class="exercise-details">Turn rings out (RTO) for added difficulty.</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">3 sets</span>
+                            <span class="meta-tag">20-45s</span>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Pseudo Planche Push-Ups</div>
+                        <div class="exercise-details">Lean forward, hands by hips. Planche-specific pushing strength.</div>
+                        <div class="exercise-meta">
+                            <span class="meta-tag">3 sets</span>
+                            <span class="meta-tag">8-12 reps</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')">
+                    <span class="block-title">🛡️ Prehab & Mobility</span>
+                    <span class="block-toggle">▼</span>
+                </div>
+                <div class="block-content">
+                    <div class="exercise">
+                        <div class="exercise-name">German Hang</div>
+                        <div class="exercise-details">Controlled lower into german hang. Builds shoulder flexibility.</div>
+                        <div class="exercise-meta"><span class="meta-tag">3 sets</span><span class="meta-tag">15-30s hold</span></div>
+                        <div class="tips">
+                            <div class="tips-title">Safety Note</div>
+                            <p>Build up slowly over weeks. Keep arms straight. Never let go from this position.</p>
+                        </div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Butcher Block Stretch</div>
+                        <div class="exercise-details">Arms on elevated surface, push chest through.</div>
+                        <div class="exercise-meta"><span class="meta-tag">2 × 45s</span></div>
+                    </div>
+                    <div class="exercise">
+                        <div class="exercise-name">Wrist Strengthening</div>
+                        <div class="exercise-details">Wrist push-ups, rice bucket, or finger tip push-ups.</div>
+                        <div class="exercise-meta"><span class="meta-tag">2-3 sets light</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-brand">Saturno Movement</div>
+        <p class="footer-text">CF4 Calisthenics Foundation: Mars - Complete 6-Week Program</p>
+    </footer>
+</div>
+
+<script>
+// Toggle routines with click
+document.querySelectorAll('.routine-header').forEach(header => {
+    header.addEventListener('click', function() {
+        // Close other routines
+        document.querySelectorAll('.routine-section').forEach(s => {
+            if(s !== this.parentElement) s.classList.remove('open');
+        });
+    });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upper Body 3 - CF4 Mars</title>
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --bg: #08090c;
+    --glass: rgba(255,255,255,0.03);
+    --glass-border: rgba(255,255,255,0.08);
+    --glass-hover: rgba(255,255,255,0.06);
+    --text: #f4f4f5;
+    --text-dim: #a1a1aa;
+    --text-muted: #52525b;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59,130,246,0.12);
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+    --shadow-lg: 0 24px 64px rgba(0,0,0,0.5);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    background-image:
+        radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-glow), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(139,92,246,0.08), transparent);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 16px;
+    min-height: 100vh;
+    padding: 60px 24px;
+}
+
+.container { max-width: 680px; margin: 0 auto; }
+
+header {
+    text-align: center;
+    margin-bottom: 64px;
+    animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tag {
+    display: inline-block;
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    padding: 8px 20px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+}
+
+h1 {
+    font-size: 52px;
+    font-weight: 600;
+    letter-spacing: -2px;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    font-size: 16px;
+    color: var(--text-dim);
+    font-weight: 400;
+}
+
+.block {
+    background: var(--glass);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    margin: 20px 0;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: slideUp 0.6s ease backwards;
+}
+
+.block:nth-child(2) { animation-delay: 0.1s; }
+.block:nth-child(3) { animation-delay: 0.2s; }
+.block:nth-child(4) { animation-delay: 0.3s; }
+.block:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.block:hover {
+    border-color: rgba(255,255,255,0.12);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.block-header {
+    padding: 22px 28px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.block-header::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.block.open .block-header::before { opacity: 1; }
+
+.block-header:hover { background: var(--glass-hover); }
+
+.block-title {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.block-toggle {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.block.open .block-toggle { transform: rotate(180deg); background: var(--accent-glow); }
+
+.block-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.block.open .block-content { max-height: 2000px; }
+
+.block-inner { padding: 0 28px 28px; }
+
+.exercise {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.exercise:last-child { border-bottom: none; }
+
+.exercise:hover { padding-left: 8px; }
+
+.exercise-name {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--text);
+}
+
+.exercise-details {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.7;
+}
+
+.tags {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.pill {
+    background: var(--accent-glow);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.pill:hover {
+    border-color: var(--accent);
+    transform: scale(1.05);
+}
+
+.tip {
+    background: linear-gradient(135deg, var(--accent-glow), transparent);
+    border-left: 2px solid var(--accent);
+    padding: 14px 18px;
+    margin-top: 12px;
+    border-radius: 0 12px 12px 0;
+    font-size: 13px;
+    color: var(--text-dim);
+}
+
+.tip strong {
+    color: var(--accent);
+    font-weight: 500;
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+footer {
+    text-align: center;
+    margin-top: 80px;
+    padding-top: 40px;
+    border-top: 1px solid var(--glass-border);
+    animation: fadeIn 0.8s ease 0.5s backwards;
+}
+
+.footer-brand {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.8;
+}
+
+.footer-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="tag">CF4 Mars Program</div>
+        <h1>Upper Body 3</h1>
+        <p class="subtitle">Skill Work & Straight Arm Strength</p>
+    </header>
+
+    <div class="block open">
+        <div class="block-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="block-title">Warm Up & Wrist Prep</span>
+            <span class="block-toggle">v</span>
+        </div>
+        <div class="block-content"><div class="block-inner">
+            <div class="exercise">
+                <div class="exercise-name">Wrist Circles & Stretches</div>
+                <div class="exercise-details">Essential for straight arm work</div>
+                <div class="tags"><span class="pill">3-5 min</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Plank to Down Dog Flow</div>
+                <div class="exercise-details">Dynamic shoulder and wrist prep</div>
+                <div class="tags"><span class="pill">10 reps</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Scapular Pulls</div>
+                <div class="exercise-details">Hang from bar, pull shoulders down</div>
+                <div class="tags"><span class="pill">2 x 10</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Support Hold</div>
+                <div class="exercise-details">Dip bars or rings. Depress shoulders.</div>
+                <div class="tags"><span class="pill">2 x 20-30s</span></div>
+            </div>
+        </div></div>
+    </div>
+
+    <div class="block">
+        <div class="block-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="block-title">Skill Work</span>
+            <span class="block-toggle">v</span>
+        </div>
+        <div class="block-content"><div class="block-inner">
+            <div class="exercise">
+                <div class="exercise-name">Handstand Practice</div>
+                <div class="exercise-details">Wall or freestanding. Focus on alignment.</div>
+                <div class="tags"><span class="pill">10-15 min</span></div>
+                <div class="tip"><strong>Focus</strong>Fingers spread, push through shoulders, squeeze glutes and core.</div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">L-Sit Practice</div>
+                <div class="exercise-details">Floor, parallettes, or rings</div>
+                <div class="tags"><span class="pill">5-8 sets</span><span class="pill">10-30s holds</span></div>
+            </div>
+        </div></div>
+    </div>
+
+    <div class="block">
+        <div class="block-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="block-title">Straight Arm Strength</span>
+            <span class="block-toggle">v</span>
+        </div>
+        <div class="block-content"><div class="block-inner">
+            <div class="exercise">
+                <div class="exercise-name">Planche Lean</div>
+                <div class="exercise-details">Lean forward past wrists. Arms locked.</div>
+                <div class="tags"><span class="pill">4 sets</span><span class="pill">15-30s</span></div>
+                <div class="tip"><strong>Form</strong>Round upper back. Core tight. Don't let hips sag.</div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Tuck Front Lever</div>
+                <div class="exercise-details">Pull into horizontal tuck. Arms straight.</div>
+                <div class="tags"><span class="pill">4 sets</span><span class="pill">10-20s</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Ring Support Holds</div>
+                <div class="exercise-details">Turn rings out for difficulty</div>
+                <div class="tags"><span class="pill">3 sets</span><span class="pill">20-45s</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Pseudo Planche Push-Ups</div>
+                <div class="exercise-details">Hands by hips, lean forward</div>
+                <div class="tags"><span class="pill">3 sets</span><span class="pill">8-12 reps</span></div>
+            </div>
+        </div></div>
+    </div>
+
+    <div class="block">
+        <div class="block-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="block-title">Prehab & Mobility</span>
+            <span class="block-toggle">v</span>
+        </div>
+        <div class="block-content"><div class="block-inner">
+            <div class="exercise">
+                <div class="exercise-name">German Hang</div>
+                <div class="exercise-details">Controlled lower. Builds shoulder flexibility.</div>
+                <div class="tags"><span class="pill">3 sets</span><span class="pill">15-30s</span></div>
+                <div class="tip"><strong>Safety</strong>Build slowly. Keep arms straight. Never let go.</div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Butcher Block Stretch</div>
+                <div class="exercise-details">Arms elevated, push chest through</div>
+                <div class="tags"><span class="pill">2 x 45s</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Wrist Strengthening</div>
+                <div class="exercise-details">Wrist push-ups or finger tip work</div>
+                <div class="tags"><span class="pill">2-3 sets</span></div>
+            </div>
+        </div></div>
+    </div>
+
+    <footer>
+        <div class="footer-brand">Saturno Movement</div>
+        <p class="footer-sub">CF4 Mars Program</p>
+    </footer>
+</div>
+<script>document.querySelectorAll('.block').forEach((b,i)=>{if(i===0)b.classList.add('open')});</script>
+</body>
+</html>

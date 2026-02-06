@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lower Body 1 - CF4 Mars</title>
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --bg: #08090c;
+    --glass: rgba(255,255,255,0.03);
+    --glass-border: rgba(255,255,255,0.08);
+    --glass-hover: rgba(255,255,255,0.06);
+    --text: #f4f4f5;
+    --text-dim: #a1a1aa;
+    --text-muted: #52525b;
+    --accent: #10b981;
+    --accent-glow: rgba(16,185,129,0.12);
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+    --shadow-lg: 0 24px 64px rgba(0,0,0,0.5);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    background-image:
+        radial-gradient(ellipse 80% 50% at 50% -20%, var(--accent-glow), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(139,92,246,0.08), transparent);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 16px;
+    min-height: 100vh;
+    padding: 60px 24px;
+}
+
+.container { max-width: 680px; margin: 0 auto; }
+
+header {
+    text-align: center;
+    margin-bottom: 64px;
+    animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tag {
+    display: inline-block;
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    padding: 8px 20px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+}
+
+h1 {
+    font-size: 52px;
+    font-weight: 600;
+    letter-spacing: -2px;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    font-size: 16px;
+    color: var(--text-dim);
+    font-weight: 400;
+}
+
+.block {
+    background: var(--glass);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    margin: 20px 0;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: slideUp 0.6s ease backwards;
+}
+
+.block:nth-child(2) { animation-delay: 0.1s; }
+.block:nth-child(3) { animation-delay: 0.2s; }
+.block:nth-child(4) { animation-delay: 0.3s; }
+.block:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.block:hover {
+    border-color: rgba(255,255,255,0.12);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.block-header {
+    padding: 22px 28px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.block-header::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.block.open .block-header::before { opacity: 1; }
+
+.block-header:hover { background: var(--glass-hover); }
+
+.block-title {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.block-toggle {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.block.open .block-toggle { transform: rotate(180deg); background: var(--accent-glow); }
+
+.block-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.block.open .block-content { max-height: 2000px; }
+
+.block-inner { padding: 0 28px 28px; }
+
+.exercise {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.exercise:last-child { border-bottom: none; }
+
+.exercise:hover { padding-left: 8px; }
+
+.exercise-name {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--text);
+}
+
+.exercise-details {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.7;
+}
+
+.tags {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.pill {
+    background: var(--accent-glow);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.pill:hover {
+    border-color: var(--accent);
+    transform: scale(1.05);
+}
+
+.tip {
+    background: linear-gradient(135deg, var(--accent-glow), transparent);
+    border-left: 2px solid var(--accent);
+    padding: 14px 18px;
+    margin-top: 12px;
+    border-radius: 0 12px 12px 0;
+    font-size: 13px;
+    color: var(--text-dim);
+}
+
+.tip strong {
+    color: var(--accent);
+    font-weight: 500;
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+footer {
+    text-align: center;
+    margin-top: 80px;
+    padding-top: 40px;
+    border-top: 1px solid var(--glass-border);
+    animation: fadeIn 0.8s ease 0.5s backwards;
+}
+
+.footer-brand {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.8;
+}
+
+.footer-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="tag">CF4 Mars Program</div>
+        <h1>Lower Body 1</h1>
+        <p class="subtitle">Squat Patterns & Hip Mobility</p>
+    </header>
+
+    <div class="block open">
+        <div class="block-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="block-title">Warm Up & Mobility</span>
+            <span class="block-toggle">v</span>
+        </div>
+        <div class="block-content"><div class="block-inner">
+            <div class="exercise">
+                <div class="exercise-name">Hip Circles</div>
+                <div class="exercise-details">Standing circles both directions, then 90/90 hip switches</div>
+                <div class="tags"><span class="pill">10 each way</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Deep Squat Hold</div>
+                <div class="exercise-details">Sit in deep squat, shift weight side to side</div>
+                <div class="tags"><span class="pill">2 min</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Leg Swings</div>
+                <div class="exercise-details">Front-to-back and side-to-side. Progressive range.</div>
+                <div class="tags"><span class="pill">15 each leg</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Cossack Squat Flow</div>
+                <div class="exercise-details">Side-to-side lateral squat for adductors</div>
+                <div class="tags"><span class="pill">8 each side</span></div>
+            </div>
+        </div></div>
+    </div>
+
+    <div class="block">
+        <div class="block-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="block-title">Primary Strength</span>
+            <span class="block-toggle">v</span>
+        </div>
+        <div class="block-content"><div class="block-inner">
+            <div class="exercise">
+                <div class="exercise-name">Pistol Squat Progression</div>
+                <div class="exercise-details">Box pistols to Assisted to Negative to Full to Weighted</div>
+                <div class="tags"><span class="pill">4 sets</span><span class="pill">3-6 each leg</span><span class="pill">90s rest</span></div>
+                <div class="tip"><strong>Form</strong>Counterbalance with arms. Keep heel down. Control descent.</div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Nordic Curl Progression</div>
+                <div class="exercise-details">Negative-only to Band-assisted to Partial to Full Nordic</div>
+                <div class="tags"><span class="pill">4 sets</span><span class="pill">4-8 reps</span><span class="pill">90s rest</span></div>
+                <div class="tip"><strong>Form</strong>Hips forward, body straight. Fight gravity down.</div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Bulgarian Split Squat</div>
+                <div class="exercise-details">Rear foot elevated. Deep stretch at bottom.</div>
+                <div class="tags"><span class="pill">3 sets</span><span class="pill">8-12 each</span></div>
+            </div>
+        </div></div>
+    </div>
+
+    <div class="block">
+        <div class="block-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="block-title">Accessory Work</span>
+            <span class="block-toggle">v</span>
+        </div>
+        <div class="block-content"><div class="block-inner">
+            <div class="exercise">
+                <div class="exercise-name">Sissy Squat</div>
+                <div class="exercise-details">Quad isolation. Lean back, knees forward.</div>
+                <div class="tags"><span class="pill">3 sets</span><span class="pill">10-15 reps</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Hip Thrust</div>
+                <div class="exercise-details">Full hip extension, squeeze glutes 2 seconds</div>
+                <div class="tags"><span class="pill">3 sets</span><span class="pill">12-15 reps</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Calf Raises</div>
+                <div class="exercise-details">Single leg, full range, slow and controlled</div>
+                <div class="tags"><span class="pill">3 sets</span><span class="pill">15-20 each</span></div>
+            </div>
+        </div></div>
+    </div>
+
+    <div class="block">
+        <div class="block-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="block-title">Flexibility Finisher</span>
+            <span class="block-toggle">v</span>
+        </div>
+        <div class="block-content"><div class="block-inner">
+            <div class="exercise">
+                <div class="exercise-name">Pancake Stretch</div>
+                <div class="exercise-details">Legs wide, fold forward. PNF contract-relax.</div>
+                <div class="tags"><span class="pill">3 min</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Pigeon Pose</div>
+                <div class="exercise-details">Deep hip flexor and glute stretch</div>
+                <div class="tags"><span class="pill">90s each</span></div>
+            </div>
+            <div class="exercise">
+                <div class="exercise-name">Standing Pike</div>
+                <div class="exercise-details">Hamstring focus. Goal: palms flat.</div>
+                <div class="tags"><span class="pill">2 min</span></div>
+            </div>
+        </div></div>
+    </div>
+
+    <footer>
+        <div class="footer-brand">Saturno Movement</div>
+        <p class="footer-sub">CF4 Mars Program</p>
+    </footer>
+</div>
+<script>document.querySelectorAll('.block').forEach((b,i)=>{if(i===0)b.classList.add('open')});</script>
+</body>
+</html>
