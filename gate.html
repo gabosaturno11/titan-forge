@@ -136,6 +136,7 @@
 
       const res = await fetch('/api/verify', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: input.value }),
       });
@@ -143,7 +144,7 @@
       const data = await res.json();
 
       if (data.ok) {
-        window.location.href = '/bonus.html';
+        window.location.replace('/bonus.html');
       } else {
         err.classList.add('show');
         input.value = '';

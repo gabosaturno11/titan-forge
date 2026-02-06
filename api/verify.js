@@ -1,8 +1,7 @@
 // Saturno Vault — server-side password verification
 // Password stored in VAULT_PASSWORD env var (never in source)
-// Cookie value from VAULT_TOKEN env var
 
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
@@ -14,7 +13,11 @@ export default function handler(req, res) {
     return res.status(500).json({ ok: false, error: 'Server configuration error' });
   }
 
-  const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  let body = req.body;
+  if (typeof body === 'string') {
+    try { body = JSON.parse(body); } catch (e) { body = {}; }
+  }
+  
   const submitted = body?.password || body?.p || '';
 
   if (submitted !== password) {
@@ -26,4 +29,4 @@ export default function handler(req, res) {
     `vault_auth=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=2592000`
   );
   return res.status(200).json({ ok: true });
-}
+};
