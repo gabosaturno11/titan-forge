@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>🔱 MISSION CONTROL — SATURNO FORGE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'JetBrains Mono', monospace; }
+        .log-entry { border-left: 2px solid #27272a; }
+        .log-entry:hover { border-color: #fff; }
+        .log-entry.success { border-color: #22c55e; }
+        .log-entry.pending { border-color: #f59e0b; }
+        .log-entry.active { border-color: #3b82f6; }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body class="bg-[#050505] text-zinc-400 min-h-screen">
+    
+    <!-- HEADER -->
+    <div class="h-16 border-b border-zinc-900 bg-black flex items-center justify-between px-10 sticky top-0 z-50 mobile-nav-wrap">
+        <div class="flex items-center gap-6">
+            <a href="index.html" class="text-white text-xl font-black italic tracking-tighter hover:text-zinc-300 transition-all">FORGE</a>
+            <span class="text-zinc-700 mx-2">|</span>
+            <h1 class="text-zinc-500">MISSION_CONTROL</h1>
+        </div>
+        <div class="flex gap-4 flex-wrap mobile-touch">
+            <a href="capture.html" class="text-[10px] border border-emerald-900 text-emerald-400 px-3 py-1 hover:border-emerald-400 transition-all">CAPTURE</a>
+            <a href="pipelines.html" class="text-[10px] border border-cyan-900 text-cyan-400 px-3 py-1 hover:border-cyan-400 transition-all">PIPELINES</a>
+            <a href="titan.html" class="text-[10px] border border-cyan-900 text-cyan-400 px-3 py-1 hover:border-cyan-400 transition-all">TITAN</a>
+            <a href="synapse.html" class="text-[10px] border border-purple-900 text-purple-400 px-3 py-1 hover:border-purple-400 transition-all">SYNAPSE</a>
+            <a href="writer.html" class="text-[10px] border border-zinc-800 px-3 py-1 hover:border-white transition-all">WRITER</a>
+            <a href="batch-generator.html" class="text-[10px] border border-purple-900 text-purple-400 px-3 py-1 hover:border-purple-400 transition-all">BATCH</a>
+            <a href="nexus.html" class="text-[10px] border border-yellow-700 text-yellow-500 px-3 py-1 hover:border-yellow-400 transition-all">NEXUS</a>
+            <a href="onboarding.html" class="text-[10px] border border-zinc-800 px-3 py-1 hover:border-white transition-all">TRITON</a>
+            <span class="text-green-500 pulse text-[10px]">LIVE</span>
+            <span id="timestamp" class="text-zinc-600 text-[10px]"></span>
+        </div>
+    </div>
+
+    <div class="flex">
+        
+        <!-- LEFT: ACTION LOG -->
+        <div class="w-2/3 border-r border-zinc-900 p-8">
+            <div class="flex justify-between items-center mb-6">
+                <p class="text-[9px] uppercase tracking-[0.2em] text-zinc-600">Action Log / Live Feed</p>
+                <div class="flex gap-2">
+                    <button onclick="addLog('manual')" class="text-[10px] border border-zinc-800 px-3 py-1 hover:border-white transition-all">+ Add Entry</button>
+                    <button onclick="exportLogs()" class="text-[10px] border border-zinc-800 px-3 py-1 hover:border-white transition-all">Export</button>
+                    <button onclick="clearLogs()" class="text-[10px] border border-red-900 px-3 py-1 hover:border-red-500 text-red-500 transition-all">Clear</button>
+                </div>
+            </div>
+            
+            <div id="log-container" class="space-y-3 max-h-[70vh] overflow-y-auto">
+                <!-- Logs will be inserted here -->
+            </div>
+        </div>
+        
+        <!-- RIGHT: STATUS PANELS -->
+        <div class="w-1/3 p-8 space-y-6">
+            
+            <!-- DELIVERABLES STATUS -->
+            <div class="border border-zinc-900 rounded p-4">
+                <p class="text-[9px] uppercase tracking-[0.2em] text-zinc-600 mb-4">Deliverables Status</p>
+                <div class="space-y-2" id="deliverables">
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>gemini-mirror-v1.1.sh</span>
+                        <span class="text-green-500">✓ READY</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>saturno-forge/index.html</span>
+                        <span class="text-green-500">✓ READY</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>saturno-forge/onboarding.html</span>
+                        <span class="text-green-500">✓ READY</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>saturno-forge/writer.html</span>
+                        <span class="text-green-500">✓ READY</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>saturno-vision.py</span>
+                        <span class="text-green-500">✓ READY</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>DESIGN-LOCK.md</span>
+                        <span class="text-green-500">✓ READY</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>BBEDIT-GUARDIAN.md</span>
+                        <span class="text-green-500">✓ READY</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>vault.json (752 prompts)</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>movement-studio/index.html</span>
+                        <span class="text-green-500">✓ READY</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>bonus-vault-items.json</span>
+                        <span class="text-green-500">✓ READY</span>
+                        <span class="text-amber-500">⏳ PENDING</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>19-missing-pdfs.py</span>
+                        <span class="text-amber-500">⏳ PENDING</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCRIPTS LIBRARY -->
+            <div class="border border-zinc-900 rounded p-4">
+                <p class="text-[9px] uppercase tracking-[0.2em] text-zinc-600 mb-4">Scripts Library (64)</p>
+                <div class="space-y-2 max-h-48 overflow-y-auto" id="scripts-list">
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>SATURNO_CLI_V2.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>gemini-mirror.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>DIGITAL_ARCHAEOLOGIST_V6.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>GDRIVE_CLEANUP.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>OVERNIGHT_AUTONOMOUS.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>AOC_OVERNIGHT_ORGANIZER.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>build_empire.py</span>
+                        <span class="text-cyan-500">PY</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>deploy-final.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>launch-all-repos.sh</span>
+                        <span class="text-green-500">✓</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span class="text-zinc-600">+ 55 more scripts...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TIMELINE -->
+            <div class="border border-zinc-900 rounded p-4">
+                <p class="text-[9px] uppercase tracking-[0.2em] text-zinc-600 mb-4">Execution Timeline</p>
+                <div class="space-y-3" id="timeline">
+                    <div class="flex gap-3 text-[11px]" data-time="3:00 PM">
+                        <span class="text-zinc-600 w-16">3:00 PM</span>
+                        <span class="text-zinc-400">Mirror & Lockdown</span>
+                        <span id="t1" class="text-zinc-700 ml-auto">—</span>
+                    </div>
+                    <div class="flex gap-3 text-[11px]" data-time="3:30 PM">
+                        <span class="text-zinc-600 w-16">3:30 PM</span>
+                        <span class="text-zinc-400">Vercel Deploy</span>
+                        <span id="t2" class="text-zinc-700 ml-auto">—</span>
+                    </div>
+                    <div class="flex gap-3 text-[11px]" data-time="4:00 PM">
+                        <span class="text-zinc-600 w-16">4:00 PM</span>
+                        <span class="text-zinc-400">Triton Onboarding</span>
+                        <span id="t3" class="text-zinc-700 ml-auto">—</span>
+                    </div>
+                    <div class="flex gap-3 text-[11px]" data-time="4:30 PM">
+                        <span class="text-zinc-600 w-16">4:30 PM</span>
+                        <span class="text-zinc-400">VB Chapter 1</span>
+                        <span id="t4" class="text-zinc-700 ml-auto">—</span>
+                    </div>
+                    <div class="flex gap-3 text-[11px]" data-time="5:30 PM">
+                        <span class="text-zinc-600 w-16">5:30 PM</span>
+                        <span class="text-zinc-400">Photo Harvest</span>
+                        <span id="t5" class="text-zinc-700 ml-auto">—</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AGENT STATUS -->
+            <div class="border border-zinc-900 rounded p-4">
+                <p class="text-[9px] uppercase tracking-[0.2em] text-zinc-600 mb-4">AI Agent Swarm</p>
+                <div class="space-y-2" id="agents">
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>Claude (Max)</span>
+                        <span class="text-green-500 pulse">● ACTIVE</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>Gemini</span>
+                        <span class="text-green-500">● SYNCED</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>GPT</span>
+                        <span class="text-green-500">● SYNCED</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>Claude Code</span>
+                        <span class="text-green-500 pulse">● ACTIVE</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span>Perplexity</span>
+                        <span class="text-green-500">● SYNCED</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- QUICK ACTIONS -->
+            <div class="border border-zinc-900 rounded p-4">
+                <p class="text-[9px] uppercase tracking-[0.2em] text-zinc-600 mb-4">Quick Actions</p>
+                <div class="space-y-2">
+                    <button onclick="markComplete('t1')" class="w-full text-left text-[10px] border border-zinc-800 p-2 hover:border-green-500 transition-all">
+                        ✓ Mark Mirror Complete
+                    </button>
+                    <button onclick="markComplete('t2')" class="w-full text-left text-[10px] border border-zinc-800 p-2 hover:border-green-500 transition-all">
+                        ✓ Mark Vercel Live
+                    </button>
+                    <button onclick="markComplete('t3')" class="w-full text-left text-[10px] border border-zinc-800 p-2 hover:border-green-500 transition-all">
+                        ✓ Mark Onboarding Done
+                    </button>
+                    <button onclick="markComplete('t4')" class="w-full text-left text-[10px] border border-zinc-800 p-2 hover:border-green-500 transition-all">
+                        ✓ Mark Chapter 1 Done
+                    </button>
+                    <button onclick="markComplete('t5')" class="w-full text-left text-[10px] border border-zinc-800 p-2 hover:border-green-500 transition-all">
+                        ✓ Mark Photos Sorted
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize with existing logs
+        let logs = JSON.parse(localStorage.getItem('forge-logs') || '[]');
+        
+        // Default logs if empty
+        if (logs.length === 0) {
+            logs = [
+                { time: '8:20 AM', type: 'success', agent: 'Claude', action: 'Created gemini-mirror-v1.1.sh (8 files/category)' },
+                { time: '8:22 AM', type: 'success', agent: 'Claude', action: 'Created SATURNO FORGE index.html with Linguistic Console' },
+                { time: '8:24 AM', type: 'success', agent: 'Claude', action: 'Created onboarding.html (TRITON 10 questions)' },
+                { time: '8:26 AM', type: 'success', agent: 'Claude', action: 'Created writer.html (APOAPSIS double-panel)' },
+                { time: '8:28 AM', type: 'success', agent: 'Claude', action: 'Created saturno-vision.py (3 modes: scan/auto/interactive)' },
+                { time: '8:32 AM', type: 'success', agent: 'Claude', action: 'Created GEMINI-PLAN-V1-BBEDIT-GUARDIAN.md' },
+                { time: '8:35 AM', type: 'success', agent: 'Claude', action: 'Created SATURNO-FORGE-DESIGN-LOCK.md (aesthetic protection)' },
+                { time: '8:38 AM', type: 'active', agent: 'Gemini', action: 'Synced war plan - Photo Vision ready' },
+                { time: '8:40 AM', type: 'active', agent: 'System', action: 'Created logs.html (MISSION CONTROL)' },
+            ];
+            saveLogs();
+        }
+        
+        function saveLogs() {
+            localStorage.setItem('forge-logs', JSON.stringify(logs));
+        }
+        
+        function renderLogs() {
+            const container = document.getElementById('log-container');
+            container.innerHTML = logs.map((log, i) => `
+                <div class="log-entry ${log.type} pl-4 py-2 transition-all">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-[10px] text-zinc-600">${log.time}</span>
+                            <span class="text-[10px] text-zinc-700 mx-2">|</span>
+                            <span class="text-[10px] ${log.agent === 'Claude' ? 'text-blue-500' : log.agent === 'Gemini' ? 'text-purple-500' : log.agent === 'GPT' ? 'text-green-500' : 'text-zinc-500'}">${log.agent}</span>
+                        </div>
+                        <button onclick="deleteLog(${i})" class="text-zinc-700 hover:text-red-500 text-[10px]">×</button>
+                    </div>
+                    <p class="text-[11px] text-zinc-300 mt-1">${log.action}</p>
+                </div>
+            `).reverse().join('');
+        }
+        
+        function addLog(type) {
+            const action = prompt('What action was taken?');
+            if (!action) return;
+            
+            const agent = prompt('Which agent? (Claude/Gemini/GPT/System)', 'Claude');
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            
+            logs.push({
+                time,
+                type: type === 'manual' ? 'success' : type,
+                agent: agent || 'System',
+                action
+            });
+            
+            saveLogs();
+            renderLogs();
+        }
+        
+        function deleteLog(index) {
+            logs.splice(index, 1);
+            saveLogs();
+            renderLogs();
+        }
+        
+        function clearLogs() {
+            if (confirm('Clear all logs? This cannot be undone.')) {
+                logs = [];
+                saveLogs();
+                renderLogs();
+            }
+        }
+        
+        function exportLogs() {
+            const markdown = `# 🔱 MISSION CONTROL LOG EXPORT
+## ${new Date().toLocaleString()}
+
+---
+
+${logs.map(log => `**${log.time}** | ${log.agent} | ${log.action}`).join('\n\n')}
+`;
+            
+            const blob = new Blob([markdown], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mission-control-log-${new Date().toISOString().split('T')[0]}.md`;
+            a.click();
+        }
+        
+        function markComplete(id) {
+            const el = document.getElementById(id);
+            el.textContent = '✓';
+            el.className = 'text-green-500 ml-auto';
+            
+            // Add log entry
+            const timeSlot = el.closest('[data-time]').dataset.time;
+            const action = el.closest('[data-time]').querySelector('.text-zinc-400').textContent;
+            
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            
+            logs.push({
+                time,
+                type: 'success',
+                agent: 'System',
+                action: `✓ COMPLETED: ${action} (scheduled ${timeSlot})`
+            });
+            
+            saveLogs();
+            renderLogs();
+        }
+        
+        function updateTimestamp() {
+            document.getElementById('timestamp').textContent = new Date().toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+        
+        // Initialize
+        renderLogs();
+        updateTimestamp();
+        setInterval(updateTimestamp, 60000);
+    </script>
+</body>
+</html>

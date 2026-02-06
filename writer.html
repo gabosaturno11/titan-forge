@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <title>🔱 APOAPSIS WRITER V1.0</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap');
+        body { font-family: 'JetBrains Mono', monospace; }
+        #editor { font-family: 'JetBrains Mono', monospace; }
+        #preview { font-family: 'Crimson Pro', serif; }
+        #preview h1 { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-style: italic; }
+        #preview h2 { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+        #preview p { line-height: 1.8; margin-bottom: 1.5rem; }
+        #preview blockquote { border-left: 2px solid #52525b; padding-left: 1.5rem; color: #a1a1aa; font-style: italic; }
+        .chapter-item:hover { background: rgba(255,255,255,0.05); }
+        .chapter-item.active { border-color: #fff; background: rgba(255,255,255,0.05); }
+        .section-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 8px 0;
+          cursor: pointer;
+          user-select: none;
+          border-bottom: 1px solid transparent;
+        }
+        .section-header:hover { color: #fff; }
+        .section-header .chevron {
+          transition: transform 0.2s;
+          color: #52525b;
+          font-size: 10px;
+        }
+        .section-header .chevron.collapsed { transform: rotate(-90deg); }
+        .section-content.collapsed { display: none; }
+    </style>
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body class="bg-[#050505] text-zinc-300 h-screen flex flex-col overflow-hidden">
+    
+    <!-- HEADER -->
+    <div class="h-14 border-b border-zinc-900 flex items-center justify-between px-6 bg-black">
+        <div class="flex gap-4 items-center">
+            <a href="index.html" class="text-white font-bold hover:text-zinc-300 transition-all">FORGE</a>
+            <span class="text-zinc-700">|</span>
+            <span class="text-white font-bold">APOAPSIS_WRITER</span>
+            <span id="mode-badge" class="bg-zinc-800 text-[10px] px-3 py-1 rounded text-zinc-400">MODE: /TeacherMode</span>
+        </div>
+        <div class="flex gap-3 flex-wrap">
+            <a href="capture.html" class="text-[10px] border border-emerald-900 text-emerald-400 px-3 py-1 hover:border-emerald-400 transition-all">CAPTURE</a>
+            <a href="pipelines.html" class="text-[10px] border border-cyan-900 text-cyan-400 px-3 py-1 hover:border-cyan-400 transition-all">PIPELINES</a>
+            <a href="titan.html" class="text-[10px] border border-cyan-900 text-cyan-400 px-3 py-1 hover:border-cyan-400 transition-all">TITAN</a>
+            <a href="synapse.html" class="text-[10px] border border-purple-900 text-purple-400 px-3 py-1 hover:border-purple-400 transition-all">SYNAPSE</a>
+            <a href="batch-generator.html" class="text-[10px] border border-purple-900 text-purple-400 px-3 py-1 hover:border-purple-400 transition-all">BATCH</a>
+            <a href="nexus.html" class="text-[10px] border border-yellow-700 text-yellow-500 px-3 py-1 hover:border-yellow-400 transition-all">NEXUS</a>
+            <a href="logs.html" class="text-[10px] border border-amber-900 text-amber-500 px-3 py-1 hover:border-amber-500 transition-all">LOGS</a>
+            <a href="onboarding.html" class="text-[10px] border border-zinc-800 px-3 py-1 hover:border-white transition-all">TRITON</a>
+            <select id="mode-select" class="bg-zinc-900 border border-zinc-800 text-[10px] px-3 py-1 outline-none">
+                <option value="Teacher">/TeacherMode</option>
+                <option value="Prophet">/ProphetMode</option>
+                <option value="Raw">/RawMode</option>
+                <option value="Philosopher">/PhilosopherMode</option>
+                <option value="Confessor">/ConfessorMode</option>
+                <option value="Rebel">/RebelMode</option>
+            </select>
+            <button onclick="saveDraft()" class="text-[10px] border border-zinc-800 px-4 py-1 hover:border-white transition-all">SAVE_DRAFT</button>
+            <button onclick="exportMD()" class="text-[10px] border border-zinc-800 px-4 py-1 hover:border-white transition-all">EXPORT_MD</button>
+            <button onclick="shipToVault()" class="text-[10px] bg-white text-black px-4 py-1 font-bold hover:bg-zinc-200 transition-all">SHIP_TO_VAULT</button>
+        </div>
+    </div>
+
+    <div class="flex-grow flex">
+        
+        <!-- CHAPTER SIDEBAR -->
+        <div class="w-56 border-r border-zinc-900 bg-black p-4 overflow-y-auto flex flex-col">
+            <div class="section-header flex-shrink-0" onclick="toggleSection('chapters')">
+              <span class="text-[9px] text-zinc-600 uppercase tracking-widest">Chapters</span>
+              <span id="chevron-chapters" class="chevron">&#9660;</span>
+            </div>
+            <div id="section-chapters" class="section-content flex-shrink-0">
+            <div id="chapters" class="space-y-1 mt-2">
+                <div class="chapter-item active border-l-2 border-zinc-800 pl-3 py-2 cursor-pointer" onclick="loadChapter(0)">
+                    <p class="text-[10px] text-zinc-600">CH 01</p>
+                    <p class="text-[11px] text-zinc-300">The Weight Lie</p>
+                </div>
+                <div class="chapter-item border-l-2 border-zinc-800 pl-3 py-2 cursor-pointer" onclick="loadChapter(1)">
+                    <p class="text-[10px] text-zinc-600">CH 02</p>
+                    <p class="text-[11px] text-zinc-300">Movement First Language</p>
+                </div>
+                <div class="chapter-item border-l-2 border-zinc-800 pl-3 py-2 cursor-pointer" onclick="loadChapter(2)">
+                    <p class="text-[10px] text-zinc-600">CH 03</p>
+                    <p class="text-[11px] text-zinc-300">The Spiral Architecture</p>
+                </div>
+                <div class="chapter-item border-l-2 border-zinc-800 pl-3 py-2 cursor-pointer" onclick="loadChapter(3)">
+                    <p class="text-[10px] text-zinc-600">CH 04</p>
+                    <p class="text-[11px] text-zinc-300">Embodied Philosophy</p>
+                </div>
+                <div class="chapter-item border-l-2 border-zinc-800 pl-3 py-2 cursor-pointer" onclick="loadChapter(4)">
+                    <p class="text-[10px] text-zinc-600">CH 05</p>
+                    <p class="text-[11px] text-zinc-300">The Backward Motion</p>
+                </div>
+            </div>
+            
+            <button onclick="addChapter()" class="w-full mt-4 border border-dashed border-zinc-800 p-2 text-[10px] text-zinc-600 hover:border-white hover:text-white transition-all">
+                + Add Chapter
+            </button>
+            </div>
+            
+            <div class="mt-6 pt-4 border-t border-zinc-900 flex-shrink-0">
+                <div class="section-header" onclick="toggleSection('stats')">
+                  <span class="text-[9px] text-zinc-600 uppercase tracking-widest">Stats</span>
+                  <span id="chevron-stats" class="chevron">&#9660;</span>
+                </div>
+                <div id="section-stats" class="section-content">
+                <div class="space-y-2 text-[10px]">
+                    <div class="flex justify-between">
+                        <span class="text-zinc-600">Words:</span>
+                        <span id="word-count">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-zinc-600">Characters:</span>
+                        <span id="char-count">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-zinc-600">Est. Pages:</span>
+                        <span id="page-count">0</span>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EDITOR PANEL -->
+        <div class="w-1/2 border-r border-zinc-900 p-8 flex flex-col bg-[#080808]">
+            <div class="flex justify-between items-center mb-4">
+                <p class="text-[9px] text-zinc-600 uppercase tracking-widest">Raw Manuscript</p>
+                <span class="text-[9px] text-zinc-700">Markdown supported</span>
+            </div>
+            <textarea id="editor" class="flex-grow w-full bg-transparent outline-none resize-none leading-relaxed text-sm" spellcheck="false" oninput="updatePreview()" placeholder="# Chapter Title
+
+Start writing your chapter here...
+
+## Section Heading
+
+The first paragraph hooks the reader. Every sentence earns the next.
+
+> Block quotes for emphasis and voice shifts.
+
+**Bold** for key concepts. *Italic* for internal voice.
+
+---
+
+With Love,
+Gabo"></textarea>
+        </div>
+        
+        <!-- PREVIEW PANEL -->
+        <div class="w-1/2 p-8 bg-black/40 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <p class="text-[9px] text-zinc-600 uppercase tracking-widest">Live Preview</p>
+                <button onclick="toggleFocus()" class="text-[9px] border border-zinc-800 px-3 py-1 hover:border-white transition-all">FOCUS_MODE</button>
+            </div>
+            <div id="preview" class="prose prose-invert max-w-none text-zinc-200 text-lg">
+                <h1 class="text-white text-3xl font-black italic mb-6">Chapter Title</h1>
+                <p class="text-zinc-400">Start writing to see live preview...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOCUS MODE OVERLAY -->
+    <div id="focus-overlay" class="hidden fixed inset-0 bg-black z-50 p-20 overflow-y-auto">
+        <div class="max-w-3xl mx-auto">
+            <button onclick="toggleFocus()" class="fixed top-8 right-8 text-zinc-600 hover:text-white text-[10px] uppercase tracking-widest">
+                Exit Focus [ESC]
+            </button>
+            <div id="focus-preview" class="prose prose-invert prose-xl max-w-none text-zinc-200"></div>
+        </div>
+    </div>
+
+    <script>
+        // Chapter Storage
+        let chapters = [
+            { title: 'The Weight Lie', content: `# Chapter 1: The Weight Lie
+
+The biggest lie in movement is that you must be strong enough to carry the load before you begin.
+
+We're taught to prepare, to train, to get ready. But the body doesn't learn in theory. The body learns through **doing**. Through attempting. Through failing forward.
+
+## The Origin of the Lie
+
+It starts early. Someone tells you that you're not ready. That you need more time. More practice. More... something.
+
+> "Wait until you're stronger."
+> "You're not flexible enough yet."
+> "Maybe next year."
+
+These phrases are the gatekeepers of potential. They sound like wisdom. They feel like care. But they're prisons disguised as protection.
+
+## The Truth
+
+Here's what they don't tell you: **The load creates the strength.**
+
+You don't prepare for the mountain and then climb. You climb, and the climbing prepares you for the next mountain. Every step up is also a step forward. Every struggle is data. Every "failure" is a lesson your body will never forget.
+
+The weight isn't waiting for you to be ready. The weight is *making* you ready.
+
+---
+
+*With Love,*
+*Gabo*` },
+            { title: 'Movement First Language', content: '# Chapter 2: Movement as First Language\n\nBefore words, there was gesture...' },
+            { title: 'The Spiral Architecture', content: '# Chapter 3: The Spiral Architecture\n\nProgress isn\'t linear...' },
+            { title: 'Embodied Philosophy', content: '# Chapter 4: Embodied Philosophy\n\nYour body knows what your mind forgets...' },
+            { title: 'The Backward Motion', content: '# Chapter 5: The Backward Motion\n\nSometimes the only way forward is back...' }
+        ];
+        
+        let currentChapter = 0;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadChapter(0);
+            restoreSidebarState();
+            
+            // Mode select
+            document.getElementById('mode-select').addEventListener('change', (e) => {
+                document.getElementById('mode-badge').textContent = 'MODE: /' + e.target.value + 'Mode';
+            });
+            
+            // ESC for focus mode
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    document.getElementById('focus-overlay').classList.add('hidden');
+                }
+            });
+        });
+
+        function loadChapter(index) {
+            // Save current
+            chapters[currentChapter].content = document.getElementById('editor').value;
+            
+            // Update active state
+            document.querySelectorAll('.chapter-item').forEach((item, i) => {
+                item.classList.remove('active');
+                if (i === index) item.classList.add('active');
+            });
+            
+            // Load new
+            currentChapter = index;
+            document.getElementById('editor').value = chapters[index].content;
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const content = document.getElementById('editor').value;
+            const html = marked.parse(content);
+            document.getElementById('preview').innerHTML = html;
+            document.getElementById('focus-preview').innerHTML = html;
+            
+            // Update stats
+            const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+            const chars = content.length;
+            const pages = Math.ceil(words / 250);
+            
+            document.getElementById('word-count').textContent = words.toLocaleString();
+            document.getElementById('char-count').textContent = chars.toLocaleString();
+            document.getElementById('page-count').textContent = pages;
+            
+            // Auto-save
+            chapters[currentChapter].content = content;
+        }
+
+        function toggleFocus() {
+            document.getElementById('focus-overlay').classList.toggle('hidden');
+        }
+
+        function toggleSection(id) {
+            const section = document.getElementById('section-' + id);
+            const chevron = document.getElementById('chevron-' + id);
+            if (!section || !chevron) return;
+            section.classList.toggle('collapsed');
+            chevron.classList.toggle('collapsed');
+            try {
+                const state = JSON.parse(localStorage.getItem('writer-sidebar-state') || '{}');
+                state[id] = section.classList.contains('collapsed');
+                localStorage.setItem('writer-sidebar-state', JSON.stringify(state));
+            } catch (e) {}
+        }
+
+        function restoreSidebarState() {
+            try {
+                const state = JSON.parse(localStorage.getItem('writer-sidebar-state') || '{}');
+                ['chapters', 'stats'].forEach(id => {
+                    if (state[id]) {
+                        const section = document.getElementById('section-' + id);
+                        const chevron = document.getElementById('chevron-' + id);
+                        if (section && chevron) {
+                            section.classList.add('collapsed');
+                            chevron.classList.add('collapsed');
+                        }
+                    }
+                });
+            } catch (e) {}
+        }
+
+        function addChapter() {
+            const num = chapters.length + 1;
+            const title = prompt('Chapter title:') || `Chapter ${num}`;
+            chapters.push({ title, content: `# ${title}\n\nStart writing...` });
+            
+            const container = document.getElementById('chapters');
+            const div = document.createElement('div');
+            div.className = 'chapter-item border-l-2 border-zinc-800 pl-3 py-2 cursor-pointer';
+            div.onclick = () => loadChapter(chapters.length - 1);
+            div.innerHTML = `
+                <p class="text-[10px] text-zinc-600">CH ${String(num).padStart(2, '0')}</p>
+                <p class="text-[11px] text-zinc-300">${title}</p>
+            `;
+            container.appendChild(div);
+        }
+
+        function saveDraft() {
+            chapters[currentChapter].content = document.getElementById('editor').value;
+            localStorage.setItem('aoc-chapters', JSON.stringify(chapters));
+            alert('Draft saved to browser storage!');
+        }
+
+        function exportMD() {
+            const content = document.getElementById('editor').value;
+            const blob = new Blob([content], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `aoc-ch${String(currentChapter + 1).padStart(2, '0')}-${chapters[currentChapter].title.toLowerCase().replace(/\s+/g, '-')}.md`;
+            a.click();
+        }
+
+        function shipToVault() {
+            // Export all chapters
+            let fullBook = '# THE ART OF CALISTHENICS\n## By Gabo Saturno\n\n---\n\n';
+            chapters.forEach((ch, i) => {
+                fullBook += ch.content + '\n\n---\n\n';
+            });
+            
+            const blob = new Blob([fullBook], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'art-of-calisthenics-full-manuscript.md';
+            a.click();
+            
+            alert('Full manuscript exported! Ready for Victory Belt.');
+        }
+
+        // Load saved chapters if available
+        const saved = localStorage.getItem('aoc-chapters');
+        if (saved) {
+            try {
+                chapters = JSON.parse(saved);
+            } catch(e) {}
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // ART OF CALISTHENICS - FULL CHAPTER STRUCTURE
+        // ═══════════════════════════════════════════════════════════════
+        
+        const AOC_CHAPTERS = [
+            { num: 1, title: 'The Weight Lie', theme: 'Mindset Shift' },
+            { num: 2, title: 'Movement First Language', theme: 'Philosophy' },
+            { num: 3, title: 'The Spiral Architecture', theme: 'Progression' },
+            { num: 4, title: 'Embodied Philosophy', theme: 'Body-Mind' },
+            { num: 5, title: 'The Backward Motion', theme: 'Regression' },
+            { num: 6, title: 'Gravity as Teacher', theme: 'Physics' },
+            { num: 7, title: 'The 7 Movement Patterns', theme: 'Foundation' },
+            { num: 8, title: 'Push: The Expression', theme: 'Pattern' },
+            { num: 9, title: 'Pull: The Integration', theme: 'Pattern' },
+            { num: 10, title: 'Legs: The Foundation', theme: 'Pattern' },
+            { num: 11, title: 'Core: The Bridge', theme: 'Pattern' },
+            { num: 12, title: 'Skills: The Art', theme: 'Pattern' },
+            { num: 13, title: 'The Handstand Journey', theme: 'Skill Deep-Dive' },
+            { num: 14, title: 'Muscle-Up Mastery', theme: 'Skill Deep-Dive' },
+            { num: 15, title: 'The Front Lever Path', theme: 'Skill Deep-Dive' },
+            { num: 16, title: 'Programming Principles', theme: 'System' },
+            { num: 17, title: 'The Movement DNA', theme: 'Methodology' },
+            { num: 18, title: 'Recovery as Training', theme: 'Balance' },
+            { num: 19, title: 'Nutrition for Movement', theme: 'Fuel' },
+            { num: 20, title: 'The Saturno Method', theme: 'Integration' },
+            { num: 21, title: 'Building Your Practice', theme: 'Application' },
+            { num: 22, title: 'The Community Effect', theme: 'Social' },
+            { num: 23, title: 'Teaching Movement', theme: 'Leadership' },
+            { num: 24, title: 'The Lifetime Practice', theme: 'Legacy' },
+            { num: 25, title: 'Movement as Medicine', theme: 'Healing' },
+            { num: 26, title: 'The Artist Athlete', theme: 'Identity' },
+            { num: 27, title: 'Your Movement Story', theme: 'Conclusion' }
+        ];
+        
+        // Voice mode presets for writing
+        const WRITING_VOICE_PRESETS = {
+            'Teacher': { f1: 7, f3: 5, f7: 8, f10: 5, desc: 'Clear instruction, accessible wisdom' },
+            'Prophet': { f1: 8, f3: 7, f7: 9, f10: 6, desc: 'Visionary, future-pulling' },
+            'Raw': { f1: 3, f3: 8, f7: 6, f10: 2, desc: 'Unfiltered, authentic voice' },
+            'Philosopher': { f1: 9, f3: 6, f7: 7, f10: 7, desc: 'Deep, contemplative' },
+            'Confessor': { f1: 6, f3: 8, f7: 4, f10: 5, desc: 'Vulnerable, personal' },
+            'Rebel': { f1: 4, f3: 9, f7: 10, f10: 3, desc: 'Challenging, provocative' }
+        };
+        
+        // Sync voice mode to Movement Studio
+        document.getElementById('mode-select')?.addEventListener('change', (e) => {
+            const mode = e.target.value;
+            const preset = WRITING_VOICE_PRESETS[mode];
+            if (preset) {
+                localStorage.setItem('titan_writer_voice', JSON.stringify({
+                    mode: mode,
+                    preset: preset,
+                    timestamp: Date.now()
+                }));
+            }
+        });
+        
+        console.log('APOAPSIS WRITER - AOC structure loaded');
+
+    </script>
+</body>
+</html>

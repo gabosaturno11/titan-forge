@@ -1,0 +1,16 @@
+{
+  "id": "collision-matrix",
+  "name": "Collision Matrix",
+  "version": "1.0",
+  "dials": [
+    { "id": "clash", "name": "Clash Tolerance", "min": 0, "max": 10, "default": 5 },
+    { "id": "blend", "name": "Blend Factor", "min": 0, "max": 10, "default": 5 },
+    { "id": "priority", "name": "Priority Weight", "min": 0, "max": 10, "default": 5 }
+  ],
+  "knobs": [],
+  "sliders": [],
+  "switches": [],
+  "presets": [
+    { "name": "Default", "values": { "clash": 5, "blend": 5, "priority": 5 } }
+  ]
+}

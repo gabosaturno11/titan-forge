@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPTURE SYSTEM | SATURNO FORGE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #050505;
+            --bg-card: #0d0d0d;
+            --border: rgba(255,255,255,0.08);
+            --accent: #d4af37;
+            --accent-cyan: #00ffcc;
+            --accent-purple: #a855f7;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --text-primary: #e4e4e7;
+            --text-secondary: #71717a;
+            --text-muted: #3f3f46;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            height: 64px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon { color: var(--accent-cyan); font-size: 20px; }
+
+        .logo-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .logo-text span { color: var(--accent-cyan); }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            font-size: 10px;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+        .btn-primary {
+            background: var(--accent-cyan);
+            color: black;
+            border-color: var(--accent-cyan);
+        }
+
+        .btn-primary:hover { background: white; }
+
+        /* Main Layout */
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* Capture Area */
+        .capture-area {
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .capture-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab:hover { border-color: var(--text-secondary); }
+
+        .tab.active {
+            background: var(--accent-cyan);
+            color: black;
+            border-color: var(--accent-cyan);
+        }
+
+        .tab-icon { margin-right: 8px; }
+
+        /* Capture Panels */
+        .capture-panel {
+            display: none;
+        }
+
+        .capture-panel.active { display: block; }
+
+        /* Highlight Capture */
+        .highlight-input {
+            width: 100%;
+            min-height: 200px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 20px;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text-primary);
+            resize: vertical;
+            outline: none;
+            line-height: 1.8;
+        }
+
+        .highlight-input:focus { border-color: var(--accent-cyan); }
+
+        .highlight-input::placeholder { color: var(--text-muted); }
+
+        .capture-meta {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .meta-field {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .meta-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .meta-input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 12px;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .meta-input:focus { border-color: var(--accent-cyan); }
+
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            min-height: 48px;
+        }
+
+        .tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            font-size: 10px;
+            color: var(--accent-cyan);
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            opacity: 0.5;
+        }
+
+        .tag-remove:hover { opacity: 1; }
+
+        .tag-add {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 12px;
+            outline: none;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .capture-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .capture-actions .btn { flex: 1; padding: 16px; }
+
+        /* Audio Capture */
+        .audio-zone {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 48px;
+            text-align: center;
+        }
+
+        .audio-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--accent-purple);
+        }
+
+        .audio-status {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .audio-controls {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .record-btn {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-red);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .record-btn:hover { background: rgba(239, 68, 68, 0.1); }
+
+        .record-btn.recording {
+            background: var(--accent-red);
+            animation: pulse 1s infinite;
+        }
+
+        .record-btn-inner {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-red);
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .record-btn.recording .record-btn-inner {
+            background: white;
+            border-radius: 2px;
+            width: 16px;
+            height: 16px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+        }
+
+        .audio-result {
+            margin-top: 24px;
+            text-align: left;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .transcription-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 16px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        /* Screenshot Capture */
+        .screenshot-zone {
+            background: var(--bg-card);
+            border: 2px dashed var(--border);
+            padding: 48px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .screenshot-zone:hover { border-color: var(--accent-blue); }
+
+        .screenshot-zone.dragover {
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .screenshot-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--accent-blue);
+        }
+
+        .screenshot-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .screenshot-hint {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .screenshot-preview {
+            margin-top: 24px;
+        }
+
+        .screenshot-img {
+            max-width: 100%;
+            border: 1px solid var(--border);
+        }
+
+        .screenshot-ocr {
+            margin-top: 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 16px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Quick Capture */
+        .quick-capture {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 24px;
+        }
+
+        .quick-input {
+            width: 100%;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+            margin-bottom: 16px;
+        }
+
+        .quick-input:focus { border-color: var(--accent-cyan); }
+
+        .quick-types {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .quick-type {
+            padding: 8px 16px;
+            font-size: 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-type:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+        .quick-type.active {
+            background: var(--accent-cyan);
+            color: black;
+            border-color: var(--accent-cyan);
+        }
+
+        /* Sidebar - Capture History */
+        .sidebar {
+            border-left: 1px solid var(--border);
+            background: var(--bg-secondary);
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .capture-count {
+            font-size: 10px;
+            color: var(--accent-cyan);
+        }
+
+        .capture-list {
+            padding: 16px;
+        }
+
+        .capture-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .capture-item:hover { border-color: var(--accent-cyan); }
+
+        .capture-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .capture-item-type {
+            font-size: 9px;
+            padding: 2px 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .capture-item-type.highlight { background: rgba(212, 175, 55, 0.1); color: var(--accent); }
+        .capture-item-type.audio { background: rgba(168, 85, 247, 0.1); color: var(--accent-purple); }
+        .capture-item-type.screenshot { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); }
+        .capture-item-type.quick { background: rgba(0, 255, 204, 0.1); color: var(--accent-cyan); }
+
+        .capture-item-time {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .capture-item-preview {
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .capture-item-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .capture-item-tag {
+            font-size: 8px;
+            padding: 2px 6px;
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+        }
+
+        /* Export Panel */
+        .export-panel {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .export-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: var(--accent-cyan);
+            border: none;
+            color: black;
+            font-family: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .export-btn:hover { background: white; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            font-size: 11px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.error { border-color: var(--accent-red); color: var(--accent-red); }
+
+        /* Keyboard shortcut hint */
+        .shortcut-hint {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        .shortcut-hint kbd {
+            padding: 2px 6px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            margin: 0 2px;
+        }
+    </style>
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">&#10024;</span>
+            <span class="logo-text">CAPTURE <span>SYSTEM</span></span>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="btn">FORGE</a>
+            <a href="pipelines.html" class="btn">PIPELINES</a>
+            <a href="titan.html" class="btn">TITAN</a>
+            <a href="synapse.html" class="btn">SYNAPSE</a>
+            <a href="writer.html" class="btn">WRITER</a>
+            <a href="batch-generator.html" class="btn">BATCH</a>
+            <a href="nexus.html" class="btn">NEXUS</a>
+            <a href="logs.html" class="btn">LOGS</a>
+            <a href="onboarding.html" class="btn">TRITON</a>
+        </nav>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        <!-- Capture Area -->
+        <section class="capture-area">
+            <!-- Tabs -->
+            <div class="capture-tabs">
+                <button class="tab active" data-tab="highlight">
+                    <span class="tab-icon">&#10024;</span>Highlight
+                </button>
+                <button class="tab" data-tab="audio">
+                    <span class="tab-icon">&#127908;</span>Audio
+                </button>
+                <button class="tab" data-tab="screenshot">
+                    <span class="tab-icon">&#128247;</span>Screenshot
+                </button>
+                <button class="tab" data-tab="quick">
+                    <span class="tab-icon">&#9889;</span>Quick
+                </button>
+            </div>
+
+            <!-- Highlight Panel -->
+            <div class="capture-panel active" id="panel-highlight">
+                <textarea class="highlight-input" id="highlight-content" placeholder="Paste or type your highlight here...
+
+Examples:
+- Text you want to remember
+- Ideas that came to you
+- Quotes from conversations
+- Code snippets
+- Anything worth capturing"></textarea>
+
+                <div class="capture-meta">
+                    <div class="meta-field">
+                        <div class="meta-label">Source</div>
+                        <input type="text" class="meta-input" id="highlight-source" placeholder="Where did this come from?">
+                    </div>
+                    <div class="meta-field">
+                        <div class="meta-label">Category</div>
+                        <select class="meta-input" id="highlight-category">
+                            <option value="idea">Idea</option>
+                            <option value="quote">Quote</option>
+                            <option value="code">Code</option>
+                            <option value="book">Book Note</option>
+                            <option value="insight">Insight</option>
+                            <option value="todo">To-Do</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="capture-meta">
+                    <div class="meta-field" style="flex: 2;">
+                        <div class="meta-label">Tags</div>
+                        <div class="tag-input-container" id="tags-container">
+                            <input type="text" class="tag-add" id="tag-input" placeholder="Add tags (press Enter)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="capture-actions">
+                    <button class="btn" onclick="clearHighlight()">Clear</button>
+                    <button class="btn btn-primary" onclick="saveHighlight()">Save Highlight</button>
+                </div>
+            </div>
+
+            <!-- Audio Panel -->
+            <div class="capture-panel" id="panel-audio">
+                <div class="audio-zone">
+                    <div class="audio-icon">&#127908;</div>
+                    <div class="audio-status" id="audio-status">Click to start recording</div>
+                    <div class="audio-controls">
+                        <button class="record-btn" id="record-btn" onclick="toggleRecording()">
+                            <span class="record-btn-inner"></span>
+                        </button>
+                    </div>
+                    <div style="margin-top: 16px; font-size: 9px; color: var(--text-muted);">
+                        Powered by OpenAI Whisper
+                    </div>
+                </div>
+
+                <div class="audio-result" id="audio-result" style="display: none;">
+                    <audio class="audio-player" id="audio-player" controls></audio>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0 8px;">
+                        <div class="meta-label" style="margin: 0;">Transcription</div>
+                        <button class="btn" style="padding: 4px 12px; font-size: 9px;" onclick="retryTranscription()">
+                            Retry
+                        </button>
+                    </div>
+                    <div class="transcription-box" id="transcription">
+                        Transcription will appear here after processing...
+                    </div>
+                    <div class="capture-meta" style="margin-top: 12px;">
+                        <div class="meta-field">
+                            <div class="meta-label">Category</div>
+                            <select class="meta-input" id="audio-category">
+                                <option value="voice-note">Voice Note</option>
+                                <option value="idea">Idea</option>
+                                <option value="program">Program</option>
+                                <option value="client">Client Session</option>
+                                <option value="research">Research</option>
+                            </select>
+                        </div>
+                        <div class="meta-field">
+                            <div class="meta-label">Tags</div>
+                            <input type="text" class="meta-input" id="audio-tags" placeholder="coaching, calisthenics">
+                        </div>
+                    </div>
+                    <div class="capture-actions">
+                        <button class="btn" onclick="discardAudio()">Discard</button>
+                        <button class="btn btn-primary" onclick="saveAudio()">Save Audio Note</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Screenshot Panel -->
+            <div class="capture-panel" id="panel-screenshot">
+                <div class="screenshot-zone" id="screenshot-zone" onclick="document.getElementById('screenshot-input').click()">
+                    <div class="screenshot-icon">&#128247;</div>
+                    <div class="screenshot-text">Click or drop image here</div>
+                    <div class="screenshot-hint">Supports PNG, JPG, GIF</div>
+                </div>
+                <input type="file" id="screenshot-input" accept="image/*" style="display: none;" onchange="handleScreenshot(event)">
+
+                <div class="screenshot-preview" id="screenshot-preview" style="display: none;">
+                    <img class="screenshot-img" id="screenshot-img">
+                    <div class="capture-meta" style="margin-top: 16px;">
+                        <div class="meta-field">
+                            <div class="meta-label">Description</div>
+                            <input type="text" class="meta-input" id="screenshot-desc" placeholder="What is this screenshot of?">
+                        </div>
+                    </div>
+                    <div class="capture-actions">
+                        <button class="btn" onclick="discardScreenshot()">Discard</button>
+                        <button class="btn btn-primary" onclick="saveScreenshot()">Save Screenshot</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Panel -->
+            <div class="capture-panel" id="panel-quick">
+                <div class="quick-capture">
+                    <input type="text" class="quick-input" id="quick-input" placeholder="Quick capture - type and press Enter" onkeypress="if(event.key==='Enter')saveQuick()">
+                    <div class="meta-label" style="margin-bottom: 12px;">Type</div>
+                    <div class="quick-types">
+                        <button class="quick-type active" data-type="thought">Thought</button>
+                        <button class="quick-type" data-type="todo">To-Do</button>
+                        <button class="quick-type" data-type="reminder">Reminder</button>
+                        <button class="quick-type" data-type="question">Question</button>
+                        <button class="quick-type" data-type="idea">Idea</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px;">
+                    <div class="meta-label" style="margin-bottom: 12px;">Recent Quick Captures</div>
+                    <div id="quick-recent"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-title">Capture History</span>
+                <span class="capture-count" id="capture-count">0 items</span>
+            </div>
+            <div class="capture-list" id="capture-list">
+                <!-- Captures will be populated here -->
+            </div>
+            <div class="export-panel">
+                <button class="export-btn" onclick="exportCaptures()">Export All to JSON</button>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Shortcut Hint -->
+    <div class="shortcut-hint">
+        <kbd>Ctrl</kbd>+<kbd>1-4</kbd> Switch tabs &nbsp;|&nbsp;
+        <kbd>Ctrl</kbd>+<kbd>S</kbd> Save &nbsp;|&nbsp;
+        <kbd>Ctrl</kbd>+<kbd>E</kbd> Export
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // CAPTURE SYSTEM - STATE
+        // ═══════════════════════════════════════════════════════════════
+
+        let captures = JSON.parse(localStorage.getItem('saturno_captures') || '[]');
+        let currentTags = [];
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let currentScreenshot = null;
+        let quickType = 'thought';
+
+        // ═══════════════════════════════════════════════════════════════
+        // INITIALIZATION
+        // ═══════════════════════════════════════════════════════════════
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCaptureList();
+            setupTabs();
+            setupTagInput();
+            setupQuickTypes();
+            setupDragDrop();
+            setupKeyboardShortcuts();
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // TABS
+        // ═══════════════════════════════════════════════════════════════
+
+        function setupTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.capture-panel').forEach(p => p.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+                });
+            });
+        }
+
+        function switchTab(index) {
+            const tabs = document.querySelectorAll('.tab');
+            if (tabs[index]) tabs[index].click();
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // HIGHLIGHT CAPTURE
+        // ═══════════════════════════════════════════════════════════════
+
+        function setupTagInput() {
+            const input = document.getElementById('tag-input');
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && input.value.trim()) {
+                    addTag(input.value.trim());
+                    input.value = '';
+                }
+            });
+        }
+
+        function addTag(tag) {
+            if (!currentTags.includes(tag)) {
+                currentTags.push(tag);
+                renderTags();
+            }
+        }
+
+        function removeTag(tag) {
+            currentTags = currentTags.filter(t => t !== tag);
+            renderTags();
+        }
+
+        function renderTags() {
+            const container = document.getElementById('tags-container');
+            const input = document.getElementById('tag-input');
+            container.innerHTML = currentTags.map(tag => `
+                <span class="tag">
+                    ${tag}
+                    <span class="tag-remove" onclick="removeTag('${tag}')">×</span>
+                </span>
+            `).join('') + '<input type="text" class="tag-add" id="tag-input" placeholder="Add tags (press Enter)">';
+
+            // Re-setup the input
+            setupTagInput();
+        }
+
+        function saveHighlight() {
+            const content = document.getElementById('highlight-content').value;
+            if (!content.trim()) {
+                showToast('Enter some content first', true);
+                return;
+            }
+
+            const capture = {
+                id: Date.now(),
+                type: 'highlight',
+                content: content,
+                source: document.getElementById('highlight-source').value,
+                category: document.getElementById('highlight-category').value,
+                tags: [...currentTags],
+                timestamp: new Date().toISOString()
+            };
+
+            saveCapture(capture);
+            clearHighlight();
+            showToast('Highlight saved!');
+        }
+
+        function clearHighlight() {
+            document.getElementById('highlight-content').value = '';
+            document.getElementById('highlight-source').value = '';
+            document.getElementById('highlight-category').value = 'idea';
+            currentTags = [];
+            renderTags();
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // AUDIO CAPTURE - Whisper Transcription
+        // ═══════════════════════════════════════════════════════════════
+
+        const TRANSCRIBE_API = 'https://saturno-beast-api.vercel.app/api/transcribe';
+        let currentAudioBlob = null;
+        let recordingStartTime = null;
+
+        async function toggleRecording() {
+            const btn = document.getElementById('record-btn');
+            const status = document.getElementById('audio-status');
+
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                // Stop recording
+                mediaRecorder.stop();
+                btn.classList.remove('recording');
+                status.textContent = 'Transcribing with Whisper...';
+            } else {
+                // Start recording
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                    audioChunks = [];
+                    recordingStartTime = Date.now();
+
+                    mediaRecorder.ondataavailable = (e) => {
+                        audioChunks.push(e.data);
+                    };
+
+                    mediaRecorder.onstop = async () => {
+                        currentAudioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const audioUrl = URL.createObjectURL(currentAudioBlob);
+                        document.getElementById('audio-player').src = audioUrl;
+                        document.getElementById('audio-result').style.display = 'block';
+
+                        const duration = ((Date.now() - recordingStartTime) / 1000).toFixed(1);
+                        status.textContent = `Recorded ${duration}s - Transcribing...`;
+
+                        // Stop all tracks
+                        stream.getTracks().forEach(track => track.stop());
+
+                        // Send to Whisper API
+                        await transcribeAudio(currentAudioBlob);
+                    };
+
+                    mediaRecorder.start();
+                    btn.classList.add('recording');
+                    status.textContent = 'Recording... Click to stop';
+
+                } catch (error) {
+                    status.textContent = 'Microphone access denied';
+                    showToast('Could not access microphone', true);
+                }
+            }
+        }
+
+        async function transcribeAudio(audioBlob) {
+            const status = document.getElementById('audio-status');
+            const transcriptionBox = document.getElementById('transcription');
+
+            transcriptionBox.innerHTML = '<span style="color: var(--accent-purple);">Transcribing with Whisper AI...</span>';
+
+            try {
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'recording.webm');
+                formData.append('language', 'en');
+                // Custom prompt helps Whisper recognize calisthenics terms
+                formData.append('prompt', 'Calisthenics, handstand, planche, front lever, muscle up, hollow body, pike, straddle, L-sit, Gabo Saturno, Saturno Movement, C4W3D1, scapula, biomechanics');
+
+                const response = await fetch(TRANSCRIBE_API, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.text) {
+                    transcriptionBox.textContent = result.text;
+                    status.textContent = `Transcribed (${result.duration?.toFixed(1) || '?'}s audio)`;
+                    showToast('Transcription complete!');
+                } else {
+                    throw new Error(result.error || 'Transcription failed');
+                }
+
+            } catch (error) {
+                console.error('Transcription error:', error);
+                transcriptionBox.innerHTML = `
+                    <span style="color: var(--accent-red);">Transcription failed: ${error.message}</span>
+                    <br><br>
+                    <span style="color: var(--text-muted);">Audio is still saved. You can try again or save without transcription.</span>
+                `;
+                status.textContent = 'Transcription failed - audio saved';
+                showToast('Transcription failed', true);
+            }
+        }
+
+        // Retry transcription button
+        async function retryTranscription() {
+            if (currentAudioBlob) {
+                document.getElementById('audio-status').textContent = 'Retrying transcription...';
+                await transcribeAudio(currentAudioBlob);
+            }
+        }
+
+        function saveAudio() {
+            const transcription = document.getElementById('transcription').textContent;
+            const category = document.getElementById('audio-category').value;
+            const tagsInput = document.getElementById('audio-tags').value;
+            const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+
+            const capture = {
+                id: Date.now(),
+                type: 'audio',
+                content: transcription,
+                category: category,
+                tags: tags,
+                hasAudio: true,
+                timestamp: new Date().toISOString()
+            };
+
+            saveCapture(capture);
+
+            // Also send to backend for storage
+            syncAudioToBackend(capture);
+
+            discardAudio();
+            showToast('Audio note saved!');
+        }
+
+        async function syncAudioToBackend(capture) {
+            try {
+                await fetch('https://saturno-beast-api.vercel.app/api/capture', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(capture)
+                });
+            } catch (e) {
+                console.log('Backend sync failed:', e);
+            }
+        }
+
+        function discardAudio() {
+            document.getElementById('audio-result').style.display = 'none';
+            document.getElementById('audio-status').textContent = 'Click to start recording';
+            document.getElementById('audio-category').value = 'voice-note';
+            document.getElementById('audio-tags').value = '';
+            document.getElementById('transcription').textContent = 'Transcription will appear here after processing...';
+            audioChunks = [];
+            currentAudioBlob = null;
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SCREENSHOT CAPTURE
+        // ═══════════════════════════════════════════════════════════════
+
+        function setupDragDrop() {
+            const zone = document.getElementById('screenshot-zone');
+
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('dragover');
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    processScreenshot(file);
+                }
+            });
+        }
+
+        function handleScreenshot(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processScreenshot(file);
+            }
+        }
+
+        function processScreenshot(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                currentScreenshot = e.target.result;
+                document.getElementById('screenshot-img').src = currentScreenshot;
+                document.getElementById('screenshot-zone').style.display = 'none';
+                document.getElementById('screenshot-preview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveScreenshot() {
+            if (!currentScreenshot) return;
+
+            const capture = {
+                id: Date.now(),
+                type: 'screenshot',
+                content: document.getElementById('screenshot-desc').value || 'Screenshot',
+                image: currentScreenshot.substring(0, 100) + '...[truncated]', // Don't store full image in localStorage
+                timestamp: new Date().toISOString()
+            };
+
+            saveCapture(capture);
+            discardScreenshot();
+            showToast('Screenshot saved!');
+        }
+
+        function discardScreenshot() {
+            currentScreenshot = null;
+            document.getElementById('screenshot-zone').style.display = 'block';
+            document.getElementById('screenshot-preview').style.display = 'none';
+            document.getElementById('screenshot-desc').value = '';
+            document.getElementById('screenshot-input').value = '';
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // QUICK CAPTURE
+        // ═══════════════════════════════════════════════════════════════
+
+        function setupQuickTypes() {
+            document.querySelectorAll('.quick-type').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.quick-type').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    quickType = btn.dataset.type;
+                });
+            });
+            renderQuickRecent();
+        }
+
+        function saveQuick() {
+            const input = document.getElementById('quick-input');
+            if (!input.value.trim()) return;
+
+            const capture = {
+                id: Date.now(),
+                type: 'quick',
+                content: input.value,
+                quickType: quickType,
+                timestamp: new Date().toISOString()
+            };
+
+            saveCapture(capture);
+            input.value = '';
+            showToast('Quick capture saved!');
+            renderQuickRecent();
+        }
+
+        function renderQuickRecent() {
+            const container = document.getElementById('quick-recent');
+            const quickCaptures = captures.filter(c => c.type === 'quick').slice(0, 5);
+
+            container.innerHTML = quickCaptures.map(c => `
+                <div class="capture-item" style="margin-bottom: 8px;">
+                    <div class="capture-item-header">
+                        <span class="capture-item-type quick">${c.quickType || 'quick'}</span>
+                        <span class="capture-item-time">${formatTime(c.timestamp)}</span>
+                    </div>
+                    <div class="capture-item-preview">${c.content}</div>
+                </div>
+            `).join('') || '<div style="color: var(--text-muted); font-size: 11px;">No quick captures yet</div>';
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // CAPTURE MANAGEMENT
+        // ═══════════════════════════════════════════════════════════════
+
+        function saveCapture(capture) {
+            captures.unshift(capture);
+            localStorage.setItem('saturno_captures', JSON.stringify(captures));
+            renderCaptureList();
+            syncToMemory(capture);
+        }
+
+        function renderCaptureList() {
+            const list = document.getElementById('capture-list');
+            const count = document.getElementById('capture-count');
+
+            count.textContent = captures.length + ' items';
+
+            list.innerHTML = captures.slice(0, 50).map(c => `
+                <div class="capture-item" onclick="viewCapture(${c.id})">
+                    <div class="capture-item-header">
+                        <span class="capture-item-type ${c.type}">${c.type}</span>
+                        <span class="capture-item-time">${formatTime(c.timestamp)}</span>
+                    </div>
+                    <div class="capture-item-preview">${c.content}</div>
+                    ${c.tags && c.tags.length ? `
+                        <div class="capture-item-tags">
+                            ${c.tags.map(t => `<span class="capture-item-tag">${t}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('') || '<div style="padding: 20px; color: var(--text-muted); font-size: 11px; text-align: center;">No captures yet. Start capturing!</div>';
+        }
+
+        function viewCapture(id) {
+            const capture = captures.find(c => c.id === id);
+            if (!capture) return;
+
+            // For now, just copy to clipboard
+            navigator.clipboard.writeText(capture.content);
+            showToast('Content copied to clipboard');
+        }
+
+        function exportCaptures() {
+            const data = {
+                exported: new Date().toISOString(),
+                count: captures.length,
+                captures: captures
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `saturno-captures-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+
+            showToast('Exported ' + captures.length + ' captures');
+        }
+
+        // Sync to memory system
+        function syncToMemory(capture) {
+            // In a full implementation, this would POST to the backend
+            // to update MEMORY.json
+            console.log('Syncing to memory:', capture);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // UTILITIES
+        // ═══════════════════════════════════════════════════════════════
+
+        function formatTime(isoString) {
+            const date = new Date(isoString);
+            const now = new Date();
+            const diff = now - date;
+
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+            return date.toLocaleDateString();
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // KEYBOARD SHORTCUTS
+        // ═══════════════════════════════════════════════════════════════
+
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case '1': e.preventDefault(); switchTab(0); break;
+                        case '2': e.preventDefault(); switchTab(1); break;
+                        case '3': e.preventDefault(); switchTab(2); break;
+                        case '4': e.preventDefault(); switchTab(3); break;
+                        case 's':
+                            e.preventDefault();
+                            const activeTab = document.querySelector('.tab.active').dataset.tab;
+                            if (activeTab === 'highlight') saveHighlight();
+                            else if (activeTab === 'quick') saveQuick();
+                            break;
+                        case 'e': e.preventDefault(); exportCaptures(); break;
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

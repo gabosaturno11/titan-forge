@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SATURNO HUB</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-dark: #050508;
+      --bg-sidebar: #0a0a10;
+      --bg-card: #0f0f18;
+      --bg-hover: #14141f;
+      --bg-panel: #0d0d14;
+      --border: rgba(255,255,255,0.06);
+      --border-hover: rgba(255,255,255,0.12);
+      --text: #ffffff;
+      --text-secondary: rgba(255,255,255,0.7);
+      --text-muted: rgba(255,255,255,0.4);
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-cyan: #06b6d4;
+      --accent-green: #22c55e;
+      --accent-yellow: #eab308;
+      --accent-red: #ef4444;
+      --gradient-main: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* App Layout */
+    .app {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: 20px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 8px rgba(59,130,246,0.4));
+    }
+
+    .logo-text {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .sidebar-section {
+      padding: 16px 12px 8px;
+    }
+
+    .sidebar-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 0 8px;
+      margin-bottom: 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 13px;
+      color: var(--text-secondary);
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      background: rgba(59,130,246,0.15);
+      color: var(--accent-blue);
+    }
+
+    .nav-icon {
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .nav-item.active .nav-icon {
+      opacity: 1;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: var(--bg-card);
+      color: var(--text-muted);
+    }
+
+    .nav-badge.alert {
+      background: rgba(239,68,68,0.2);
+      color: var(--accent-red);
+    }
+
+    .nav-badge.success {
+      background: rgba(34,197,94,0.2);
+      color: var(--accent-green);
+    }
+
+    /* Sidebar Footer */
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .api-status {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .api-status-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    .api-status-dot.connected { background: var(--accent-green); }
+    .api-status-dot.pending { background: var(--accent-yellow); }
+    .api-status-dot.error { background: var(--accent-red); }
+
+    /* Main Content */
+    .main {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg-dark);
+    }
+
+    /* Header */
+    .header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .header-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .breadcrumb-sep {
+      opacity: 0.3;
+    }
+
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+    }
+
+    .btn:hover {
+      border-color: var(--border-hover);
+      color: var(--text);
+    }
+
+    .btn-primary {
+      background: var(--gradient-main);
+      border: none;
+      color: white;
+    }
+
+    /* Panel Container */
+    .panel-container {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .panel {
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      padding: 24px;
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    /* Dashboard Panel */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .dashboard-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .dashboard-card:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      background: var(--gradient-main);
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .card-stats {
+      display: flex;
+      gap: 20px;
+    }
+
+    .stat {
+      text-align: left;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      background: var(--gradient-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .quick-action {
+      flex: 1;
+      padding: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .quick-action:hover {
+      border-color: var(--accent-blue);
+    }
+
+    .quick-action-icon {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .quick-action-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    /* Embedded Tool Frame */
+    .tool-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: var(--bg-dark);
+    }
+
+    /* API Status Panel */
+    .api-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+
+    .api-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .api-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .api-card-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .api-card-status.connected { background: var(--accent-green); }
+    .api-card-status.pending { background: var(--accent-yellow); }
+    .api-card-status.missing { background: var(--accent-red); }
+
+    .api-card-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .api-card-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .api-card-action {
+      font-size: 11px;
+      color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    /* Capture Panel */
+    .capture-zone {
+      background: var(--bg-card);
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 24px;
+      transition: all 0.2s;
+    }
+
+    .capture-zone:hover {
+      border-color: var(--accent-blue);
+    }
+
+    .capture-zone.dragover {
+      border-color: var(--accent-purple);
+      background: rgba(139,92,246,0.1);
+    }
+
+    .capture-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .capture-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .capture-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .capture-history {
+      margin-top: 24px;
+    }
+
+    .capture-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .capture-item-actions { display: flex; gap: 4px; margin-left: auto; }
+    .capture-item-actions .btn { padding: 4px 8px; font-size: 9px; }
+
+    .capture-item-type {
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: var(--bg-hover);
+      color: var(--text-muted);
+    }
+
+    .capture-item-content {
+      flex: 1;
+      font-size: 13px;
+    }
+
+    .capture-item-time {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Project Cards */
+    .project-section {
+      margin-bottom: 32px;
+    }
+
+    .project-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .project-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .project-badge {
+      font-size: 10px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      background: var(--gradient-main);
+      color: white;
+    }
+
+    /* North Star */
+    .north-star {
+      background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(139,92,246,0.1) 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .north-star-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .north-star-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .north-star-pillars {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .pillar-tag {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+
+    .pillar-tag.movement { background: rgba(59,130,246,0.2); color: var(--accent-blue); }
+    .pillar-tag.mind { background: rgba(139,92,246,0.2); color: var(--accent-purple); }
+    .pillar-tag.systems { background: rgba(6,182,212,0.2); color: var(--accent-cyan); }
+
+    /* 3-Panel Layout (Ableton-style) */
+    .three-panel-wrapper {
+      display: none;
+      flex: 1;
+      overflow: hidden;
+      flex-direction: column;
+    }
+    .three-panel-wrapper.active { display: flex; }
+    #three-panel-container {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .three-panel {
+      overflow-y: auto;
+      min-width: 120px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      transition: min-width 0.2s, flex 0.2s;
+    }
+    .three-panel:last-child { border-right: none; }
+    .three-panel.collapsed { min-width: 0; flex: 0 0 40px !important; overflow: hidden; }
+    .three-panel.collapsed .three-panel-body { display: none; }
+    .three-panel-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .three-panel-header.input { color: var(--accent-green); }
+    .three-panel-header.process { color: var(--accent-purple); }
+    .three-panel-header.output { color: var(--accent-cyan); }
+    .panel-collapse-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 2px 6px;
+    }
+    .panel-collapse-btn:hover { color: var(--text); }
+    .three-panel-body { flex: 1; overflow-y: auto; padding: 16px; }
+    .resize-handle {
+      width: 8px;
+      flex-shrink: 0;
+      align-self: stretch;
+      background: var(--border);
+      cursor: col-resize;
+      transition: background 0.15s;
+    }
+    .resize-handle:hover { background: var(--accent-blue); }
+
+    /* Task List Sidebar */
+    .task-list-widget {
+      border-top: 1px solid var(--border);
+      padding: 12px 0;
+    }
+    .task-list-widget .sidebar-label { padding: 0 16px 8px; }
+    .task-list-add input {
+      width: calc(100% - 24px);
+      margin: 0 12px 12px;
+      padding: 8px 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-size: 11px;
+      font-family: inherit;
+    }
+    .task-list-add input::placeholder { color: var(--text-muted); }
+    .task-list-section { margin-bottom: 8px; }
+    .task-list-section-header {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .task-list-section-header .count {
+      font-size: 8px;
+      opacity: 0.7;
+    }
+    .task-list-items.collapsed { display: none; }
+    .task-list-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .task-list-item:hover { background: var(--bg-hover); }
+    .task-list-check {
+      width: 12px;
+      height: 12px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      flex-shrink: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+    }
+    .task-list-check.checked {
+      background: var(--accent-green);
+      border-color: var(--accent-green);
+      color: var(--bg-dark);
+    }
+    .task-list-check.checked::after {
+      content: '\2713';
+    }
+    .task-list-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .task-list-title.strike { text-decoration: line-through; color: var(--text-muted); }
+    .task-list-empty { font-size: 10px; color: var(--text-muted); padding: 4px 16px; display: block; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+  </style>
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="planet-logo.png" class="logo-img" alt="S" onerror="this.style.display='none'">
+        <span class="logo-text">SATURNO HUB</span>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Main</div>
+        <button class="nav-item" onclick="showPanel('workspace', this)">
+          <span class="nav-icon">|</span>
+          <span>3-Panel</span>
+        </button>
+        <button class="nav-item active" onclick="showPanel('dashboard', this)">
+          <span class="nav-icon">*</span>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" onclick="showPanel('command', this)">
+          <span class="nav-icon">=</span>
+          <span>Command</span>
+          <span class="nav-badge">8</span>
+        </button>
+        <button class="nav-item" onclick="showPanel('capture', this)">
+          <span class="nav-icon">+</span>
+          <span>Capture</span>
+        </button>
+      </div>
+
+      <div class="task-list-widget">
+        <div class="sidebar-label">Tasks</div>
+        <div id="hub-task-list"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Projects</div>
+        <button class="nav-item" onclick="showPanel('hbs', this)">
+          <span class="nav-icon">H</span>
+          <span>HBS</span>
+          <span class="nav-badge alert">P0</span>
+        </button>
+        <button class="nav-item" onclick="showPanel('bonuses', this)">
+          <span class="nav-icon">B</span>
+          <span>Bonuses</span>
+          <span class="nav-badge alert">P0</span>
+        </button>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Tools</div>
+        <button class="nav-item" onclick="showPanel('titan', this)">
+          <span class="nav-icon">T</span>
+          <span>TITAN</span>
+        </button>
+        <button class="nav-item" onclick="showPanel('synapse', this)">
+          <span class="nav-icon">S</span>
+          <span>SYNAPSE</span>
+        </button>
+        <button class="nav-item" onclick="showPanel('media', this)">
+          <span class="nav-icon">M</span>
+          <span>Media Player</span>
+        </button>
+        <button class="nav-item" onclick="showPanel('nexus', this)">
+          <span class="nav-icon">N</span>
+          <span>NEXUS</span>
+        </button>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">System</div>
+        <button class="nav-item" onclick="showPanel('apis', this)">
+          <span class="nav-icon">&</span>
+          <span>API Status</span>
+          <span class="nav-badge">3/8</span>
+        </button>
+        <button class="nav-item" onclick="showPanel('settings', this)">
+          <span class="nav-icon">*</span>
+          <span>Settings</span>
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="api-status">
+          <span class="api-status-dot connected"></span>
+          Local Storage Active
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="header">
+        <h1 class="header-title" id="panel-title">Dashboard</h1>
+        <div class="header-breadcrumb">
+          <span>SATURNO HUB</span>
+          <span class="breadcrumb-sep">/</span>
+          <span id="breadcrumb-current">Dashboard</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn" onclick="exportAll()">Export</button>
+          <button class="btn btn-primary" onclick="quickCapture()">+ Capture</button>
+        </div>
+      </div>
+
+      <div class="three-panel-wrapper" id="three-panel-wrapper">
+        <div id="three-panel-container">
+          <div class="three-panel" id="panel-input">
+            <div class="three-panel-header input">INPUT <button class="panel-collapse-btn" title="Collapse">&#8211;</button></div>
+            <div class="three-panel-body">
+              <div class="capture-zone" id="workspace-capture-zone" style="margin-bottom:16px">
+                <div class="capture-title">Drop or paste</div>
+                <div class="capture-desc">Text, links, voice</div>
+                <button class="btn" style="margin-top:8px" onclick="captureText()">Paste Text</button>
+              </div>
+              <div class="capture-history" id="workspace-captures"></div>
+            </div>
+          </div>
+          <div class="resize-handle" id="resize-1"></div>
+          <div class="three-panel" id="panel-process">
+            <div class="three-panel-header process">PROCESS <button class="panel-collapse-btn" title="Collapse">&#8211;</button></div>
+            <div class="three-panel-body">
+              <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px">Pipeline / Synthesis</p>
+              <a href="index.html" class="btn" style="display:block;margin-bottom:8px;text-align:center">FORGE</a>
+              <a href="capture.html" class="btn" style="display:block;margin-bottom:8px;text-align:center">CAPTURE</a>
+              <a href="pipelines.html" class="btn" style="display:block;margin-bottom:8px;text-align:center">PIPELINES</a>
+              <a href="titan.html" class="btn" style="display:block;margin-bottom:8px;text-align:center">TITAN</a>
+              <a href="synapse.html" class="btn" style="display:block;margin-bottom:8px;text-align:center">SYNAPSE</a>
+              <a href="writer.html" class="btn" style="display:block;margin-bottom:8px;text-align:center">WRITER</a>
+              <a href="batch-generator.html" class="btn" style="display:block;margin-bottom:8px;text-align:center">BATCH</a>
+              <a href="nexus.html" class="btn" style="display:block;margin-bottom:8px;text-align:center">NEXUS</a>
+              <a href="logs.html" class="btn" style="display:block;margin-bottom:8px;text-align:center">LOGS</a>
+              <a href="onboarding.html" class="btn" style="display:block;text-align:center">TRITON</a>
+            </div>
+          </div>
+          <div class="resize-handle" id="resize-2"></div>
+          <div class="three-panel" id="panel-output">
+            <div class="three-panel-header output">OUTPUT <button class="panel-collapse-btn" title="Collapse">&#8211;</button></div>
+            <div class="three-panel-body">
+              <p style="font-size:11px;color:var(--text-muted);margin-bottom:12px">Export / Content</p>
+              <a href="tools/transcript-to-pdf.html" class="btn" style="display:block;margin-bottom:8px;text-align:center" target="_blank">Transcript to PDF</a>
+              <a href="batch-generator.html" class="btn" style="display:block;margin-bottom:8px;text-align:center">Batch Generator</a>
+              <a href="pdfs.html" class="btn" style="display:block;text-align:center" target="_blank">PDF Library</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-container">
+        <!-- Dashboard Panel -->
+        <div class="panel active" id="panel-dashboard">
+          <div class="north-star">
+            <div class="north-star-title">North Star</div>
+            <div class="north-star-text">
+              Build a global empire of movement, mastery, and meaning — powered by your voice, your philosophy, and your systems — scaled through technology, art, and human connection.
+            </div>
+            <div class="north-star-pillars">
+              <span class="pillar-tag movement">Movement</span>
+              <span class="pillar-tag mind">Mind</span>
+              <span class="pillar-tag systems">Systems</span>
+            </div>
+          </div>
+
+          <div class="quick-actions">
+            <div class="quick-action" onclick="showPanel('capture')">
+              <div class="quick-action-icon">+</div>
+              <div class="quick-action-label">Quick Capture</div>
+            </div>
+            <div class="quick-action" onclick="showPanel('command')">
+              <div class="quick-action-icon">=</div>
+              <div class="quick-action-label">View Tasks</div>
+            </div>
+            <div class="quick-action" onclick="showPanel('titan')">
+              <div class="quick-action-icon">T</div>
+              <div class="quick-action-label">Open TITAN</div>
+            </div>
+            <div class="quick-action" onclick="showPanel('media')">
+              <div class="quick-action-icon">M</div>
+              <div class="quick-action-label">Media Player</div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="dashboard-card" onclick="showPanel('hbs')">
+              <div class="card-header">
+                <div class="card-icon">H</div>
+                <div>
+                  <div class="card-title">HBS Project</div>
+                  <div class="card-subtitle">Hand Balancing System</div>
+                </div>
+              </div>
+              <div class="card-stats">
+                <div class="stat">
+                  <div class="stat-value">0</div>
+                  <div class="stat-label">Videos Filmed</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-value">P0</div>
+                  <div class="stat-label">Priority</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dashboard-card" onclick="showPanel('bonuses')">
+              <div class="card-header">
+                <div class="card-icon">B</div>
+                <div>
+                  <div class="card-title">Bonus Vault</div>
+                  <div class="card-subtitle">BF25 Deliverables</div>
+                </div>
+              </div>
+              <div class="card-stats">
+                <div class="stat">
+                  <div class="stat-value">18</div>
+                  <div class="stat-label">PDFs Ready</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-value">15</div>
+                  <div class="stat-label">Tools Built</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dashboard-card" onclick="showPanel('command')">
+              <div class="card-header">
+                <div class="card-icon">=</div>
+                <div>
+                  <div class="card-title">Command Center</div>
+                  <div class="card-subtitle">Task Management</div>
+                </div>
+              </div>
+              <div class="card-stats">
+                <div class="stat">
+                  <div class="stat-value" id="dash-tasks">0</div>
+                  <div class="stat-label">Active Tasks</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-value" id="dash-done">0</div>
+                  <div class="stat-label">Done Today</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dashboard-card" onclick="showPanel('apis')">
+              <div class="card-header">
+                <div class="card-icon">&</div>
+                <div>
+                  <div class="card-title">API Status</div>
+                  <div class="card-subtitle">Integrations</div>
+                </div>
+              </div>
+              <div class="card-stats">
+                <div class="stat">
+                  <div class="stat-value">3</div>
+                  <div class="stat-label">Connected</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-value">5</div>
+                  <div class="stat-label">Pending</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Command Panel (embedded) -->
+        <div class="panel" id="panel-command">
+          <iframe src="command.html" class="tool-frame"></iframe>
+        </div>
+
+        <!-- Capture Panel -->
+        <div class="panel" id="panel-capture">
+          <div class="capture-zone" id="capture-zone">
+            <div class="capture-title">Drop anything here</div>
+            <div class="capture-desc">Text, links, images, voice memos - it all gets routed</div>
+            <div class="capture-buttons">
+              <button class="btn" onclick="captureText()">Paste Text</button>
+              <button class="btn" onclick="captureVoice()">Voice Memo</button>
+              <button class="btn" onclick="captureLink()">Add Link</button>
+              <button class="btn btn-primary" onclick="captureHighlight()">From Extension</button>
+            </div>
+          </div>
+
+          <div class="capture-history">
+            <div class="sidebar-label">Recent Captures</div>
+            <div id="capture-list"></div>
+          </div>
+        </div>
+
+        <!-- HBS Project Panel -->
+        <div class="panel" id="panel-hbs">
+          <div class="project-section">
+            <div class="project-header">
+              <h2 class="project-title">HBS - Hand Balancing System</h2>
+              <span class="project-badge">P0 Priority</span>
+            </div>
+            <div class="dashboard-grid">
+              <div class="dashboard-card">
+                <div class="card-title">Filming Status</div>
+                <div class="card-stats">
+                  <div class="stat">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Videos Filmed</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-value">50+</div>
+                    <div class="stat-label">Target</div>
+                  </div>
+                </div>
+              </div>
+              <div class="dashboard-card">
+                <div class="card-title">Content Pipeline</div>
+                <div class="card-stats">
+                  <div class="stat">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Edited</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Uploaded</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bonuses Panel -->
+        <div class="panel" id="panel-bonuses">
+          <div class="project-section">
+            <div class="project-header">
+              <h2 class="project-title">Bonus Vault - BF25 Deliverables</h2>
+              <span class="project-badge">P0 Priority</span>
+            </div>
+            <div class="dashboard-grid">
+              <div class="dashboard-card" onclick="window.open('apps/calisthenics-ecosystem/index.html', '_blank')">
+                <div class="card-header">
+                  <div class="card-icon">AOC</div>
+                  <div>
+                    <div class="card-title">Calisthenics Ecosystem</div>
+                    <div class="card-subtitle">7 Parts, 3 Stages, 6 Disciplines</div>
+                  </div>
+                </div>
+                <div class="card-stats"><div class="stat"><div class="stat-value">OK</div><div class="stat-label">Status</div></div></div>
+              </div>
+              <div class="dashboard-card" onclick="window.open('apps/writing-hub-kortex/index.html', '_blank')">
+                <div class="card-header">
+                  <div class="card-icon">W</div>
+                  <div>
+                    <div class="card-title">Writing Hub Kortex</div>
+                    <div class="card-subtitle">Document hub</div>
+                  </div>
+                </div>
+                <div class="card-stats"><div class="stat"><div class="stat-value">OK</div><div class="stat-label">Status</div></div></div>
+              </div>
+            <div class="dashboard-card" onclick="window.open('index.html', '_blank')">
+                <div class="card-title">Bonus Page</div>
+                <div class="card-subtitle">Main delivery page</div>
+                <div class="card-stats">
+                  <div class="stat">
+                    <div class="stat-value">18</div>
+                    <div class="stat-label">PDFs</div>
+                  </div>
+                  <div class="stat">
+                    <div class="stat-value">50</div>
+                    <div class="stat-label">Target</div>
+                  </div>
+                </div>
+              </div>
+              <div class="dashboard-card" onclick="showPanel('media')">
+                <div class="card-title">Music Player</div>
+                <div class="card-subtitle">SATURNO MEDIA</div>
+                <div class="card-stats">
+                  <div class="stat">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Tracks</div>
+                  </div>
+                </div>
+              </div>
+              <div class="dashboard-card" onclick="window.open('tools/transcript-to-pdf.html', '_blank')">
+                <div class="card-title">Transcript to PDF</div>
+                <div class="card-subtitle">Video transcript converter</div>
+                <div class="card-stats">
+                  <div class="stat">
+                    <div class="stat-value">OK</div>
+                    <div class="stat-label">Status</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TITAN Panel (embedded) -->
+        <div class="panel" id="panel-titan">
+          <iframe src="titan.html" class="tool-frame"></iframe>
+        </div>
+
+        <!-- SYNAPSE Panel (embedded) -->
+        <div class="panel" id="panel-synapse">
+          <iframe src="synapse.html" class="tool-frame"></iframe>
+        </div>
+
+        <!-- Media Player Panel (embedded) -->
+        <div class="panel" id="panel-media">
+          <iframe src="tools/music-organizer.html" class="tool-frame"></iframe>
+        </div>
+
+        <!-- NEXUS Panel (embedded) -->
+        <div class="panel" id="panel-nexus">
+          <iframe src="nexus.html" class="tool-frame"></iframe>
+        </div>
+
+        <!-- API Status Panel -->
+        <div class="panel" id="panel-apis">
+          <h2 style="margin-bottom: 20px;">API Integration Status</h2>
+          <div class="api-grid">
+            <div class="api-card">
+              <div class="api-card-header">
+                <div class="api-card-status connected"></div>
+                <div class="api-card-name">Local Storage</div>
+              </div>
+              <div class="api-card-desc">Browser storage for tasks and settings</div>
+              <div class="api-card-action">Active</div>
+            </div>
+
+            <div class="api-card">
+              <div class="api-card-header">
+                <div class="api-card-status connected"></div>
+                <div class="api-card-name">GitHub Pages</div>
+              </div>
+              <div class="api-card-desc">Static hosting for tools</div>
+              <div class="api-card-action">Deployed</div>
+            </div>
+
+            <div class="api-card">
+              <div class="api-card-header">
+                <div class="api-card-status connected"></div>
+                <div class="api-card-name">Vercel</div>
+              </div>
+              <div class="api-card-desc">API hosting (SYNAPSE, etc.)</div>
+              <div class="api-card-action">Active</div>
+            </div>
+
+            <div class="api-card">
+              <div class="api-card-header">
+                <div class="api-card-status pending"></div>
+                <div class="api-card-name">Notion API</div>
+              </div>
+              <div class="api-card-desc">Sync tasks and projects</div>
+              <div class="api-card-action">Setup Required</div>
+            </div>
+
+            <div class="api-card">
+              <div class="api-card-header">
+                <div class="api-card-status pending"></div>
+                <div class="api-card-name">Google Drive API</div>
+              </div>
+              <div class="api-card-desc">File storage and sync</div>
+              <div class="api-card-action">Setup Required</div>
+            </div>
+
+            <div class="api-card">
+              <div class="api-card-header">
+                <div class="api-card-status pending"></div>
+                <div class="api-card-name">OpenAI API</div>
+              </div>
+              <div class="api-card-desc">AI processing for prompts</div>
+              <div class="api-card-action">Add Key</div>
+            </div>
+
+            <div class="api-card">
+              <div class="api-card-header">
+                <div class="api-card-status pending"></div>
+                <div class="api-card-name">Anthropic API</div>
+              </div>
+              <div class="api-card-desc">Claude for synthesis</div>
+              <div class="api-card-action">Add Key</div>
+            </div>
+
+            <div class="api-card">
+              <div class="api-card-header">
+                <div class="api-card-status missing"></div>
+                <div class="api-card-name">Vimeo API</div>
+              </div>
+              <div class="api-card-desc">Video hosting (consider Bunny)</div>
+              <div class="api-card-action">Optional</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Panel -->
+        <div class="panel" id="panel-settings">
+          <h2 style="margin-bottom: 20px;">Settings</h2>
+          <div class="dashboard-card" style="max-width: 500px;">
+            <div class="card-title">Data Management</div>
+            <div style="margin-top: 16px; display: flex; gap: 12px;">
+              <button class="btn" onclick="exportAll()">Export All Data</button>
+              <button class="btn" onclick="importAll()">Import Data</button>
+              <button class="btn" style="color: var(--accent-red);" onclick="clearAll()">Clear All</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/draggable-panels.js"></script>
+  <script src="js/task-list.js"></script>
+  <script>
+    // Panel Navigation
+    function showPanel(panelId, navEl) {
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      if (navEl) navEl.classList.add('active');
+
+      const isWorkspace = panelId === 'workspace';
+      const wrapper = document.getElementById('three-panel-wrapper');
+      const container = document.querySelector('.panel-container');
+
+      if (isWorkspace) {
+        if (wrapper) wrapper.classList.add('active');
+        if (container) container.style.display = 'none';
+        document.getElementById('panel-title').textContent = '3-Panel Workspace';
+        document.getElementById('breadcrumb-current').textContent = 'Workspace';
+        renderWorkspaceCaptures();
+      } else {
+        if (wrapper) wrapper.classList.remove('active');
+        if (container) container.style.display = '';
+        document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+        const panel = document.getElementById('panel-' + panelId);
+        if (panel) panel.classList.add('active');
+        const titles = {
+          dashboard: 'Dashboard', command: 'Command Center', capture: 'Capture',
+          hbs: 'HBS Project', bonuses: 'Bonus Vault', titan: 'TITAN', synapse: 'SYNAPSE',
+          media: 'Media Player', nexus: 'NEXUS', apis: 'API Status', settings: 'Settings'
+        };
+        document.getElementById('panel-title').textContent = titles[panelId] || panelId;
+        document.getElementById('breadcrumb-current').textContent = titles[panelId] || panelId;
+      }
+    }
+
+    function renderWorkspaceCaptures() {
+      const list = document.getElementById('workspace-captures');
+      if (!list) return;
+      list.innerHTML = captures.slice(0, 8).map(c => `
+        <div class="capture-item">
+          <span class="capture-item-type">${c.type}</span>
+          <span class="capture-item-content">${c.content.substring(0, 80)}${c.content.length > 80 ? '...' : ''}</span>
+        </div>
+      `).join('') || '<div style="color: var(--text-muted); font-size: 11px;">No captures</div>';
+    }
+
+    // Capture Functions
+    let captures = JSON.parse(localStorage.getItem('saturno_captures') || '[]');
+
+    function routeToPipeline(i) {
+      const c = captures[i];
+      if (c) { try { localStorage.setItem('saturno_pipeline_input', c.content); } catch (e) {} window.open('pipelines.html', '_blank'); }
+    }
+    function routeToTitan(i) {
+      const c = captures[i];
+      if (c) { try { localStorage.setItem('saturno_pipeline_input', c.content); } catch (e) {} window.open('titan.html', '_blank'); }
+    }
+
+    function renderCaptures() {
+      const list = document.getElementById('capture-list');
+      if (!list) return;
+
+      list.innerHTML = captures.slice(0, 10).map((c, i) => `
+        <div class="capture-item">
+          <span class="capture-item-type">${c.type}</span>
+          <span class="capture-item-content">${c.content.substring(0, 100)}${c.content.length > 100 ? '...' : ''}</span>
+          <span class="capture-item-time">${new Date(c.time).toLocaleTimeString()}</span>
+          <div class="capture-item-actions">
+            <button class="btn" onclick="routeToTitan(${i})">TITAN</button>
+            <button class="btn" onclick="routeToPipeline(${i})">Pipeline</button>
+          </div>
+        </div>
+      `).join('') || '<div style="color: var(--text-muted); padding: 20px;">No captures yet</div>';
+    }
+
+    function addCapture(type, content) {
+      captures.unshift({ type, content, time: Date.now() });
+      localStorage.setItem('saturno_captures', JSON.stringify(captures));
+      renderCaptures();
+      renderWorkspaceCaptures();
+    }
+
+    function captureText() {
+      const text = prompt('Paste text to capture:');
+      if (text) addCapture('TEXT', text);
+    }
+
+    function captureVoice() {
+      alert('Voice capture: Use browser extension or paste transcript');
+    }
+
+    function captureLink() {
+      const link = prompt('Enter URL:');
+      if (link) addCapture('LINK', link);
+    }
+
+    function captureHighlight() {
+      alert('Install Chrome extension to capture highlights from any page');
+    }
+
+    function quickCapture() {
+      const text = prompt('Quick capture:');
+      if (text) addCapture('QUICK', text);
+    }
+
+    // Drag and drop for capture zones
+    [document.getElementById('capture-zone'), document.getElementById('workspace-capture-zone')].filter(Boolean).forEach(captureZone => {
+      captureZone.addEventListener('dragover', e => {
+        e.preventDefault();
+        captureZone.classList.add('dragover');
+      });
+
+      captureZone.addEventListener('dragleave', () => {
+        captureZone.classList.remove('dragover');
+      });
+
+      captureZone.addEventListener('drop', e => {
+        e.preventDefault();
+        captureZone.classList.remove('dragover');
+        const text = e.dataTransfer.getData('text') || e.dataTransfer.getData('text/plain');
+        if (text) addCapture('DROP', text);
+      });
+    });
+
+    // Data Management
+    function exportAll() {
+      const data = {
+        captures: captures,
+        tasks: JSON.parse(localStorage.getItem('saturno-command-tasks') || '[]'),
+        exportDate: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'saturno-hub-backup.json';
+      a.click();
+    }
+
+    function importAll() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = event => {
+          try {
+            const data = JSON.parse(event.target.result);
+            if (data.captures) {
+              captures = data.captures;
+              localStorage.setItem('saturno_captures', JSON.stringify(captures));
+            }
+            if (data.tasks) {
+              localStorage.setItem('saturno-command-tasks', JSON.stringify(data.tasks));
+            }
+            renderCaptures();
+            alert('Data imported!');
+          } catch (err) {
+            alert('Invalid file');
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    function clearAll() {
+      if (confirm('Clear all SATURNO HUB data?')) {
+        localStorage.removeItem('saturno_captures');
+        localStorage.removeItem('saturno-command-tasks');
+        captures = [];
+        renderCaptures();
+        alert('Data cleared');
+      }
+    }
+
+    // Init
+    renderCaptures();
+    if (window.HubTaskList && document.getElementById('hub-task-list')) {
+      HubTaskList.render(document.getElementById('hub-task-list'));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/framework-loader.js"></script>
+    <script src="js/api-config.js"></script>
+    <title>🔱 SATURNO FORGE V1.0</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'JetBrains Mono', monospace; }
+        input[type="range"] { -webkit-appearance: none; background: #27272a; height: 4px; border-radius: 2px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: #fff; border-radius: 50%; cursor: pointer; }
+        .dial-glow:hover { box-shadow: 0 0 20px rgba(255,255,255,0.1); }
+    </style>
+    <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body class="bg-[#050505] text-zinc-400 h-screen flex flex-col overflow-hidden">
+    
+    <!-- HEADER -->
+    <div class="h-16 border-b border-zinc-900 bg-black flex items-center justify-between px-10 mobile-nav-wrap">
+        <div class="flex items-center gap-6">
+            <h1 class="text-white text-xl font-black italic tracking-tighter">SATURNO_FORGE</h1>
+            <div class="flex gap-4 text-[10px] uppercase tracking-widest">
+                <span class="text-green-500">● Prompts: 752 Loaded</span>
+                <span class="text-blue-500">● Orbit: Periapsis</span>
+                <span id="mode-display" class="text-amber-500">● Mode: /RawMode</span>
+                <span id="task-sync" class="text-zinc-500 cursor-pointer hover:text-white" onclick="toggleStatusLog()" title="Open task list">● Tasks: 0/0</span>
+            </div>
+        </div>
+        <div class="flex gap-4 flex-wrap mobile-touch">
+            <a href="index.html" class="text-[10px] border border-white text-white px-4 py-2 hover:border-white transition-all">FORGE</a>
+            <a href="capture.html" class="text-[10px] border border-emerald-900 text-emerald-400 px-4 py-2 hover:border-emerald-400 transition-all">CAPTURE</a>
+            <a href="pipelines.html" class="text-[10px] border border-cyan-900 text-cyan-400 px-4 py-2 hover:border-cyan-400 transition-all">PIPELINES</a>
+            <a href="titan.html" class="text-[10px] border border-cyan-900 text-cyan-400 px-4 py-2 hover:border-cyan-400 transition-all">TITAN</a>
+            <a href="synapse.html" class="text-[10px] border border-purple-900 text-purple-400 px-4 py-2 hover:border-purple-400 transition-all">SYNAPSE</a>
+            <a href="writer.html" class="text-[10px] border border-zinc-800 px-4 py-2 hover:border-white transition-all">WRITER</a>
+            <a href="batch-generator.html" class="text-[10px] border border-purple-900 text-purple-400 px-4 py-2 hover:border-purple-400 transition-all">BATCH</a>
+            <a href="nexus.html" class="text-[10px] border border-yellow-700 text-yellow-500 px-4 py-2 hover:border-yellow-400 transition-all">NEXUS</a>
+            <a href="logs.html" class="text-[10px] border border-amber-900 text-amber-500 px-4 py-2 hover:border-amber-500 transition-all">LOGS</a>
+            <a href="onboarding.html" class="text-[10px] border border-zinc-800 px-4 py-2 hover:border-white transition-all">TRITON</a>
+            <a href="movement-studio.html" class="text-[10px] border border-blue-800 text-blue-400 px-4 py-2 hover:border-blue-400 transition-all">STUDIO</a>
+        </div>
+    </div>
+    
+    <!-- STATUS LOG PANEL (Slide-out) -->
+    <div id="status-log" class="hidden fixed right-0 top-16 bottom-0 w-96 bg-black border-l border-zinc-900 z-50 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-white font-bold">🔱 MISSION LOG</h2>
+                <button onclick="toggleStatusLog()" class="text-zinc-600 hover:text-white">✕</button>
+            </div>
+            
+            <!-- TASK LIST -->
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-[9px] text-zinc-600 uppercase tracking-widest">TASKS</p>
+                    <div class="flex gap-1">
+                        <input type="text" id="new-task-title" placeholder="New task..." class="w-28 bg-zinc-900 border border-zinc-800 p-1 text-[9px] outline-none focus:border-white" onkeypress="if(event.key==='Enter')addTaskFromInput()">
+                        <button onclick="addTaskFromInput()" class="text-[9px] border border-zinc-800 px-2 py-1 hover:border-green-500 hover:text-green-500">+</button>
+                    </div>
+                </div>
+                <div id="task-list" class="space-y-3">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+            
+            <!-- DELIVERABLES -->
+            <div class="mb-8">
+                <p class="text-[9px] text-zinc-600 uppercase tracking-widest mb-4">DELIVERABLES</p>
+                <div class="space-y-2 text-[10px]">
+                    <div class="flex justify-between"><span class="text-zinc-500">gemini-mirror-v1.1.sh</span><span class="text-green-500">✓ READY</span></div>
+                    <div class="flex justify-between"><span class="text-zinc-500">index.html</span><span class="text-green-500">✓ READY</span></div>
+                    <div class="flex justify-between"><span class="text-zinc-500">onboarding.html</span><span class="text-green-500">✓ READY</span></div>
+                    <div class="flex justify-between"><span class="text-zinc-500">writer.html</span><span class="text-green-500">✓ READY</span></div>
+                    <div class="flex justify-between"><span class="text-zinc-500">saturno-vision.py</span><span class="text-green-500">✓ READY</span></div>
+                    <div class="flex justify-between"><span class="text-zinc-500">DESIGN-LOCK.md</span><span class="text-green-500">✓ LOCKED</span></div>
+                    <div class="flex justify-between"><span class="text-zinc-500">BBEDIT-GUARDIAN.md</span><span class="text-green-500">✓ ACTIVE</span></div>
+                    <div class="flex justify-between"><span class="text-zinc-500">19-missing-pdfs.py</span><span class="text-amber-500">⏳ PENDING</span></div>
+                </div>
+            </div>
+            
+            <!-- AGENT SYNC -->
+            <div class="mb-8">
+                <p class="text-[9px] text-zinc-600 uppercase tracking-widest mb-4">AGENT SYNC STATUS</p>
+                <div class="space-y-2 text-[10px]">
+                    <div class="flex justify-between"><span class="text-zinc-500">Claude (Max)</span><span class="text-green-500">● SYNCED</span></div>
+                    <div class="flex justify-between"><span class="text-zinc-500">Gemini</span><span class="text-green-500">● SYNCED</span></div>
+                    <div class="flex justify-between"><span class="text-zinc-500">GPT</span><span class="text-green-500">● SYNCED</span></div>
+                    <div class="flex justify-between"><span class="text-zinc-500">Claude Code</span><span class="text-amber-500">● AWAITING</span></div>
+                    <div class="flex justify-between"><span class="text-zinc-500">Cursor</span><span class="text-zinc-600">● STANDBY</span></div>
+                </div>
+            </div>
+            
+            <!-- LIVE LOG -->
+            <div>
+                <p class="text-[9px] text-zinc-600 uppercase tracking-widest mb-4">LIVE LOG</p>
+                <div id="live-log" class="bg-zinc-900/50 p-3 rounded text-[10px] font-mono h-40 overflow-y-auto">
+                    <p class="text-zinc-600">[08:32] BBEDIT Guardian created</p>
+                    <p class="text-zinc-600">[08:35] Design Lock established</p>
+                    <p class="text-zinc-500">[08:40] Status Log integrated</p>
+                    <p class="text-green-500">[08:41] All systems nominal</p>
+                </div>
+                <input type="text" id="log-input" placeholder="Add log entry..." class="w-full mt-2 bg-zinc-900 border border-zinc-800 p-2 text-[10px] outline-none focus:border-white" onkeypress="if(event.key==='Enter')addLogEntry()">
+            </div>
+            
+            <!-- EXPORT -->
+            <div class="mt-6 pt-4 border-t border-zinc-900">
+                <button onclick="exportLog()" class="w-full bg-white text-black py-2 text-[10px] font-bold uppercase hover:bg-zinc-200 transition-all">
+                    Export Full Log
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-grow flex mobile-stack">
+        
+        <!-- LINGUISTIC CONSOLE SIDEBAR -->
+        <div class="w-72 border-r border-zinc-900 p-6 space-y-6 bg-black overflow-y-auto mobile-full">
+            
+            <!-- FRAMEWORK LOADER -->
+            <div class="p-4 border border-zinc-900 rounded">
+                <p class="text-[9px] uppercase mb-2 tracking-[0.2em] text-zinc-600">00 / FRAMEWORK</p>
+                <select id="framework-select" onchange="onFrameworkChange(this.value)" class="w-full bg-zinc-900 border border-zinc-800 p-2 text-[10px] text-zinc-300 outline-none focus:border-white">
+                    <option value="">-- Select --</option>
+                </select>
+            </div>
+            
+            <!-- MASTER FADERS -->
+            <div class="dial-glow p-4 border border-zinc-900 rounded">
+                <p class="text-[9px] uppercase mb-4 tracking-[0.2em] text-zinc-600">01 / MASTER FADERS</p>
+                
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-[10px] mb-1">
+                            <span>F1: Implicit Framing</span>
+                            <span id="f1-val">5</span>
+                        </div>
+                        <input type="range" id="f1" min="0" max="10" value="5" class="w-full" oninput="updateDial('f1')">
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between text-[10px] mb-1">
+                            <span>F3: Emotional Undercurrent</span>
+                            <span id="f3-val">5</span>
+                        </div>
+                        <input type="range" id="f3" min="0" max="10" value="5" class="w-full" oninput="updateDial('f3')">
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between text-[10px] mb-1">
+                            <span>F7: Confidence Emergence</span>
+                            <span id="f7-val">5</span>
+                        </div>
+                        <input type="range" id="f7" min="0" max="10" value="5" class="w-full" oninput="updateDial('f7')">
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between text-[10px] mb-1">
+                            <span>F10: Silence Placement</span>
+                            <span id="f10-val">5</span>
+                        </div>
+                        <input type="range" id="f10" min="0" max="10" value="5" class="w-full" oninput="updateDial('f10')">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- VOICE MODES -->
+            <div class="dial-glow p-4 border border-zinc-900 rounded">
+                <p class="text-[9px] uppercase mb-4 tracking-[0.2em] text-zinc-600">02 / VOICE MODES</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="setMode('Raw')" class="mode-btn text-left p-2 text-[10px] border border-zinc-800 hover:border-white hover:bg-zinc-900 transition-all">/RawMode</button>
+                    <button onclick="setMode('Teacher')" class="mode-btn text-left p-2 text-[10px] border border-zinc-800 hover:border-white hover:bg-zinc-900 transition-all">/TeacherMode</button>
+                    <button onclick="setMode('Prophet')" class="mode-btn text-left p-2 text-[10px] border border-zinc-800 hover:border-white hover:bg-zinc-900 transition-all">/ProphetMode</button>
+                    <button onclick="setMode('Philosopher')" class="mode-btn text-left p-2 text-[10px] border border-zinc-800 hover:border-white hover:bg-zinc-900 transition-all">/PhilosopherMode</button>
+                    <button onclick="setMode('Mystic')" class="mode-btn text-left p-2 text-[10px] border border-zinc-800 hover:border-white hover:bg-zinc-900 transition-all">/MysticMode</button>
+                    <button onclick="setMode('Rebel')" class="mode-btn text-left p-2 text-[10px] border border-zinc-800 hover:border-white hover:bg-zinc-900 transition-all">/RebelMode</button>
+                    <button onclick="setMode('Companion')" class="mode-btn text-left p-2 text-[10px] border border-zinc-800 hover:border-white hover:bg-zinc-900 transition-all">/CompanionMode</button>
+                    <button onclick="setMode('Confessor')" class="mode-btn text-left p-2 text-[10px] border border-zinc-800 hover:border-white hover:bg-zinc-900 transition-all">/ConfessorMode</button>
+                </div>
+            </div>
+            
+            <!-- PRESET STACKS -->
+            <div class="dial-glow p-4 border border-zinc-900 rounded">
+                <p class="text-[9px] uppercase mb-4 tracking-[0.2em] text-zinc-600">03 / PRESET STACKS</p>
+                <div class="space-y-2">
+                    <button onclick="loadStack('gentle-authority')" class="w-full text-left p-2 text-[10px] border border-zinc-800 hover:border-amber-500 hover:bg-zinc-900 transition-all">
+                        <span class="text-amber-500">S01</span> Gentle Authority
+                    </button>
+                    <button onclick="loadStack('trust-first')" class="w-full text-left p-2 text-[10px] border border-zinc-800 hover:border-green-500 hover:bg-zinc-900 transition-all">
+                        <span class="text-green-500">S02</span> Trust-First Explanation
+                    </button>
+                    <button onclick="loadStack('non-coercive')" class="w-full text-left p-2 text-[10px] border border-zinc-800 hover:border-blue-500 hover:bg-zinc-900 transition-all">
+                        <span class="text-blue-500">S03</span> Non-Coercive Persuasion
+                    </button>
+                    <button onclick="loadStack('high-precision')" class="w-full text-left p-2 text-[10px] border border-zinc-800 hover:border-purple-500 hover:bg-zinc-900 transition-all">
+                        <span class="text-purple-500">S04</span> High-Precision Warmth
+                    </button>
+                </div>
+            </div>
+            
+            <!-- EXPORT -->
+            <div class="p-4 border border-zinc-900 rounded bg-zinc-900/50">
+                <button onclick="exportSettings()" class="w-full bg-white text-black py-2 text-[10px] font-bold uppercase hover:bg-zinc-200 transition-all">
+                    Export Console State
+                </button>
+            </div>
+        </div>
+
+        <!-- MAIN WRITING AREA -->
+        <div class="flex-grow flex bg-[#080808]">
+            
+            <!-- PERIAPSIS: INPUT -->
+            <div class="w-1/2 border-r border-zinc-900 p-8 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-[9px] uppercase tracking-[0.2em] text-zinc-600">Periapsis / Raw Input</p>
+                    <span class="text-[9px] text-zinc-700" id="input-count">0 words</span>
+                </div>
+                <textarea id="raw-input" class="flex-grow w-full bg-transparent outline-none resize-none leading-relaxed text-sm text-zinc-300" placeholder="Paste voice transcript, raw notes, or AOC content here...
+
+Examples:
+- Victory Belt chapter drafts
+- Voice memo transcriptions  
+- Raw philosophical rants
+- Movement principle notes
+
+The Forge will synthesize through your active voice mode..." oninput="updateWordCount()"></textarea>
+            </div>
+            
+            <!-- APOAPSIS: OUTPUT -->
+            <div class="w-1/2 p-8 bg-black/40 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <p class="text-[9px] uppercase tracking-[0.2em] text-zinc-600">Apoapsis / Synthesized Output</p>
+                    <button onclick="synthesize()" class="text-[10px] bg-amber-500 text-black px-4 py-1 font-bold hover:bg-amber-400 transition-all">SYNTHESIZE</button>
+                </div>
+                <div id="output" class="flex-grow prose prose-invert max-w-none text-zinc-300 text-sm overflow-y-auto">
+                    <p class="italic text-zinc-500">Waiting for synthesis...</p>
+                    <p class="text-zinc-600 text-[11px] mt-4">Active mode will transform your input through the Linguistic Console settings.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentMode = 'Raw';
+        let consoleState = {
+            f1: 5, f3: 5, f7: 5, f10: 5,
+            mode: 'Raw'
+        };
+
+        // Voice Mode Presets
+        const modePresets = {
+            'Raw': { f1: 3, f3: 8, f7: 6, f10: 2 },
+            'Teacher': { f1: 7, f3: 5, f7: 8, f10: 5 },
+            'Prophet': { f1: 8, f3: 7, f7: 9, f10: 6 },
+            'Philosopher': { f1: 9, f3: 6, f7: 7, f10: 7 },
+            'Mystic': { f1: 6, f3: 9, f7: 5, f10: 9 },
+            'Rebel': { f1: 4, f3: 9, f7: 10, f10: 3 },
+            'Companion': { f1: 5, f3: 7, f7: 5, f10: 4 },
+            'Confessor': { f1: 6, f3: 8, f7: 4, f10: 5 }
+        };
+
+        // Stack Presets
+        const stacks = {
+            'gentle-authority': { f1: 7, f3: 6, f7: 7, f10: 5, mode: 'Teacher' },
+            'trust-first': { f1: 8, f3: 5, f7: 6, f10: 6, mode: 'Companion' },
+            'non-coercive': { f1: 6, f3: 7, f7: 5, f10: 7, mode: 'Philosopher' },
+            'high-precision': { f1: 9, f3: 4, f7: 8, f10: 4, mode: 'Teacher' }
+        };
+
+        function updateDial(id) {
+            const val = document.getElementById(id).value;
+            document.getElementById(id + '-val').textContent = val;
+            consoleState[id] = parseInt(val);
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            consoleState.mode = mode;
+            document.getElementById('mode-display').textContent = '● Mode: /' + mode + 'Mode';
+            
+            // Apply mode presets
+            const preset = modePresets[mode];
+            if (preset) {
+                Object.keys(preset).forEach(key => {
+                    document.getElementById(key).value = preset[key];
+                    document.getElementById(key + '-val').textContent = preset[key];
+                    consoleState[key] = preset[key];
+                });
+            }
+            
+            // Visual feedback
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('border-white', 'bg-zinc-800');
+            });
+            event.target.classList.add('border-white', 'bg-zinc-800');
+        }
+
+        function loadStack(stackName) {
+            const stack = stacks[stackName];
+            if (stack) {
+                Object.keys(stack).forEach(key => {
+                    if (key === 'mode') {
+                        setMode(stack[key]);
+                    } else {
+                        document.getElementById(key).value = stack[key];
+                        document.getElementById(key + '-val').textContent = stack[key];
+                        consoleState[key] = stack[key];
+                    }
+                });
+            }
+        }
+
+        async function initFrameworks() {
+            await FrameworkLoader.loadRegistry();
+            const sel = document.getElementById('framework-select');
+            if (!sel || !FrameworkLoader.registry?.frameworks) return;
+            FrameworkLoader.registry.frameworks.forEach(fw => {
+                const opt = document.createElement('option');
+                opt.value = fw.id;
+                opt.textContent = fw.name;
+                sel.appendChild(opt);
+            });
+        }
+
+        async function onFrameworkChange(id) {
+            if (!id) return;
+            const fw = await FrameworkLoader.loadFramework(id);
+            if (fw?.presets?.[0]) {
+                const p = fw.presets[0];
+                Object.keys(p.values || p).forEach(key => {
+                    const el = document.getElementById(key);
+                    if (el) {
+                        const v = (p.values || p)[key];
+                        el.value = v;
+                        const valEl = document.getElementById(key + '-val');
+                        if (valEl) valEl.textContent = v;
+                        if (consoleState) consoleState[key] = v;
+                    }
+                });
+                if (p.values?.mode) setMode(p.values.mode);
+            }
+        }
+
+        function updateWordCount() {
+            const text = document.getElementById('raw-input').value;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            document.getElementById('input-count').textContent = words + ' words';
+        }
+
+        function synthesize() {
+            const input = document.getElementById('raw-input').value;
+            const output = document.getElementById('output');
+            
+            if (!input.trim()) {
+                output.innerHTML = '<p class="text-red-400">No input to synthesize. Paste content in the left panel.</p>';
+                return;
+            }
+
+            // Build the synthesis prompt
+            const prompt = `/${currentMode}Mode synthesis request:
+
+Console State:
+- Implicit Framing (F1): ${consoleState.f1}/10
+- Emotional Undercurrent (F3): ${consoleState.f3}/10  
+- Confidence Emergence (F7): ${consoleState.f7}/10
+- Silence Placement (F10): ${consoleState.f10}/10
+
+Raw Input:
+${input}
+
+---
+Transform this through the active voice mode and console settings.`;
+
+            output.innerHTML = `
+                <p class="text-green-400 mb-4">✓ Ready for synthesis</p>
+                <div class="bg-zinc-900 p-4 rounded text-[11px] font-mono">
+                    <p class="text-zinc-500 mb-2">// Copy this prompt to Claude:</p>
+                    <pre class="whitespace-pre-wrap text-zinc-300">${prompt}</pre>
+                </div>
+                <button onclick="copyToClipboard()" class="mt-4 bg-white text-black px-4 py-2 text-[10px] font-bold">COPY PROMPT</button>
+            `;
+        }
+
+        function copyToClipboard() {
+            const prompt = document.querySelector('pre').textContent;
+            navigator.clipboard.writeText(prompt);
+            alert('Prompt copied to clipboard!');
+        }
+
+        function exportSettings() {
+            const settings = JSON.stringify(consoleState, null, 2);
+            const blob = new Blob([settings], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'saturno-console-state.json';
+            a.click();
+        }
+
+        function shipToVercel() {
+            alert('To deploy: Push this folder to GitHub and connect to Vercel.\n\nFiles needed:\n- index.html\n- onboarding.html\n- writer.html');
+        }
+        
+        // ═══════════════════════════════════════════════════════════════
+        // TASK LIST (localStorage persistent)
+        // ═══════════════════════════════════════════════════════════════
+        
+        const TASKS_STORAGE = 'forge-task-list';
+        const COMPLETED_STORAGE = 'forge-tasks';
+        const DEFAULT_TASKS = [
+            { id: 'mirror', title: 'Mirror & Secure', subtitle: 'gemini-mirror-v1.1.sh' },
+            { id: 'vercel', title: 'Vercel Deploy', subtitle: 'saturno-apsis-v1.vercel.app' },
+            { id: 'triton', title: 'Triton Onboarding', subtitle: '10 Questions Answered' },
+            { id: 'chapter1', title: 'VB Synthesis', subtitle: 'Chapter 1: The Weight Lie' },
+            { id: 'photos', title: 'Photo Harvest', subtitle: 'saturno-vision.py --auto' }
+        ];
+        
+        let taskList = JSON.parse(localStorage.getItem(TASKS_STORAGE) || 'null');
+        let completedTasks = JSON.parse(localStorage.getItem(COMPLETED_STORAGE) || '{}');
+        
+        if (!taskList) {
+            taskList = DEFAULT_TASKS;
+            saveTasks();
+        }
+        
+        function saveTasks() {
+            localStorage.setItem(TASKS_STORAGE, JSON.stringify(taskList));
+            localStorage.setItem(COMPLETED_STORAGE, JSON.stringify(completedTasks));
+            renderTasks();
+            updateTaskSyncHeader();
+        }
+        
+        function updateTaskSyncHeader() {
+            const el = document.getElementById('task-sync');
+            if (el) {
+                const total = taskList.length;
+                const done = taskList.filter(t => completedTasks[t.id]).length;
+                el.textContent = `● Tasks: ${done}/${total}`;
+                el.className = done === total && total > 0 ? 'text-green-500' : 'text-zinc-500';
+            }
+        }
+        
+        function renderTasks() {
+            const container = document.getElementById('task-list');
+            if (!container) return;
+            container.innerHTML = taskList.map(t => {
+                const done = completedTasks[t.id];
+                return `
+                <div class="flex items-center gap-3 task-item ${done ? 'opacity-60' : ''}" data-task="${t.id}">
+                    <span class="w-2 h-2 rounded-full flex-shrink-0 ${done ? 'bg-green-500' : 'bg-zinc-700'}" id="dot-${t.id}"></span>
+                    <div class="flex-grow min-w-0">
+                        <p class="text-[11px] text-zinc-400">${escapeHtml(t.title)}</p>
+                        <p class="text-[10px] text-zinc-600">${escapeHtml(t.subtitle || '')}</p>
+                    </div>
+                    <div class="flex gap-1 flex-shrink-0">
+                        <button onclick="completeTask('${t.id}')" class="text-[9px] border border-zinc-800 px-2 py-1 hover:border-green-500 hover:text-green-500">${done ? '↺' : '✓'}</button>
+                        <button onclick="deleteTask('${t.id}')" class="text-[9px] border border-zinc-800 px-2 py-1 hover:border-red-500 hover:text-red-500">✕</button>
+                    </div>
+                </div>`;
+            }).join('');
+            updateTaskSyncHeader();
+        }
+        
+        function escapeHtml(s) {
+            if (!s) return '';
+            const div = document.createElement('div');
+            div.textContent = s;
+            return div.innerHTML;
+        }
+        
+        function completeTask(taskId) {
+            completedTasks[taskId] = !completedTasks[taskId];
+            saveTasks();
+            addLogEntry(`Task ${completedTasks[taskId] ? 'completed' : 'unmarked'}: ${taskId}`);
+        }
+        
+        function deleteTask(taskId) {
+            taskList = taskList.filter(t => t.id !== taskId);
+            delete completedTasks[taskId];
+            saveTasks();
+            addLogEntry(`Task deleted: ${taskId}`);
+        }
+        
+        function addTask(title, subtitle) {
+            const id = 'task-' + Date.now();
+            taskList.push({ id, title: title || 'New Task', subtitle: subtitle || '' });
+            saveTasks();
+            addLogEntry(`Task added: ${title || id}`);
+        }
+        
+        function addTaskFromInput() {
+            const input = document.getElementById('new-task-title');
+            if (input && input.value.trim()) {
+                addTask(input.value.trim(), '');
+                input.value = '';
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTasks();
+            initFrameworks();
+        });
+        
+        function toggleStatusLog() {
+            document.getElementById('status-log').classList.toggle('hidden');
+        }
+        
+        function addLogEntry(text) {
+            const log = document.getElementById('live-log');
+            const input = document.getElementById('log-input');
+            const entry = text || input.value;
+            
+            if (entry.trim()) {
+                const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+                const p = document.createElement('p');
+                p.className = 'text-green-500';
+                p.textContent = `[${time}] ${entry}`;
+                log.appendChild(p);
+                log.scrollTop = log.scrollHeight;
+                
+                if (input) input.value = '';
+                
+                // Save to localStorage
+                const logs = JSON.parse(localStorage.getItem('forge-logs') || '[]');
+                logs.push({ time, entry });
+                localStorage.setItem('forge-logs', JSON.stringify(logs));
+            }
+        }
+        
+        function exportLog() {
+            const logs = JSON.parse(localStorage.getItem('forge-logs') || '[]');
+            
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                tasks: taskList,
+                completedTasks: completedTasks,
+                logs: logs,
+                consoleState: consoleState
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `saturno-forge-log-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // BEAST API INTEGRATION
+        // ═══════════════════════════════════════════════════════════════
+        
+        async function synthesizeWithBeast(text, mode, consoleState) {
+            try {
+                const url = typeof API_CONFIG !== 'undefined' ? API_CONFIG.getTransformUrl() : 'https://saturno-beast-api.vercel.app/api/transform';
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        mode: mode,
+                        console_state: consoleState
+                    })
+                });
+                const data = await response.json();
+                return data.result || data.error || 'Transform failed';
+            } catch (e) {
+                console.log('BEAST API offline, using prompt export');
+                return null;
+            }
+        }
+        
+        // Movement-Voice Mapping (connects to Movement Studio)
+        const VOICE_MOVEMENT_MAP = {
+            'Raw': { bpm: 140, emotion: 'Aggression', training: 'Beast Mode' },
+            'Teacher': { bpm: 100, emotion: 'Clarity', training: 'Standard' },
+            'Prophet': { bpm: 75, emotion: 'Vision', training: 'Skill Focus' },
+            'Philosopher': { bpm: 65, emotion: 'Depth', training: 'Monk Mode' },
+            'Mystic': { bpm: 55, emotion: 'Transcendence', training: 'Flow Ritual' },
+            'Rebel': { bpm: 150, emotion: 'Defiance', training: 'Beast Mode' },
+            'Companion': { bpm: 90, emotion: 'Warmth', training: 'Recovery' },
+            'Confessor': { bpm: 70, emotion: 'Vulnerability', training: 'Slow Strength' }
+        };
+        
+        // Display movement mapping when mode changes
+        function showMovementSync(mode) {
+            const mapping = VOICE_MOVEMENT_MAP[mode];
+            if (mapping) {
+                console.log('Voice → Movement Sync:', mapping);
+                // Could send to Movement Studio via postMessage or localStorage
+                localStorage.setItem('titan_voice_sync', JSON.stringify({
+                    mode: mode,
+                    ...mapping,
+                    timestamp: Date.now()
+                }));
+            }
+        }
+        
+        // Enhanced setMode with movement sync
+        const origSetMode = setMode;
+        setMode = function(mode) {
+            origSetMode(mode);
+            showMovementSync(mode);
+        };
+        
+        console.log('TITAN FORGE - BEAST API + Movement Sync loaded');
+
+    </script>
+</body>
+</html>

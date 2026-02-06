@@ -1,0 +1,29 @@
+{
+  "id": "linguistic-console",
+  "name": "Linguistic Console",
+  "version": "1.0",
+  "dials": [
+    { "id": "f1", "name": "Certainty", "min": 0, "max": 10, "default": 5, "levels": ["Tentative", "Moderate", "Assertive", "Absolute"] },
+    { "id": "f2", "name": "Formality", "min": 0, "max": 10, "default": 5, "levels": ["Colloquial", "Neutral", "Formal", "Academic"] },
+    { "id": "f3", "name": "Intensity", "min": 0, "max": 10, "default": 5, "levels": ["Calm", "Moderate", "Intense", "Fierce"] },
+    { "id": "f4", "name": "Intimacy", "min": 0, "max": 10, "default": 5, "levels": ["Distant", "Neutral", "Warm", "Personal"] },
+    { "id": "f5", "name": "Abstraction", "min": 0, "max": 10, "default": 5, "levels": ["Concrete", "Balanced", "Abstract", "Philosophical"] },
+    { "id": "f6", "name": "Density", "min": 0, "max": 10, "default": 5, "levels": ["Sparse", "Moderate", "Dense", "Condensed"] }
+  ],
+  "knobs": [
+    { "id": "k1", "name": "Voice Mode", "options": ["Raw", "Teacher", "Prophet", "Philosopher", "Mystic", "Rebel", "Companion", "Confessor"] }
+  ],
+  "sliders": [
+    { "id": "s1", "name": "Directness", "leftPole": "Indirect", "rightPole": "Direct" },
+    { "id": "s2", "name": "Temporal", "leftPole": "Timeless", "rightPole": "Present" }
+  ],
+  "switches": [
+    { "id": "sw1", "name": "Direct Address", "offState": "Third Person", "onState": "Second Person" },
+    { "id": "sw2", "name": "Profanity", "offState": "Clean", "onState": "Allowed" }
+  ],
+  "presets": [
+    { "name": "Raw", "values": { "f1": 3, "f2": 4, "f3": 8, "f4": 2, "f5": 6, "f6": 7 } },
+    { "name": "Teacher", "values": { "f1": 7, "f2": 6, "f3": 5, "f4": 6, "f5": 4, "f6": 5 } },
+    { "name": "Prophet", "values": { "f1": 8, "f2": 7, "f3": 7, "f4": 5, "f5": 8, "f6": 6 } }
+  ]
+}

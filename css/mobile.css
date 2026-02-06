@@ -1,0 +1,67 @@
+/**
+ * SATURNO FORGE - Mobile Optimizations
+ * Include in head after main styles.
+ * Breakpoints: 768px (tablet), 480px (phone)
+ */
+
+/* Touch targets - min 44px for tap */
+@media (max-width: 768px) {
+  .mobile-touch a,
+  .mobile-touch button {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 12px;
+  }
+  
+  .mobile-stack { flex-direction: column !important; }
+  .mobile-full { width: 100% !important; max-width: 100% !important; }
+  .mobile-p-sm { padding: 12px 16px !important; }
+  
+  /* Header nav wrap */
+  .mobile-nav-wrap { flex-wrap: wrap; gap: 8px; padding: 12px !important; }
+  
+  /* Prevent horizontal scroll */
+  body { overflow-x: hidden; }
+  html, body { max-width: 100vw; }
+}
+
+@media (max-width: 480px) {
+  .mobile-p-sm { padding: 10px 12px !important; }
+  .mobile-text-sm { font-size: 10px !important; }
+}
+
+/* Touch: prevent 300ms delay and double-tap zoom */
+a, button, [role="button"], input, select, textarea {
+  touch-action: manipulation;
+}
+
+/* Safe area for notched devices (iPhone X+) */
+@supports (padding: max(0px)) {
+  body { 
+    padding-left: max(0px, env(safe-area-inset-left)); 
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+}
+
+/* Hub: sidebar + main stack on mobile */
+@media (max-width: 768px) {
+  .app { grid-template-columns: 1fr !important; grid-template-rows: auto 1fr !important; }
+  .sidebar { max-height: 50vh; overflow-y: auto; }
+  .main { min-height: 50vh; }
+}
+
+/* Writer: sidebar + editor + preview stack */
+@media (max-width: 768px) {
+  .flex-grow.flex { flex-direction: column !important; }
+  .flex-grow.flex .w-56 { width: 100% !important; max-width: 100% !important; border-right: none; border-bottom: 1px solid #27272a; }
+  .flex-grow.flex .w-1\/2 { width: 100% !important; min-height: 40vh; }
+}
+
+/* Logs: left + right stack */
+@media (max-width: 768px) {
+  .flex .w-2\/3 { width: 100% !important; }
+  .flex .w-1\/3 { width: 100% !important; }
+}
