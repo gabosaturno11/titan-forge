@@ -17,7 +17,25 @@
         #preview blockquote { border-left: 2px solid #52525b; padding-left: 1.5rem; color: #a1a1aa; font-style: italic; }
         .chapter-item:hover { background: rgba(255,255,255,0.05); }
         .chapter-item.active { border-color: #fff; background: rgba(255,255,255,0.05); }
+        .section-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 8px 0;
+          cursor: pointer;
+          user-select: none;
+          border-bottom: 1px solid transparent;
+        }
+        .section-header:hover { color: #fff; }
+        .section-header .chevron {
+          transition: transform 0.2s;
+          color: #52525b;
+          font-size: 10px;
+        }
+        .section-header .chevron.collapsed { transform: rotate(-90deg); }
+        .section-content.collapsed { display: none; }
     </style>
+    <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body class="bg-[#050505] text-zinc-300 h-screen flex flex-col overflow-hidden">
     
@@ -55,10 +73,13 @@
     <div class="flex-grow flex">
         
         <!-- CHAPTER SIDEBAR -->
-        <div class="w-56 border-r border-zinc-900 bg-black p-4 overflow-y-auto">
-            <p class="text-[9px] text-zinc-600 uppercase tracking-widest mb-4">AOC Chapters</p>
-            
-            <div id="chapters" class="space-y-1">
+        <div class="w-56 border-r border-zinc-900 bg-black p-4 overflow-y-auto flex flex-col">
+            <div class="section-header flex-shrink-0" onclick="toggleSection('chapters')">
+              <span class="text-[9px] text-zinc-600 uppercase tracking-widest">Chapters</span>
+              <span id="chevron-chapters" class="chevron">&#9660;</span>
+            </div>
+            <div id="section-chapters" class="section-content flex-shrink-0">
+            <div id="chapters" class="space-y-1 mt-2">
                 <div class="chapter-item active border-l-2 border-zinc-800 pl-3 py-2 cursor-pointer" onclick="loadChapter(0)">
                     <p class="text-[10px] text-zinc-600">CH 01</p>
                     <p class="text-[11px] text-zinc-300">The Weight Lie</p>
@@ -84,9 +105,14 @@
             <button onclick="addChapter()" class="w-full mt-4 border border-dashed border-zinc-800 p-2 text-[10px] text-zinc-600 hover:border-white hover:text-white transition-all">
                 + Add Chapter
             </button>
+            </div>
             
-            <div class="mt-8 pt-4 border-t border-zinc-900">
-                <p class="text-[9px] text-zinc-600 uppercase tracking-widest mb-3">Stats</p>
+            <div class="mt-6 pt-4 border-t border-zinc-900 flex-shrink-0">
+                <div class="section-header" onclick="toggleSection('stats')">
+                  <span class="text-[9px] text-zinc-600 uppercase tracking-widest">Stats</span>
+                  <span id="chevron-stats" class="chevron">&#9660;</span>
+                </div>
+                <div id="section-stats" class="section-content">
                 <div class="space-y-2 text-[10px]">
                     <div class="flex justify-between">
                         <span class="text-zinc-600">Words:</span>
@@ -100,6 +126,7 @@
                         <span class="text-zinc-600">Est. Pages:</span>
                         <span id="page-count">0</span>
                     </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -193,6 +220,7 @@ The weight isn't waiting for you to be ready. The weight is *making* you ready.
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             loadChapter(0);
+            restoreSidebarState();
             
             // Mode select
             document.getElementById('mode-select').addEventListener('change', (e) => {
@@ -244,6 +272,35 @@ The weight isn't waiting for you to be ready. The weight is *making* you ready.
 
         function toggleFocus() {
             document.getElementById('focus-overlay').classList.toggle('hidden');
+        }
+
+        function toggleSection(id) {
+            const section = document.getElementById('section-' + id);
+            const chevron = document.getElementById('chevron-' + id);
+            if (!section || !chevron) return;
+            section.classList.toggle('collapsed');
+            chevron.classList.toggle('collapsed');
+            try {
+                const state = JSON.parse(localStorage.getItem('writer-sidebar-state') || '{}');
+                state[id] = section.classList.contains('collapsed');
+                localStorage.setItem('writer-sidebar-state', JSON.stringify(state));
+            } catch (e) {}
+        }
+
+        function restoreSidebarState() {
+            try {
+                const state = JSON.parse(localStorage.getItem('writer-sidebar-state') || '{}');
+                ['chapters', 'stats'].forEach(id => {
+                    if (state[id]) {
+                        const section = document.getElementById('section-' + id);
+                        const chevron = document.getElementById('chevron-' + id);
+                        if (section && chevron) {
+                            section.classList.add('collapsed');
+                            chevron.classList.add('collapsed');
+                        }
+                    }
+                });
+            } catch (e) {}
         }
 
         function addChapter() {

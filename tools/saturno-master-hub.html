@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Saturno Empire Consolidation Hub - Voice Enabled</title>
     <style>
         :root {
@@ -513,6 +513,83 @@
 
         ::-webkit-scrollbar-thumb:hover {
             background: var(--accent-dim);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .empire-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 50px 1fr;
+            }
+
+            .asset-browser, .tools-panel {
+                display: none;
+            }
+
+            .main-workspace {
+                grid-column: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 12px;
+                flex-wrap: wrap;
+                height: auto;
+                min-height: 50px;
+                gap: 8px;
+                padding: 8px 12px;
+            }
+
+            .logo { font-size: 12px; }
+
+            .header-controls {
+                gap: 4px;
+            }
+
+            .header-btn {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+
+            .voice-btn { width: 30px; height: 30px; }
+
+            .workspace-tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab {
+                padding: 10px 14px;
+                font-size: 11px;
+                white-space: nowrap;
+            }
+
+            .editor-toolbar { padding: 8px 12px; }
+            .document-title { font-size: 14px; }
+            .editor-area { padding: 12px; }
+            .main-editor { font-size: 13px; }
+
+            .stats-bar {
+                bottom: 8px;
+                right: 8px;
+                padding: 4px 8px;
+                font-size: 9px;
+            }
+
+            .notification {
+                top: auto;
+                bottom: 16px;
+                right: 16px;
+                left: 16px;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header { justify-content: space-between; }
+            .header-controls { display: none; }
+            .logo { font-size: 11px; }
         }
     </style>
 </head>

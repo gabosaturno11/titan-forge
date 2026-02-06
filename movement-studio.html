@@ -56,6 +56,8 @@
         .track-controls { display: flex; gap: 4px; margin-top: 4px; }
         .track-btn { width: 20px; height: 16px; font-size: 8px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; }
         .track-btn:hover { border-color: var(--text); color: var(--text); }
+        .track-select { font-size: 9px; padding: 2px 4px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text); max-width: 90px; }
+        .music-label { font-size: 9px; color: var(--text-muted); padding: 4px 8px; }
         .track-content { flex: 1; position: relative; background: repeating-linear-gradient(90deg, transparent, transparent 79px, var(--border) 79px, var(--border) 80px); }
         .clip { position: absolute; height: 48px; top: 6px; background: var(--accent-purple); border: 1px solid rgba(255,255,255,0.2); cursor: move; display: flex; align-items: center; padding: 0 8px; font-size: 10px; font-weight: 500; user-select: none; }
         .clip.upper-push { background: var(--accent-blue); }
@@ -90,7 +92,7 @@
 <body>
     <div class="app">
         <header class="header">
-            <div class="logo"><div class="logo-text">SATURNO MOVEMENT STUDIO</div><div class="logo-sub">V1.0 / Program Builder</div></div>
+            <div class="logo"><div class="logo-text">SATURNO MOVEMENT STUDIO</div><div class="logo-sub">V1.1 / Music + Program Builder</div></div>
             <nav class="header-nav">
                 <a href="index.html" class="nav-btn">FORGE</a>
                 <a href="titan.html" class="nav-btn">TITAN</a>
@@ -159,6 +161,7 @@
                     </div>
                     <div class="timeline-tracks" id="timeline-tracks">
                         <div class="playhead" id="playhead"></div>
+                        <div class="track" data-track="music"><div class="track-header"><div class="track-name">Music</div><div class="track-controls"><button class="track-btn" id="music-play-btn" onclick="toggleMusic()">&#9654;</button><select class="track-select" id="music-select" onchange="loadMusicTrack()"><option value="">--</option><option value="audio/music_library/Intro Music song only.mp3">Intro Song</option><option value="audio/music_library/kornev_music_-_aggressive_trailer_hybrid_(short_version).wav">Trailer</option><option value="audio/music_library/Outro Stinger.mp3">Outro</option></select></div></div><div class="track-content" data-track="music"><span class="music-label" id="music-label">--</span></div></div>
                         <div class="track" data-track="upper-push"><div class="track-header"><div class="track-name">Upper Push</div><div class="track-controls"><button class="track-btn">M</button><button class="track-btn">S</button></div></div><div class="track-content" data-track="upper-push"></div></div>
                         <div class="track" data-track="upper-pull"><div class="track-header"><div class="track-name">Upper Pull</div><div class="track-controls"><button class="track-btn">M</button><button class="track-btn">S</button></div></div><div class="track-content" data-track="upper-pull"></div></div>
                         <div class="track" data-track="core"><div class="track-header"><div class="track-name">Core</div><div class="track-controls"><button class="track-btn">M</button><button class="track-btn">S</button></div></div><div class="track-content" data-track="core"></div></div>
@@ -194,8 +197,10 @@
         </footer>
     </div>
     <script>
-        let isPlaying = false, currentTime = 0, bpm = 120, playInterval = null;
+        let isPlaying = false, currentTime = 0, bpm = 120, playInterval = null, musicAudio = new Audio(), musicPlaying = false;
         document.addEventListener('DOMContentLoaded', () => { initDragDrop(); loadSession(); });
+        function loadMusicTrack() { const sel = document.getElementById('music-select'); const src = sel.value; const lbl = document.getElementById('music-label'); if (!src) { musicAudio.src = ''; lbl.textContent = '--'; return; } musicAudio.src = src; lbl.textContent = sel.options[sel.selectedIndex].text; musicAudio.load(); }
+        function toggleMusic() { if (!musicAudio.src) return; musicPlaying = !musicPlaying; const btn = document.getElementById('music-play-btn'); if (musicPlaying) { musicAudio.play(); btn.innerHTML = '&#9616;&#9616;'; btn.classList.add('active'); } else { musicAudio.pause(); btn.innerHTML = '&#9654;'; btn.classList.remove('active'); } }
         function initDragDrop() {
             document.querySelectorAll('.movement-item').forEach(item => {
                 item.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', JSON.stringify({name: item.dataset.name, category: item.dataset.category})); item.style.opacity = '0.5'; });

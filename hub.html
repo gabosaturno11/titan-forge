@@ -603,8 +603,9 @@
     .panel-collapse-btn:hover { color: var(--text); }
     .three-panel-body { flex: 1; overflow-y: auto; padding: 16px; }
     .resize-handle {
-      width: 6px;
+      width: 8px;
       flex-shrink: 0;
+      align-self: stretch;
       background: var(--border);
       cursor: col-resize;
       transition: background 0.15s;
@@ -686,6 +687,7 @@
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
   </style>
+  <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body>
   <div class="app">
@@ -1082,22 +1084,22 @@
 
         <!-- TITAN Panel (embedded) -->
         <div class="panel" id="panel-titan">
-          <iframe src="../titan-forge-upgrade/titan.html" class="tool-frame"></iframe>
+          <iframe src="titan.html" class="tool-frame"></iframe>
         </div>
 
         <!-- SYNAPSE Panel (embedded) -->
         <div class="panel" id="panel-synapse">
-          <iframe src="../titan-forge-upgrade/synapse.html" class="tool-frame"></iframe>
+          <iframe src="synapse.html" class="tool-frame"></iframe>
         </div>
 
         <!-- Media Player Panel (embedded) -->
         <div class="panel" id="panel-media">
-          <iframe src="music-organizer.html" class="tool-frame"></iframe>
+          <iframe src="tools/music-organizer.html" class="tool-frame"></iframe>
         </div>
 
         <!-- NEXUS Panel (embedded) -->
         <div class="panel" id="panel-nexus">
-          <iframe src="../titan-forge-upgrade/nexus.html" class="tool-frame"></iframe>
+          <iframe src="nexus.html" class="tool-frame"></iframe>
         </div>
 
         <!-- API Status Panel -->

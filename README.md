@@ -146,6 +146,74 @@ Rails prevent automation chaos. Every card needs human approval before mass exec
 
 ---
 
+## System Vector Map
+
+How all tools connect:
+
+```mermaid
+flowchart TB
+    subgraph hub [SATURNO HUB - Central Commander]
+        HUB[hub.html]
+    end
+
+    subgraph core [Core Tools]
+        FORGE[index.html - Forge Console]
+        TITAN[titan.html - AI Synthesis]
+        SYNAPSE[synapse.html - Prompt Engine]
+        NEXUS[nexus.html - Command Center]
+    end
+
+    subgraph capture [Capture System]
+        CAPTURE[capture.html]
+        EXT[Chrome Extension]
+        PIPELINES[pipelines.html]
+    end
+
+    subgraph output [Output Tools]
+        WRITER[writer.html]
+        BATCH[batch-generator.html]
+        PDFS[pdfs.html]
+    end
+
+    subgraph system [System]
+        LOGS[logs.html - Mission Control]
+        ONBOARD[onboarding.html - TRITON]
+        COMMAND[command.html - Tasks]
+    end
+
+    HUB --> FORGE
+    HUB --> TITAN
+    HUB --> SYNAPSE
+    HUB --> NEXUS
+    HUB --> CAPTURE
+    CAPTURE --> EXT
+    CAPTURE --> PIPELINES
+    PIPELINES --> TITAN
+    TITAN --> WRITER
+    TITAN --> BATCH
+    BATCH --> PDFS
+    FORGE --> LOGS
+    HUB --> ONBOARD
+    HUB --> COMMAND
+```
+
+---
+
+## Logging Protocol
+
+ALL changes must be documented in [Mission Logs](logs.html):
+
+1. Before making changes: Check existing logs
+2. After completing work: Add entry with:
+   - Timestamp
+   - What was changed
+   - Files affected
+   - Status (success/pending/active)
+
+This ensures continuity between AI sessions and human review.
+
+---
+
 **Creator:** Gabo Saturno
 **Stack:** Claude Code + BEAST API + Vercel
 **Updated:** February 4, 2026
