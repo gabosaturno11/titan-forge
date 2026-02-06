@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
+  },
+  "dependencies": {
+    "@vercel/functions": "^3.0.0"
+  }
+}

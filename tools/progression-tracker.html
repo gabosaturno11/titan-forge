@@ -1,937 +1,383 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saturno Progression Tracker</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root {
-            --bg-primary: #050508;
-            --bg-secondary: #0a0a12;
-            --bg-card: rgba(255, 255, 255, 0.03);
-            --accent-gold: #eab308;
-            --accent-blue: #3b82f6;
-            --accent-purple: #8b5cf6;
-            --text-primary: #FFFFFF;
-            --text-secondary: rgba(255, 255, 255, 0.7);
-            --text-muted: rgba(255, 255, 255, 0.5);
-            --border: rgba(255, 255, 255, 0.08);
-            --stage-0: #22c55e;
-            --stage-1: #3b82f6;
-            --stage-2: #eab308;
-            --stage-3: #ef4444;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Animated Background Blobs */
-        .bg-blobs {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: -1;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.3;
-        }
-
-        .blob-1 {
-            width: 50vw; height: 50vw;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
-            top: -20%; left: -10%;
-            animation: float1 30s ease-in-out infinite;
-        }
-
-        .blob-2 {
-            width: 40vw; height: 40vw;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%);
-            top: 40%; right: -15%;
-            animation: float2 40s ease-in-out infinite;
-        }
-
-        .blob-3 {
-            width: 35vw; height: 35vw;
-            background: radial-gradient(circle, rgba(234, 179, 8, 0.15) 0%, transparent 70%);
-            bottom: -10%; left: 30%;
-            animation: float3 35s ease-in-out infinite;
-        }
-
-        @keyframes float1 {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(5%, 10%); }
-        }
-        @keyframes float2 {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(-8%, 5%); }
-        }
-        @keyframes float3 {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(10%, -5%); }
-        }
-
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
-            border-bottom: 1px solid var(--border);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .logo-img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-gold), #f59e0b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .music-toggle {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            transition: all 0.3s ease;
-        }
-
-        .music-toggle:hover, .music-toggle.active {
-            background: var(--accent-gold);
-            color: var(--bg-primary);
-            border-color: var(--accent-gold);
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-gold), #f59e0b);
-            color: var(--bg-primary);
-        }
-
-        .btn-primary:hover {
-            box-shadow: 0 0 30px rgba(234, 179, 8, 0.4);
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-
-        /* Main Content */
-        .main {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px;
-        }
-
-        .hero {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-
-        .hero h1 {
-            font-size: 48px;
-            font-weight: 800;
-            margin-bottom: 15px;
-            background: linear-gradient(135deg, #fff, rgba(255,255,255,0.8));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero p {
-            font-size: 18px;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* Stats Bar */
-        .stats-bar {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 50px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 25px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-        }
-
-        .stat-value {
-            font-size: 36px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-gold), #f59e0b);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .stat-label {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 5px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Patterns Grid */
-        .patterns-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .patterns-title::before {
-            content: '';
-            width: 4px;
-            height: 30px;
-            background: var(--accent-gold);
-            border-radius: 2px;
-        }
-
-        .patterns-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 50px;
-        }
-
-        .pattern-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 30px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .pattern-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: var(--pattern-color, var(--accent-gold));
-        }
-
-        .pattern-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            border-color: var(--pattern-color, var(--accent-gold));
-        }
-
-        .pattern-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 25px;
-        }
-
-        .pattern-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 15px;
-            background: linear-gradient(135deg, var(--pattern-color, var(--accent-gold)), transparent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-        }
-
-        .pattern-name {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .pattern-desc {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        /* Progress Circle */
-        .progress-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .progress-ring {
-            position: relative;
-            width: 120px;
-            height: 120px;
-        }
-
-        .progress-ring svg {
-            transform: rotate(-90deg);
-        }
-
-        .progress-ring circle {
-            fill: none;
-            stroke-width: 8;
-        }
-
-        .progress-ring .bg {
-            stroke: rgba(255,255,255,0.1);
-        }
-
-        .progress-ring .progress {
-            stroke: var(--pattern-color, var(--accent-gold));
-            stroke-linecap: round;
-            transition: stroke-dashoffset 0.5s ease;
-            filter: drop-shadow(0 0 8px var(--pattern-color, var(--accent-gold)));
-        }
-
-        .progress-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-        }
-
-        .progress-percent {
-            font-size: 28px;
-            font-weight: 800;
-        }
-
-        .progress-label {
-            font-size: 11px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        /* Exercise List */
-        .exercise-list {
-            margin-bottom: 20px;
-            padding: 0 4px;
-        }
-
-        .exercise-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            font-size: 13px;
-        }
-
-        .exercise-row:last-child { border-bottom: none; }
-
-        .exercise-name {
-            color: var(--text-secondary);
-        }
-
-        .exercise-prescription {
-            color: var(--accent-gold);
-            font-weight: 600;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-
-        /* Stage Buttons */
-        .stages {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .stage-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            border: 2px solid var(--border);
-            background: var(--bg-secondary);
-            color: var(--text-muted);
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .stage-btn.completed {
-            background: var(--stage-color);
-            border-color: var(--stage-color);
-            color: white;
-        }
-
-        .stage-btn.current {
-            border-color: var(--accent-gold);
-            box-shadow: 0 0 15px rgba(234, 179, 8, 0.4);
-        }
-
-        .stage-btn:hover:not(.completed) {
-            border-color: var(--text-secondary);
-            color: var(--text-primary);
-        }
-
-        /* Achievements */
-        .achievements-section {
-            margin-top: 50px;
-        }
-
-        .achievements-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .achievement-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .achievement-card.unlocked {
-            border-color: var(--accent-gold);
-            background: rgba(234, 179, 8, 0.1);
-        }
-
-        .achievement-card.locked {
-            opacity: 0.5;
-        }
-
-        .achievement-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background: var(--bg-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-
-        .achievement-card.unlocked .achievement-icon {
-            background: linear-gradient(135deg, var(--accent-gold), #f59e0b);
-        }
-
-        .achievement-name {
-            font-weight: 600;
-            margin-bottom: 3px;
-        }
-
-        .achievement-desc {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 40px;
-            margin-top: 60px;
-            border-top: 1px solid var(--border);
-        }
-
-        .footer-logo {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .footer-text {
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        .footer-text a {
-            color: var(--accent-gold);
-            text-decoration: none;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--bg-card);
-            border: 1px solid var(--accent-gold);
-            border-radius: 12px;
-            padding: 15px 25px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .toast i {
-            color: var(--accent-gold);
-            font-size: 20px;
-        }
-
-        /* Responsive — Mobile */
-        @media (max-width: 768px) {
-            .header {
-                padding: 12px 16px;
-                flex-wrap: wrap;
-                gap: 12px;
-            }
-            .logo-text { font-size: 18px; }
-            .header-actions {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 8px;
-            }
-            .btn { padding: 10px 16px; font-size: 12px; }
-            .main { padding: 20px 16px; }
-            .hero { margin-bottom: 40px; }
-            .hero h1 { font-size: 28px; }
-            .hero p { font-size: 15px; }
-            .stats-bar {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
-                margin-bottom: 32px;
-            }
-            .stat-card { padding: 16px; }
-            .stat-value { font-size: 28px; }
-            .stat-label { font-size: 11px; }
-            .patterns-grid { grid-template-columns: 1fr; gap: 20px; }
-            .pattern-card { padding: 20px; }
-            .pattern-header { flex-direction: column; gap: 16px; margin-bottom: 20px; }
-            .pattern-name { font-size: 18px; }
-            .pattern-desc { font-size: 12px; }
-            .progress-ring { width: 100px; height: 100px; }
-            .progress-ring svg { width: 100; height: 100; }
-            .progress-ring circle { stroke-width: 6; }
-            .progress-percent { font-size: 22px; }
-            .stages { flex-wrap: wrap; justify-content: center; gap: 8px; }
-            .stage-btn { width: 44px; height: 44px; font-size: 14px; }
-            .achievements-grid { grid-template-columns: 1fr; gap: 12px; }
-            .achievement-card { padding: 16px; }
-            .achievement-icon { width: 44px; height: 44px; font-size: 20px; }
-            .footer { padding: 24px 16px; margin-top: 40px; }
-            .toast { bottom: 16px; right: 16px; left: 16px; padding: 12px 20px; font-size: 14px; }
-        }
-        @media (max-width: 400px) {
-            .stats-bar { grid-template-columns: 1fr; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SATURNO PROGRESSION TRACKER</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary: #050505;
+      --bg-secondary: #080808;
+      --bg-card: #000000;
+      --border: #27272a;
+      --border-hover: #ffffff;
+      --text-primary: #ffffff;
+      --text-secondary: #a1a1aa;
+      --text-muted: #52525b;
+      --accent-green: #22c55e;
+      --accent-amber: #f59e0b;
+      --accent-blue: #3b82f6;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-primary);
+    }
+
+    .logo { font-size: 14px; font-weight: 800; font-style: italic; letter-spacing: -0.02em; }
+
+    .header-actions { display: flex; gap: 12px; }
+
+    .btn {
+      padding: 10px 20px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .btn:hover { border-color: var(--border-hover); }
+    .btn-primary { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
+    .btn-primary:hover { background: var(--text-secondary); border-color: var(--text-secondary); }
+
+    .main { max-width: 1200px; margin: 0 auto; padding: 40px; }
+
+    .hero { margin-bottom: 48px; border-left: 2px solid var(--border); padding-left: 32px; padding-top: 20px; padding-bottom: 20px; }
+    .hero-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--text-muted); margin-bottom: 8px; }
+    .hero h1 { font-size: 28px; font-weight: 800; font-style: italic; margin-bottom: 8px; }
+    .hero p { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 48px;
+    }
+
+    .stat-card {
+      border-left: 2px solid var(--border);
+      padding: 20px 24px;
+      background: var(--bg-card);
+      transition: border-color 0.2s;
+    }
+    .stat-card:hover { border-left-color: var(--border-hover); }
+    .stat-value { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+    .stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+
+    .section-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--text-muted); margin-bottom: 20px; }
+
+    .patterns-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .pattern-card {
+      background: var(--bg-card);
+      border-left: 2px solid var(--border);
+      padding: 24px 32px;
+      transition: border-color 0.2s;
+    }
+    .pattern-card:hover { border-left-color: var(--border-hover); }
+    .pattern-card[style*="--pattern-color"] { border-left-color: var(--pattern-color); }
+
+    .pattern-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .pattern-desc { font-size: 11px; color: var(--text-muted); margin-bottom: 20px; }
+
+    .progress-container { display: flex; justify-content: center; margin-bottom: 20px; }
+    .progress-ring { position: relative; width: 100px; height: 100px; }
+    .progress-ring svg { transform: rotate(-90deg); }
+    .progress-ring circle { fill: none; stroke-width: 6; }
+    .progress-ring .bg { stroke: var(--border); }
+    .progress-ring .progress { stroke: var(--pattern-color, var(--accent-amber)); stroke-linecap: round; transition: stroke-dashoffset 0.3s; }
+    .progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+    .progress-percent { font-size: 20px; font-weight: 800; }
+    .progress-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
+
+    .exercise-list { margin-bottom: 20px; }
+    .exercise-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .exercise-row:last-child { border-bottom: none; }
+    .exercise-name { color: var(--text-secondary); }
+    .exercise-prescription { color: var(--accent-amber); font-weight: 600; font-size: 11px; }
+
+    .stages { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .stage-btn {
+      width: 36px; height: 36px;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .stage-btn:hover:not(.completed) { border-color: var(--border-hover); color: var(--text-primary); }
+    .stage-btn.completed { background: var(--stage-color); border-color: var(--stage-color); color: white; }
+    .stage-btn.current { border-color: var(--accent-amber); }
+
+    .achievements-section { margin-top: 48px; }
+    .achievements-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+
+    .achievement-card {
+      border-left: 2px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--bg-card);
+      transition: border-color 0.2s;
+    }
+    .achievement-card.unlocked { border-left-color: var(--accent-amber); }
+    .achievement-card.locked { opacity: 0.5; }
+    .achievement-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; min-width: 24px; text-align: center; }
+    .achievement-name { font-weight: 600; margin-bottom: 2px; font-size: 14px; }
+    .achievement-desc { font-size: 11px; color: var(--text-muted); }
+
+    .footer {
+      text-align: center;
+      padding: 40px;
+      margin-top: 48px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .footer a { color: var(--text-primary); text-decoration: none; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 16px 24px;
+      font-size: 12px;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
+      z-index: 1000;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 768px) {
+      .header { padding: 16px 20px; flex-wrap: wrap; gap: 12px; }
+      .main { padding: 24px 20px; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .patterns-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 22px; }
+    }
+    @media (max-width: 400px) { .stats-bar { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
-    <!-- Background Blobs -->
-    <div class="bg-blobs">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
+  <header class="header">
+    <span class="logo">SATURNO PROGRESSION</span>
+    <div class="header-actions">
+      <button class="btn" onclick="resetProgress()">RESET</button>
+      <button class="btn btn-primary" onclick="saveProgress()">SAVE</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="hero">
+      <p class="hero-label">01 / TRACKER</p>
+      <h1>PROGRESSION TRACKER</h1>
+      <p>Track your calisthenics journey across 7 movement patterns. Complete stages, unlock achievements.</p>
     </div>
 
-    <!-- Header -->
-    <header class="header">
-        <div class="logo">
-            <div class="logo-img">🪐</div>
-            <span class="logo-text">SATURNO</span>
-        </div>
-        <div class="header-actions">
-            <button class="music-toggle" id="musicToggle" onclick="toggleMusic()">
-                <i class="fas fa-volume-mute"></i>
-            </button>
-            <button class="btn btn-secondary" onclick="resetProgress()">
-                <i class="fas fa-redo"></i> Reset
-            </button>
-            <button class="btn btn-primary" onclick="saveProgress()">
-                <i class="fas fa-save"></i> Save
-            </button>
-        </div>
-    </header>
-
-    <!-- Main -->
-    <main class="main">
-        <div class="hero">
-            <h1>Progression Tracker</h1>
-            <p>Track your calisthenics journey across the 7 movement patterns. Complete stages, unlock achievements, and watch yourself grow.</p>
-        </div>
-
-        <!-- Stats -->
-        <div class="stats-bar">
-            <div class="stat-card">
-                <div class="stat-value" id="totalProgress">0%</div>
-                <div class="stat-label">Total Progress</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="stagesCompleted">0</div>
-                <div class="stat-label">Stages Completed</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="patternsCompleted">0</div>
-                <div class="stat-label">Patterns Mastered</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="achievementsUnlocked">0</div>
-                <div class="stat-label">Achievements</div>
-            </div>
-        </div>
-
-        <!-- Patterns -->
-        <h2 class="patterns-title">7 Movement Patterns</h2>
-        <div class="patterns-grid" id="patternsGrid">
-            <!-- Generated by JS -->
-        </div>
-
-        <!-- Achievements -->
-        <div class="achievements-section">
-            <h2 class="patterns-title">Achievements</h2>
-            <div class="achievements-grid" id="achievementsGrid">
-                <!-- Generated by JS -->
-            </div>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-logo">🪐</div>
-        <p class="footer-text">
-            Built with Love by <a href="https://saturnomovement.com" target="_blank">Saturno Movement</a>
-        </p>
-    </footer>
-
-    <!-- Toast -->
-    <div class="toast" id="toast">
-        <i class="fas fa-check-circle"></i>
-        <span id="toastMessage">Progress saved!</span>
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-value" id="totalProgress">0%</div>
+        <div class="stat-label">Total Progress</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stagesCompleted">0</div>
+        <div class="stat-label">Stages Done</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="patternsCompleted">0</div>
+        <div class="stat-label">Patterns Mastered</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="achievementsUnlocked">0</div>
+        <div class="stat-label">Achievements</div>
+      </div>
     </div>
 
-    <!-- Audio -->
-    <audio id="bgMusic" loop>
-        <!-- Replace with your own track -->
-    </audio>
+    <p class="section-label">02 / MOVEMENT PATTERNS</p>
+    <div class="patterns-grid" id="patternsGrid"></div>
 
-    <script>
-        // Data
-        const patterns = [
-            { id: 'push', name: 'Push', icon: '💪', color: '#ef4444', desc: 'Push-ups, dips, HSPU, planche', exercises: [
-                { name: 'Push-Ups', sets: '3-4', reps: '8-15' },
-                { name: 'Dips', sets: '3-4', reps: '6-12' },
-                { name: 'Pike Push-Ups', sets: '3', reps: '6-10' },
-                { name: 'Planche Lean', sets: '4', reps: '15-30s' }
-            ]},
-            { id: 'pull', name: 'Pull', icon: '🔗', color: '#3b82f6', desc: 'Pull-ups, rows, front lever', exercises: [
-                { name: 'Pull-Ups', sets: '3-4', reps: '5-12' },
-                { name: 'Rows', sets: '3', reps: '8-15' },
-                { name: 'Front Lever Tuck', sets: '4', reps: '10-20s' },
-                { name: 'Archer Pull-Ups', sets: '3', reps: '4-8' }
-            ]},
-            { id: 'legs', name: 'Legs', icon: '🦵', color: '#22c55e', desc: 'Squats, lunges, pistols, hip hinge', exercises: [
-                { name: 'Squats', sets: '3-4', reps: '8-20' },
-                { name: 'Lunges', sets: '3', reps: '10-12 ea' },
-                { name: 'Pistol Squat', sets: '3', reps: '3-8 ea' },
-                { name: 'Nordic Curls', sets: '3', reps: '4-8' }
-            ]},
-            { id: 'core', name: 'Core', icon: '🎯', color: '#f59e0b', desc: 'Hollow body, L-sit, compression', exercises: [
-                { name: 'Hollow Body', sets: '3', reps: '20-45s' },
-                { name: 'L-Sit', sets: '4', reps: '10-30s' },
-                { name: 'Dragon Flag', sets: '3', reps: '5-8' },
-                { name: 'Ab Wheel', sets: '3', reps: '8-12' }
-            ]},
-            { id: 'handbalance', name: 'Handstand', icon: '🤸', color: '#ec4899', desc: 'Wall HS, freestanding, press, shapes', exercises: [
-                { name: 'Wall Handstand', sets: '4', reps: '30-60s' },
-                { name: 'Kick-Ups', sets: '5', reps: '3-5' },
-                { name: 'HS Shapes', sets: '3', reps: '10-20s ea' },
-                { name: 'Press to HS', sets: '3', reps: '2-5' }
-            ]},
-            { id: 'flexibility', name: 'Flexibility', icon: '🧘', color: '#8b5cf6', desc: 'Active/passive flexibility, mobility flows', exercises: [
-                { name: 'Pancake Stretch', sets: '3', reps: '30-60s' },
-                { name: 'Pike Stretch', sets: '3', reps: '30-60s' },
-                { name: 'Bridge', sets: '3', reps: '20-30s' },
-                { name: 'Shoulder Mobility', sets: '3', reps: '30-45s' }
-            ]},
-            { id: 'skills', name: 'Skills & Flow', icon: '🌀', color: '#06b6d4', desc: 'Muscle-up, combos, transitions', exercises: [
-                { name: 'Muscle-Up', sets: '4', reps: '1-5' },
-                { name: 'Flow Combos', sets: '3', reps: '3-5 reps' },
-                { name: 'Bar Transitions', sets: '3', reps: '3-6' },
-                { name: 'Freestyle', sets: '2', reps: '60-90s' }
-            ]}
-        ];
+    <p class="section-label">03 / ACHIEVEMENTS</p>
+    <div class="achievements-grid" id="achievementsGrid"></div>
+  </main>
 
-        const stageColors = ['#22c55e', '#3b82f6', '#eab308', '#ef4444'];
+  <footer class="footer">
+    <a href="https://saturnomovement.com" target="_blank">SATURNO MOVEMENT</a>
+  </footer>
 
-        const achievements = [
-            { id: 'first_stage', name: 'First Step', icon: '🚀', desc: 'Complete your first stage', check: (p) => getTotalStages(p) >= 1 },
-            { id: 'pattern_master', name: 'Pattern Master', icon: '⭐', desc: 'Complete all stages in one pattern', check: (p) => patterns.some(pat => p[pat.id]?.every(s => s)) },
-            { id: 'halfway', name: 'Halfway There', icon: '🎯', desc: 'Reach 50% total progress', check: (p) => getProgressPercent(p) >= 50 },
-            { id: 'dedicated', name: 'Dedicated', icon: '💎', desc: 'Complete 10 stages', check: (p) => getTotalStages(p) >= 10 },
-            { id: 'push_pro', name: 'Push Pro', icon: '💪', desc: 'Master the Push pattern', check: (p) => p.push?.every(s => s) },
-            { id: 'pull_pro', name: 'Pull Pro', icon: '🔗', desc: 'Master the Pull pattern', check: (p) => p.pull?.every(s => s) },
-            { id: 'full_mastery', name: 'Full Mastery', icon: '👑', desc: 'Complete all patterns', check: (p) => patterns.every(pat => p[pat.id]?.every(s => s)) },
-            { id: 'consistent', name: 'Consistent', icon: '🔥', desc: 'Complete at least 1 stage in each pattern', check: (p) => patterns.every(pat => p[pat.id]?.some(s => s)) }
-        ];
+  <div class="toast" id="toast"><span id="toastMessage">Progress saved.</span></div>
 
-        // State
-        let progress = {};
-        let musicPlaying = false;
+  <script>
+    const patterns = [
+      { id: 'push', name: 'Push', color: '#ef4444', desc: 'Push-ups, dips, HSPU, planche', exercises: [
+        { name: 'Push-Ups', sets: '3-4', reps: '8-15' }, { name: 'Dips', sets: '3-4', reps: '6-12' },
+        { name: 'Pike Push-Ups', sets: '3', reps: '6-10' }, { name: 'Planche Lean', sets: '4', reps: '15-30s' }
+      ]},
+      { id: 'pull', name: 'Pull', color: '#3b82f6', desc: 'Pull-ups, rows, front lever', exercises: [
+        { name: 'Pull-Ups', sets: '3-4', reps: '5-12' }, { name: 'Rows', sets: '3', reps: '8-15' },
+        { name: 'Front Lever Tuck', sets: '4', reps: '10-20s' }, { name: 'Archer Pull-Ups', sets: '3', reps: '4-8' }
+      ]},
+      { id: 'legs', name: 'Legs', color: '#22c55e', desc: 'Squats, lunges, pistols', exercises: [
+        { name: 'Squats', sets: '3-4', reps: '8-20' }, { name: 'Lunges', sets: '3', reps: '10-12 ea' },
+        { name: 'Pistol Squat', sets: '3', reps: '3-8 ea' }, { name: 'Nordic Curls', sets: '3', reps: '4-8' }
+      ]},
+      { id: 'core', name: 'Core', color: '#f59e0b', desc: 'Hollow body, L-sit, compression', exercises: [
+        { name: 'Hollow Body', sets: '3', reps: '20-45s' }, { name: 'L-Sit', sets: '4', reps: '10-30s' },
+        { name: 'Dragon Flag', sets: '3', reps: '5-8' }, { name: 'Ab Wheel', sets: '3', reps: '8-12' }
+      ]},
+      { id: 'handbalance', name: 'Handstand', color: '#ec4899', desc: 'Wall HS, freestanding, press', exercises: [
+        { name: 'Wall Handstand', sets: '4', reps: '30-60s' }, { name: 'Kick-Ups', sets: '5', reps: '3-5' },
+        { name: 'HS Shapes', sets: '3', reps: '10-20s ea' }, { name: 'Press to HS', sets: '3', reps: '2-5' }
+      ]},
+      { id: 'flexibility', name: 'Flexibility', color: '#8b5cf6', desc: 'Active/passive flexibility', exercises: [
+        { name: 'Pancake Stretch', sets: '3', reps: '30-60s' }, { name: 'Pike Stretch', sets: '3', reps: '30-60s' },
+        { name: 'Bridge', sets: '3', reps: '20-30s' }, { name: 'Shoulder Mobility', sets: '3', reps: '30-45s' }
+      ]},
+      { id: 'skills', name: 'Skills & Flow', color: '#06b6d4', desc: 'Muscle-up, combos', exercises: [
+        { name: 'Muscle-Up', sets: '4', reps: '1-5' }, { name: 'Flow Combos', sets: '3', reps: '3-5' },
+        { name: 'Bar Transitions', sets: '3', reps: '3-6' }, { name: 'Freestyle', sets: '2', reps: '60-90s' }
+      ]}
+    ];
 
-        // Init
-        function init() {
-            loadProgress();
-            renderPatterns();
-            renderAchievements();
-            updateStats();
-        }
+    const stageColors = ['#22c55e', '#3b82f6', '#eab308', '#ef4444'];
 
-        // Render patterns
-        function renderPatterns() {
-            const grid = document.getElementById('patternsGrid');
-            grid.innerHTML = patterns.map(pattern => {
-                const stages = progress[pattern.id] || [false, false, false, false];
-                const completed = stages.filter(s => s).length;
-                const percent = (completed / 4) * 100;
-                const circumference = 2 * Math.PI * 52;
-                const offset = circumference - (percent / 100) * circumference;
+    const achievements = [
+      { id: 'first_stage', name: 'First Step', badge: '1', desc: 'Complete your first stage', check: (p) => getTotalStages(p) >= 1 },
+      { id: 'pattern_master', name: 'Pattern Master', badge: 'P', desc: 'Complete all stages in one pattern', check: (p) => patterns.some(pat => p[pat.id]?.every(s => s)) },
+      { id: 'halfway', name: 'Halfway There', badge: '50', desc: 'Reach 50% total progress', check: (p) => getProgressPercent(p) >= 50 },
+      { id: 'dedicated', name: 'Dedicated', badge: '10', desc: 'Complete 10 stages', check: (p) => getTotalStages(p) >= 10 },
+      { id: 'push_pro', name: 'Push Pro', badge: 'PU', desc: 'Master the Push pattern', check: (p) => p.push?.every(s => s) },
+      { id: 'pull_pro', name: 'Pull Pro', badge: 'PL', desc: 'Master the Pull pattern', check: (p) => p.pull?.every(s => s) },
+      { id: 'full_mastery', name: 'Full Mastery', badge: 'M', desc: 'Complete all patterns', check: (p) => patterns.every(pat => p[pat.id]?.every(s => s)) },
+      { id: 'consistent', name: 'Consistent', badge: 'C', desc: '1 stage in each pattern', check: (p) => patterns.every(pat => p[pat.id]?.some(s => s)) }
+    ];
 
-                const exerciseRows = (pattern.exercises || []).map(ex =>
-                    `<div class="exercise-row">
-                        <span class="exercise-name">${ex.name}</span>
-                        <span class="exercise-prescription">${ex.sets} × ${ex.reps}</span>
-                    </div>`
-                ).join('');
+    let progress = {};
 
-                return `
-                    <div class="pattern-card" style="--pattern-color: ${pattern.color}">
-                        <div class="pattern-header">
-                            <div>
-                                <div class="pattern-name">${pattern.name}</div>
-                                <div class="pattern-desc">${pattern.desc}</div>
-                            </div>
-                            <div class="pattern-icon">${pattern.icon}</div>
-                        </div>
-                        <div class="progress-container">
-                            <div class="progress-ring">
-                                <svg width="120" height="120" viewBox="0 0 120 120" style="max-width:100%;height:auto">
-                                    <circle class="bg" cx="60" cy="60" r="52"/>
-                                    <circle class="progress" cx="60" cy="60" r="52"
-                                        stroke-dasharray="${circumference}"
-                                        stroke-dashoffset="${offset}"
-                                        style="stroke: ${pattern.color}"/>
-                                </svg>
-                                <div class="progress-text">
-                                    <div class="progress-percent">${Math.round(percent)}%</div>
-                                    <div class="progress-label">${completed}/4</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="exercise-list">${exerciseRows}</div>
-                        <div class="stages">
-                            ${[0,1,2,3].map(i => `
-                                <button class="stage-btn ${stages[i] ? 'completed' : ''} ${!stages[i] && (i === 0 || stages[i-1]) ? 'current' : ''}"
-                                    style="--stage-color: ${stageColors[i]}"
-                                    onclick="toggleStage('${pattern.id}', ${i})">
-                                    ${i}
-                                </button>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
+    function init() {
+      loadProgress();
+      renderPatterns();
+      renderAchievements();
+      updateStats();
+    }
 
-        // Render achievements
-        function renderAchievements() {
-            const grid = document.getElementById('achievementsGrid');
-            grid.innerHTML = achievements.map(ach => {
-                const unlocked = ach.check(progress);
-                return `
-                    <div class="achievement-card ${unlocked ? 'unlocked' : 'locked'}">
-                        <div class="achievement-icon">${unlocked ? ach.icon : '🔒'}</div>
-                        <div>
-                            <div class="achievement-name">${ach.name}</div>
-                            <div class="achievement-desc">${ach.desc}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
+    function renderPatterns() {
+      const grid = document.getElementById('patternsGrid');
+      grid.innerHTML = patterns.map(pattern => {
+        const stages = progress[pattern.id] || [false, false, false, false];
+        const completed = stages.filter(s => s).length;
+        const percent = (completed / 4) * 100;
+        const circumference = 2 * Math.PI * 44;
+        const offset = circumference - (percent / 100) * circumference;
 
-        // Toggle stage
-        function toggleStage(patternId, stageIndex) {
-            if (!progress[patternId]) {
-                progress[patternId] = [false, false, false, false];
-            }
+        const exerciseRows = (pattern.exercises || []).map(ex =>
+          `<div class="exercise-row"><span class="exercise-name">${ex.name}</span><span class="exercise-prescription">${ex.sets} x ${ex.reps}</span></div>`
+        ).join('');
 
-            // Can only toggle if previous stage is complete (or it's stage 0)
-            if (stageIndex > 0 && !progress[patternId][stageIndex - 1]) {
-                showToast('Complete the previous stage first!');
-                return;
-            }
+        return `
+          <div class="pattern-card" style="--pattern-color: ${pattern.color}">
+            <div class="pattern-name">${pattern.name}</div>
+            <div class="pattern-desc">${pattern.desc}</div>
+            <div class="progress-container">
+              <div class="progress-ring">
+                <svg width="100" height="100" viewBox="0 0 100 100">
+                  <circle class="bg" cx="50" cy="50" r="44"/>
+                  <circle class="progress" cx="50" cy="50" r="44" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"/>
+                </svg>
+                <div class="progress-text"><div class="progress-percent">${Math.round(percent)}%</div><div class="progress-label">${completed}/4</div></div>
+              </div>
+            </div>
+            <div class="exercise-list">${exerciseRows}</div>
+            <div class="stages">
+              ${[0,1,2,3].map(i => `<button class="stage-btn ${stages[i] ? 'completed' : ''} ${!stages[i] && (i === 0 || stages[i-1]) ? 'current' : ''}" style="--stage-color: ${stageColors[i]}" onclick="toggleStage('${pattern.id}', ${i})">${i}</button>`).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
 
-            progress[patternId][stageIndex] = !progress[patternId][stageIndex];
+    function renderAchievements() {
+      const grid = document.getElementById('achievementsGrid');
+      grid.innerHTML = achievements.map(ach => {
+        const unlocked = ach.check(progress);
+        return `<div class="achievement-card ${unlocked ? 'unlocked' : 'locked'}">
+          <div class="achievement-badge">${unlocked ? ach.badge : '-'}</div>
+          <div><div class="achievement-name">${ach.name}</div><div class="achievement-desc">${ach.desc}</div></div>
+        </div>`;
+      }).join('');
+    }
 
-            // If unchecking, uncheck all after
-            if (!progress[patternId][stageIndex]) {
-                for (let i = stageIndex + 1; i < 4; i++) {
-                    progress[patternId][i] = false;
-                }
-            }
+    function toggleStage(patternId, stageIndex) {
+      if (!progress[patternId]) progress[patternId] = [false, false, false, false];
+      if (stageIndex > 0 && !progress[patternId][stageIndex - 1]) { showToast('Complete previous stage first.'); return; }
+      progress[patternId][stageIndex] = !progress[patternId][stageIndex];
+      if (!progress[patternId][stageIndex]) for (let i = stageIndex + 1; i < 4; i++) progress[patternId][i] = false;
+      renderPatterns();
+      renderAchievements();
+      updateStats();
+      saveProgress();
+      if (progress[patternId][stageIndex]) showToast('Stage ' + stageIndex + ' done.');
+    }
 
-            renderPatterns();
-            renderAchievements();
-            updateStats();
-            saveProgress();
+    function updateStats() {
+      document.getElementById('totalProgress').textContent = Math.round(getProgressPercent(progress)) + '%';
+      document.getElementById('stagesCompleted').textContent = getTotalStages(progress);
+      document.getElementById('patternsCompleted').textContent = patterns.filter(p => progress[p.id]?.every(s => s)).length;
+      document.getElementById('achievementsUnlocked').textContent = achievements.filter(a => a.check(progress)).length;
+    }
 
-            if (progress[patternId][stageIndex]) {
-                showToast(`Stage ${stageIndex} completed! 🎉`);
-            }
-        }
+    function getTotalStages(p) { return patterns.reduce((s, pat) => s + (p[pat.id]?.filter(x => x).length || 0), 0); }
+    function getProgressPercent(p) { return (getTotalStages(p) / (patterns.length * 4)) * 100; }
 
-        // Update stats
-        function updateStats() {
-            const totalStages = getTotalStages(progress);
-            const totalPercent = getProgressPercent(progress);
-            const patternsComplete = patterns.filter(p => progress[p.id]?.every(s => s)).length;
-            const achievementsCount = achievements.filter(a => a.check(progress)).length;
+    function saveProgress() { localStorage.setItem('saturno-progression', JSON.stringify(progress)); showToast('Progress saved.'); }
+    function loadProgress() { const s = localStorage.getItem('saturno-progression'); if (s) progress = JSON.parse(s); }
+    function resetProgress() {
+      if (confirm('Reset all progress?')) { progress = {}; localStorage.removeItem('saturno-progression'); renderPatterns(); renderAchievements(); updateStats(); showToast('Reset.'); }
+    }
+    function showToast(msg) { const t = document.getElementById('toast'); document.getElementById('toastMessage').textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
 
-            document.getElementById('totalProgress').textContent = `${Math.round(totalPercent)}%`;
-            document.getElementById('stagesCompleted').textContent = totalStages;
-            document.getElementById('patternsCompleted').textContent = patternsComplete;
-            document.getElementById('achievementsUnlocked').textContent = achievementsCount;
-        }
-
-        // Helpers
-        function getTotalStages(p) {
-            return patterns.reduce((sum, pat) => sum + (p[pat.id]?.filter(s => s).length || 0), 0);
-        }
-
-        function getProgressPercent(p) {
-            const total = patterns.length * 4;
-            const completed = getTotalStages(p);
-            return (completed / total) * 100;
-        }
-
-        // Save/Load
-        function saveProgress() {
-            localStorage.setItem('saturno-progression', JSON.stringify(progress));
-            showToast('Progress saved!');
-        }
-
-        function loadProgress() {
-            const saved = localStorage.getItem('saturno-progression');
-            if (saved) {
-                progress = JSON.parse(saved);
-            }
-        }
-
-        function resetProgress() {
-            if (confirm('Reset all progress? This cannot be undone.')) {
-                progress = {};
-                localStorage.removeItem('saturno-progression');
-                renderPatterns();
-                renderAchievements();
-                updateStats();
-                showToast('Progress reset');
-            }
-        }
-
-        // Music
-        function toggleMusic() {
-            const audio = document.getElementById('bgMusic');
-            const btn = document.getElementById('musicToggle');
-
-            if (musicPlaying) {
-                audio.pause();
-                btn.innerHTML = '<i class="fas fa-volume-mute"></i>';
-                btn.classList.remove('active');
-            } else {
-                audio.volume = 0.3;
-                audio.play();
-                btn.innerHTML = '<i class="fas fa-volume-up"></i>';
-                btn.classList.add('active');
-            }
-            musicPlaying = !musicPlaying;
-        }
-
-        // Toast
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMessage').textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        // Init
-        init();
-    </script>
+    init();
+  </script>
 </body>
 </html>
