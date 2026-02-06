@@ -14,11 +14,12 @@
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: #fff; border-radius: 50%; cursor: pointer; }
         .dial-glow:hover { box-shadow: 0 0 20px rgba(255,255,255,0.1); }
     </style>
+    <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body class="bg-[#050505] text-zinc-400 h-screen flex flex-col overflow-hidden">
     
     <!-- HEADER -->
-    <div class="h-16 border-b border-zinc-900 bg-black flex items-center justify-between px-10">
+    <div class="h-16 border-b border-zinc-900 bg-black flex items-center justify-between px-10 mobile-nav-wrap">
         <div class="flex items-center gap-6">
             <h1 class="text-white text-xl font-black italic tracking-tighter">SATURNO_FORGE</h1>
             <div class="flex gap-4 text-[10px] uppercase tracking-widest">
@@ -28,7 +29,7 @@
                 <span id="task-sync" class="text-zinc-500 cursor-pointer hover:text-white" onclick="toggleStatusLog()" title="Open task list">● Tasks: 0/0</span>
             </div>
         </div>
-        <div class="flex gap-4 flex-wrap">
+        <div class="flex gap-4 flex-wrap mobile-touch">
             <a href="index.html" class="text-[10px] border border-white text-white px-4 py-2 hover:border-white transition-all">FORGE</a>
             <a href="capture.html" class="text-[10px] border border-emerald-900 text-emerald-400 px-4 py-2 hover:border-emerald-400 transition-all">CAPTURE</a>
             <a href="pipelines.html" class="text-[10px] border border-cyan-900 text-cyan-400 px-4 py-2 hover:border-cyan-400 transition-all">PIPELINES</a>
@@ -113,10 +114,10 @@
         </div>
     </div>
 
-    <div class="flex-grow flex">
+    <div class="flex-grow flex mobile-stack">
         
         <!-- LINGUISTIC CONSOLE SIDEBAR -->
-        <div class="w-72 border-r border-zinc-900 p-6 space-y-6 bg-black overflow-y-auto">
+        <div class="w-72 border-r border-zinc-900 p-6 space-y-6 bg-black overflow-y-auto mobile-full">
             
             <!-- FRAMEWORK LOADER -->
             <div class="p-4 border border-zinc-900 rounded">
