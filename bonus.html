@@ -3,24 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SATURNO VAULT — BONUS</title>
+  <title>SATURNO VAULT</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg-deep: #030308;
-      --bg-card: rgba(10, 10, 20, 0.8);
-      --purple-glow: #8b5cf6;
-      --blue-glow: #3b82f6;
-      --cyan-accent: #06b6d4;
-      --amber-accent: #f59e0b;
-      --green-accent: #22c55e;
-      --border: rgba(139, 92, 246, 0.2);
-      --border-hover: rgba(139, 92, 246, 0.6);
+      --bg-deep: #050711;
+      --bg-card: rgba(10, 14, 30, 0.8);
+      --bg-card-hover: rgba(15, 20, 40, 0.9);
+      --cyan: #00ffcc;
+      --purple: #6d28d9;
+      --blue: #3b82f6;
+      --cyan-glow: rgba(0, 255, 204, 0.15);
+      --purple-glow: rgba(109, 40, 217, 0.2);
+      --border: rgba(0, 255, 204, 0.1);
+      --border-hover: rgba(0, 255, 204, 0.35);
       --text-primary: #ffffff;
       --text-secondary: #a1a1aa;
       --text-muted: #52525b;
+      --amber: #f59e0b;
     }
 
     body {
@@ -41,10 +43,7 @@
       pointer-events: none;
     }
 
-    .stars {
-      position: absolute;
-      inset: 0;
-    }
+    .stars { position: absolute; inset: 0; }
 
     .star {
       position: absolute;
@@ -54,69 +53,60 @@
     }
 
     @keyframes twinkle {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 1; }
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.9; }
     }
 
     .nebula {
       position: absolute;
       border-radius: 50%;
       filter: blur(150px);
-      opacity: 0.3;
-      animation: drift 30s ease-in-out infinite;
+      animation: nebulaDrift 30s ease-in-out infinite;
     }
 
     .nebula-1 {
-      width: 800px;
-      height: 800px;
-      background: radial-gradient(circle, var(--purple-glow), transparent);
-      top: -20%;
-      left: -10%;
+      width: 800px; height: 800px;
+      background: radial-gradient(circle, var(--purple), transparent);
+      top: -20%; left: -10%;
+      opacity: 0.25;
     }
 
     .nebula-2 {
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, var(--blue-glow), transparent);
-      bottom: 10%;
-      right: -10%;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0, 255, 204, 0.12), transparent);
+      bottom: 10%; right: -10%;
+      opacity: 0.3;
       animation-delay: -15s;
     }
 
     .nebula-3 {
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(circle, var(--cyan-accent), transparent);
-      top: 50%;
-      left: 40%;
-      opacity: 0.15;
-      animation-delay: -7s;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.1), transparent);
+      top: 50%; left: 40%;
+      opacity: 0.2;
+      animation-delay: -8s;
     }
 
-    @keyframes drift {
+    @keyframes nebulaDrift {
       0%, 100% { transform: translate(0, 0); }
       50% { transform: translate(30px, -20px); }
     }
 
-    /* Content wrapper */
-    .content {
-      position: relative;
-      z-index: 10;
-    }
+    .content { position: relative; z-index: 10; }
 
-    /* Navigation */
+    /* Nav */
     .nav {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(3, 3, 8, 0.9);
+      background: rgba(5, 7, 17, 0.92);
       backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
       padding: 16px 40px;
     }
 
     .nav-container {
-      max-width: 1400px;
+      max-width: 1200px;
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
@@ -126,18 +116,20 @@
     .nav-brand {
       display: flex;
       align-items: center;
+      gap: 12px;
     }
 
-    .nav-logo {
-      width: 40px;
-      height: 40px;
-      filter: brightness(10);
+    .nav-logo { width: 32px; height: 32px; filter: brightness(10); }
+
+    .nav-name {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--text-primary);
     }
 
-    .nav-links {
-      display: flex;
-      gap: 24px;
-    }
+    .nav-links { display: flex; gap: 24px; }
 
     .nav-link {
       color: var(--text-muted);
@@ -150,21 +142,20 @@
       cursor: pointer;
     }
 
-    .nav-link:hover { color: var(--purple-glow); }
+    .nav-link:hover { color: var(--cyan); }
 
     /* Hero */
     .hero {
-      max-width: 1400px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 80px 40px 60px;
       text-align: center;
     }
 
     .hero-logo {
-      width: 120px;
-      height: 120px;
-      margin-bottom: 32px;
-      filter: brightness(10) drop-shadow(0 0 40px rgba(139, 92, 246, 0.6));
+      width: 100px; height: 100px;
+      margin-bottom: 24px;
+      filter: brightness(10) drop-shadow(0 0 40px var(--cyan-glow));
       animation: heroFloat 6s ease-in-out infinite;
     }
 
@@ -177,17 +168,18 @@
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.4em;
-      color: var(--purple-glow);
+      color: var(--cyan);
       margin-bottom: 16px;
+      font-weight: 500;
     }
 
     .hero h1 {
-      font-size: 42px;
+      font-size: 40px;
       font-weight: 800;
       letter-spacing: -0.02em;
       margin-bottom: 16px;
       text-transform: uppercase;
-      background: linear-gradient(135deg, var(--text-primary), var(--purple-glow), var(--blue-glow));
+      background: linear-gradient(135deg, var(--text-primary), var(--cyan));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -195,72 +187,139 @@
     .hero p {
       font-size: 14px;
       color: var(--text-secondary);
-      max-width: 600px;
+      max-width: 550px;
       margin: 0 auto;
       line-height: 1.8;
     }
 
     /* Container */
     .container {
-      max-width: 1400px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 0 40px 80px;
     }
 
     /* Section */
-    .section {
-      margin-bottom: 80px;
-    }
+    .section { margin-bottom: 80px; }
 
     .section-header {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 16px;
       margin-bottom: 32px;
       padding-bottom: 16px;
       border-bottom: 1px solid var(--border);
     }
 
-    .section-icon {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, var(--purple-glow), var(--blue-glow));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-    }
-
-    .section-info {
-      flex: 1;
-    }
-
-    .section-label {
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 0.3em;
-      color: var(--purple-glow);
-      margin-bottom: 4px;
+    .section-number {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--cyan);
+      letter-spacing: 0.1em;
     }
 
     .section-title {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
+      text-transform: uppercase;
     }
 
-    /* Card Grid */
+    .section-count {
+      margin-left: auto;
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* Featured card (CF4) */
+    .featured-card {
+      background: linear-gradient(135deg, rgba(0, 255, 204, 0.06), rgba(109, 40, 217, 0.06));
+      border: 1px solid rgba(0, 255, 204, 0.2);
+      padding: 40px;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .featured-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: linear-gradient(180deg, var(--cyan), var(--purple));
+    }
+
+    .featured-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0, 255, 204, 0.1);
+    }
+
+    .featured-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--bg-deep);
+      background: var(--cyan);
+      padding: 4px 12px;
+      margin-bottom: 16px;
+    }
+
+    .featured-title {
+      font-size: 24px;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .featured-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      line-height: 1.7;
+      max-width: 600px;
+    }
+
+    .featured-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      color: var(--bg-deep);
+      border: none;
+      padding: 14px 28px;
+      font-family: 'Sora', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+
+    .featured-btn:hover {
+      box-shadow: 0 0 30px var(--cyan-glow);
+      transform: translateY(-2px);
+    }
+
+    /* Card grid */
     .card-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
     }
 
-    /* Cards */
     .card {
       background: var(--bg-card);
       backdrop-filter: blur(10px);
       border: 1px solid var(--border);
-      padding: 28px 32px;
+      padding: 24px 28px;
       transition: all 0.3s;
       cursor: pointer;
       position: relative;
@@ -270,134 +329,147 @@
     .card::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 3px;
-      height: 100%;
-      background: linear-gradient(180deg, var(--purple-glow), var(--blue-glow));
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: linear-gradient(180deg, var(--cyan), var(--purple));
       opacity: 0;
       transition: opacity 0.3s;
     }
 
     .card:hover {
       border-color: var(--border-hover);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0, 255, 204, 0.08);
     }
 
-    .card:hover::before {
-      opacity: 1;
-    }
+    .card:hover::before { opacity: 1; }
 
-    .card-featured {
-      border-color: var(--amber-accent);
-    }
-
-    .card-featured::before {
-      background: linear-gradient(180deg, var(--amber-accent), var(--purple-glow));
-      opacity: 1;
-    }
-
-    .card-label {
+    .card-tag {
       font-size: 9px;
       text-transform: uppercase;
       letter-spacing: 0.2em;
-      color: var(--purple-glow);
-      margin-bottom: 10px;
-    }
-
-    .card-featured .card-label {
-      color: var(--amber-accent);
+      color: var(--cyan);
+      margin-bottom: 8px;
+      font-weight: 500;
     }
 
     .card-title {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 700;
-      margin-bottom: 10px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
     }
 
     .card-desc {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-secondary);
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       line-height: 1.6;
     }
 
-    .card-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 10px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-    }
-
     .card-action {
-      color: var(--purple-glow);
+      font-size: 10px;
       font-weight: 600;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .card:hover .card-action { color: var(--text-primary); }
+
+    /* Music section */
+    .music-player {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 32px;
+    }
+
+    .music-track {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 24px;
+      margin-bottom: 24px;
     }
 
-    .card:hover .card-action {
-      color: var(--cyan-accent);
+    .music-art {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
 
-    /* Music section coming soon */
-    .coming-soon {
-      background: var(--bg-card);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--border);
-      padding: 48px;
-      text-align: center;
+    .music-art-icon {
+      width: 0; height: 0;
+      border-left: 16px solid var(--bg-deep);
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      margin-left: 4px;
     }
 
-    .coming-soon h3 {
-      font-size: 18px;
-      margin-bottom: 12px;
-      background: linear-gradient(135deg, var(--text-primary), var(--purple-glow));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .music-info { flex: 1; }
+
+    .music-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
     }
 
-    .coming-soon p {
-      font-size: 12px;
+    .music-artist {
+      font-size: 11px;
       color: var(--text-secondary);
-      max-width: 500px;
-      margin: 0 auto;
     }
 
-    /* Black Hole Door */
+    .music-audio {
+      width: 100%;
+      height: 40px;
+      border-radius: 0;
+      outline: none;
+    }
+
+    .music-coming {
+      text-align: center;
+      padding: 24px;
+      font-size: 11px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      margin-top: 24px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    /* Black hole door */
     .black-hole-door {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 64px;
-      height: 64px;
-      background: var(--bg-card);
+      bottom: 24px; right: 24px;
+      width: 56px; height: 56px;
+      background: rgba(5, 7, 17, 0.9);
       border: 1px solid var(--border);
+      border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 900;
       transition: all 0.3s;
-      animation: blackHolePulse 3s ease-in-out infinite;
+      animation: bhPulse 3s ease-in-out infinite;
     }
 
-    @keyframes blackHolePulse {
-      0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
-      50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.6); }
+    @keyframes bhPulse {
+      0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 204, 0.2); }
+      50% { box-shadow: 0 0 30px rgba(0, 255, 204, 0.4); }
     }
 
     .black-hole-door:hover {
-      border-color: var(--purple-glow);
+      border-color: var(--cyan);
       transform: scale(1.1);
     }
 
-    .black-hole-door span {
-      font-size: 28px;
+    .bh-icon {
+      width: 8px; height: 8px;
+      background: var(--cyan);
+      border-radius: 50%;
     }
 
     /* Modal */
@@ -415,11 +487,11 @@
     .modal.open { display: flex; }
 
     .modal-content {
-      background: rgba(10, 10, 20, 0.95);
+      background: rgba(10, 14, 30, 0.95);
       backdrop-filter: blur(20px);
       border: 1px solid var(--border);
       padding: 40px;
-      max-width: 420px;
+      max-width: 400px;
       width: 100%;
       position: relative;
     }
@@ -427,35 +499,31 @@
     .modal-content::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 0; left: 0; right: 0;
       height: 2px;
-      background: linear-gradient(90deg, transparent, var(--purple-glow), var(--blue-glow), transparent);
+      background: linear-gradient(90deg, transparent, var(--cyan), var(--purple), transparent);
     }
 
     .modal .close-btn {
       position: absolute;
-      top: 16px;
-      right: 16px;
+      top: 16px; right: 16px;
       background: none;
       border: none;
       color: var(--text-muted);
-      font-size: 24px;
+      font-size: 20px;
       cursor: pointer;
       font-family: inherit;
     }
 
     .modal h3 {
-      font-size: 18px;
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
       margin-bottom: 8px;
-      background: linear-gradient(135deg, var(--text-primary), var(--purple-glow));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
     }
 
     .modal .sub {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-secondary);
       margin-bottom: 28px;
     }
@@ -463,23 +531,23 @@
     .modal input {
       width: 100%;
       padding: 14px 18px;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.4);
       border: 1px solid var(--border);
       color: var(--text-primary);
       font-family: inherit;
-      font-size: 14px;
+      font-size: 13px;
       margin-bottom: 12px;
       outline: none;
       transition: border-color 0.3s;
     }
 
-    .modal input:focus { border-color: var(--purple-glow); }
+    .modal input:focus { border-color: var(--cyan); }
 
     .modal button[type="submit"] {
       width: 100%;
       padding: 14px;
-      background: linear-gradient(135deg, var(--purple-glow), var(--blue-glow));
-      color: var(--text-primary);
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      color: var(--bg-deep);
       border: none;
       font-family: inherit;
       font-size: 10px;
@@ -487,10 +555,7 @@
       text-transform: uppercase;
       letter-spacing: 0.1em;
       cursor: pointer;
-      transition: opacity 0.3s;
     }
-
-    .modal button[type="submit"]:hover { opacity: 0.9; }
 
     /* Footer */
     .footer {
@@ -505,15 +570,18 @@
 
     /* Mobile */
     @media (max-width: 768px) {
-      .nav { padding: 16px 20px; }
+      .nav { padding: 14px 20px; }
       .nav-links { display: none; }
+      .nav-name { font-size: 10px; }
       .hero { padding: 60px 20px 40px; }
-      .hero-logo { width: 80px; height: 80px; }
+      .hero-logo { width: 72px; height: 72px; }
       .hero h1 { font-size: 28px; }
       .container { padding: 0 20px 60px; }
       .card-grid { grid-template-columns: 1fr; }
-      .section-header { flex-direction: column; text-align: center; }
-      .black-hole-door { width: 52px; height: 52px; bottom: 16px; right: 16px; }
+      .featured-card { padding: 28px 24px; }
+      .featured-title { font-size: 18px; }
+      .music-track { flex-direction: column; text-align: center; }
+      .black-hole-door { width: 48px; height: 48px; bottom: 16px; right: 16px; }
     }
   </style>
 </head>
@@ -529,7 +597,7 @@
   <div class="content">
     <!-- Black Hole Door -->
     <div class="black-hole-door" onclick="openModal()" title="Secret">
-      <span>?</span>
+      <div class="bh-icon"></div>
     </div>
 
     <!-- Modal -->
@@ -537,24 +605,24 @@
       <div class="modal-content">
         <button class="close-btn" onclick="closeModal()">&times;</button>
         <h3>SECRET LAUNCH LIST</h3>
-        <p class="sub">Be the first to know when we release something new.</p>
+        <p class="sub">Be first to know when the next product drops.</p>
         <input type="text" id="bhName" placeholder="Your name">
         <input type="email" id="bhEmail" placeholder="Your email">
         <button type="submit" onclick="submitBH()">JOIN THE LIST</button>
       </div>
     </div>
 
-    <!-- Navigation -->
+    <!-- Nav -->
     <nav class="nav">
       <div class="nav-container">
         <div class="nav-brand">
           <img src="planet-logo.png" alt="Saturno" class="nav-logo">
+          <span class="nav-name">Saturno Movement</span>
         </div>
         <div class="nav-links">
-          <span class="nav-link" onclick="scrollTo('apps')">Apps</span>
-          <span class="nav-link" onclick="scrollTo('programs')">Programs</span>
-          <span class="nav-link" onclick="scrollTo('routines')">Routines</span>
-          <span class="nav-link" onclick="scrollTo('guides')">Guides</span>
+          <span class="nav-link" onclick="scrollTo('featured')">Featured</span>
+          <span class="nav-link" onclick="scrollTo('tools')">Tools</span>
+          <span class="nav-link" onclick="scrollTo('music')">Music</span>
           <a class="nav-link" href="https://www.saturnomovement.com" target="_blank">Website</a>
         </div>
       </div>
@@ -565,253 +633,113 @@
       <img src="planet-logo.png" alt="Saturno" class="hero-logo">
       <p class="hero-label">BF25 Bonus Library</p>
       <h1>SATURNO VAULT</h1>
-      <p>Your collection of programs, routines, guides, and interactive tools. Everything you need to master calisthenics and handstands.</p>
+      <p>Your exclusive collection of training programs, interactive tools, and original music. Everything built for the movement.</p>
     </section>
 
     <div class="container">
-      <!-- Apps Section -->
-      <section class="section" id="apps">
+      <!-- SECTION 1: FEATURED -->
+      <section class="section" id="featured">
         <div class="section-header">
-          <div class="section-icon">&#9883;</div>
-          <div class="section-info">
-            <p class="section-label">Interactive Tools</p>
-            <h2 class="section-title">APPS</h2>
-          </div>
+          <span class="section-number">01</span>
+          <h2 class="section-title">FEATURED</h2>
         </div>
+
+        <!-- CF4 Hero Card -->
+        <div class="featured-card" onclick="window.location.href='tools/cf4-full-program-bonus/CF4_COMPLETE_PROGRAM.html'">
+          <div class="featured-badge">FLAGSHIP PROGRAM</div>
+          <div class="featured-title">CF4 CALISTHENICS FOUNDATION: MARS</div>
+          <p class="featured-desc">Complete 6-week program. Upper Body, Lower Body, Olympus Mons Challenge. Five color-coded routines with progressive overload, form tips, and structured rest periods.</p>
+          <a class="featured-btn" href="tools/cf4-full-program-bonus/CF4_COMPLETE_PROGRAM.html">LAUNCH PROGRAM</a>
+        </div>
+
         <div class="card-grid">
-          <div class="card card-featured" onclick="window.location.href='tools/cf4-full-program-bonus/CF4_COMPLETE_PROGRAM.html'">
-            <p class="card-label">Featured</p>
-            <h3 class="card-title">CF4 CALISTHENICS FOUNDATION</h3>
-            <p class="card-desc">Upper Body, Lower Body, Olympus Mons Challenge. Your Mars-level calisthenics foundation program.</p>
-            <div class="card-meta">
-              <span>Interactive HTML</span>
-              <span class="card-action">Launch &rarr;</span>
-            </div>
-          </div>
           <div class="card" onclick="window.location.href='apps/calisthenics-ecosystem/index.html'">
-            <p class="card-label">Handstand</p>
+            <p class="card-tag">Handstand</p>
             <h3 class="card-title">HANDSTAND MOVEMENT LAB</h3>
             <p class="card-desc">Prep, strength, balance, mobility modules. Interactive handstand ecosystem.</p>
-            <div class="card-meta">
-              <span>Interactive HTML</span>
-              <span class="card-action">Launch &rarr;</span>
-            </div>
+            <span class="card-action">LAUNCH</span>
+          </div>
+          <div class="card" onclick="window.location.href='tools/calisthenics-hub.html'">
+            <p class="card-tag">Training</p>
+            <h3 class="card-title">CALISTHENICS HUB</h3>
+            <p class="card-desc">Workout builder, skill tracker, programs, journal. Your complete training companion.</p>
+            <span class="card-action">LAUNCH</span>
           </div>
           <div class="card" onclick="window.location.href='tools/progression-tracker.html'">
-            <p class="card-label">Tracking</p>
+            <p class="card-tag">Progress</p>
             <h3 class="card-title">PROGRESSION TRACKER</h3>
             <p class="card-desc">Track calisthenics progress across movement patterns. Stages, reps, sets.</p>
-            <div class="card-meta">
-              <span>Interactive HTML</span>
-              <span class="card-action">Launch &rarr;</span>
-            </div>
+            <span class="card-action">LAUNCH</span>
           </div>
         </div>
       </section>
 
-      <!-- Programs Section -->
-      <section class="section" id="programs">
+      <!-- SECTION 2: MVP TOOLS -->
+      <section class="section" id="tools">
         <div class="section-header">
-          <div class="section-icon">&#128218;</div>
-          <div class="section-info">
-            <p class="section-label">PDF Downloads</p>
-            <h2 class="section-title">PROGRAMS</h2>
-          </div>
+          <span class="section-number">02</span>
+          <h2 class="section-title">TOOLS</h2>
+          <span class="section-count" id="toolCount"></span>
         </div>
-        <div class="card-grid">
-          <div class="card" onclick="window.open('pdfs/HBF_Phase1_Week-1.pdf','_blank')">
-            <p class="card-label">HBF Phase 1</p>
-            <h3 class="card-title">WEEK 1 — FOUNDATION</h3>
-            <p class="card-desc">Foundation week with progressive drills.</p>
-            <div class="card-meta"><span>31.9 MB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/HBF_Phase1_Week-2.pdf','_blank')">
-            <p class="card-label">HBF Phase 1</p>
-            <h3 class="card-title">WEEK 2 — MOMENTUM</h3>
-            <p class="card-desc">Building on the foundation.</p>
-            <div class="card-meta"><span>30.6 MB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/HBF_Phase1_Week-3.pdf','_blank')">
-            <p class="card-label">HBF Phase 1</p>
-            <h3 class="card-title">WEEK 3 — INTERMEDIATE</h3>
-            <p class="card-desc">Intermediate progressions.</p>
-            <div class="card-meta"><span>31.6 MB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/HBF_Phase1_Week-4.pdf','_blank')">
-            <p class="card-label">HBF Phase 1</p>
-            <h3 class="card-title">WEEK 4 — ADVANCED</h3>
-            <p class="card-desc">Advanced conditioning.</p>
-            <div class="card-meta"><span>32.1 MB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/HBF_Phase1_Week-5.pdf','_blank')">
-            <p class="card-label">HBF Phase 1</p>
-            <h3 class="card-title">WEEK 5 — PEAK</h3>
-            <p class="card-desc">Peak performance week.</p>
-            <div class="card-meta"><span>31.2 MB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/HBF_Phase1_Week-6.pdf','_blank')">
-            <p class="card-label">HBF Phase 1</p>
-            <h3 class="card-title">WEEK 6 — MASTERY</h3>
-            <p class="card-desc">Mastery consolidation.</p>
-            <div class="card-meta"><span>31.2 MB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/Handstand-Press-Program.pdf','_blank')">
-            <p class="card-label">Press</p>
-            <h3 class="card-title">HANDSTAND PRESS PROGRAM</h3>
-            <p class="card-desc">Press to handstand progressions.</p>
-            <div class="card-meta"><span>1.5 MB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/Press-to-Handstand-Full-Program.pdf','_blank')">
-            <p class="card-label">Press</p>
-            <h3 class="card-title">PRESS TO HANDSTAND — FULL</h3>
-            <p class="card-desc">Complete comprehensive guide.</p>
-            <div class="card-meta"><span>1.8 MB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-        </div>
+        <div class="card-grid" id="toolGrid"></div>
       </section>
 
-      <!-- Routines Section -->
-      <section class="section" id="routines">
-        <div class="section-header">
-          <div class="section-icon">&#9201;</div>
-          <div class="section-info">
-            <p class="section-label">15-Minute Sessions</p>
-            <h2 class="section-title">SKILL ROUTINES</h2>
-          </div>
-        </div>
-        <div class="card-grid">
-          <div class="card" onclick="window.open('pdfs/15min-HSPU-Routine.pdf','_blank')">
-            <p class="card-label">HSPU</p>
-            <h3 class="card-title">15MIN HSPU ROUTINE</h3>
-            <p class="card-desc">Handstand push-up development.</p>
-            <div class="card-meta"><span>462 KB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/15min-Front-Lever-Routine.pdf','_blank')">
-            <p class="card-label">Front Lever</p>
-            <h3 class="card-title">15MIN FRONT LEVER</h3>
-            <p class="card-desc">Targeted progressions.</p>
-            <div class="card-meta"><span>5.7 MB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/15min-Planche-Routine.pdf','_blank')">
-            <p class="card-label">Planche</p>
-            <h3 class="card-title">15MIN PLANCHE</h3>
-            <p class="card-desc">Essential planche work.</p>
-            <div class="card-meta"><span>20.2 MB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/15min-Muscle-Up-Routine.pdf','_blank')">
-            <p class="card-label">Muscle Up</p>
-            <h3 class="card-title">15MIN MUSCLE UP</h3>
-            <p class="card-desc">Efficient progression drills.</p>
-            <div class="card-meta"><span>26.5 MB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/Saturno-General-Warmup.pdf','_blank')">
-            <p class="card-label">Warmup</p>
-            <h3 class="card-title">SATURNO GENERAL WARMUP</h3>
-            <p class="card-desc">Complete warmup protocol.</p>
-            <div class="card-meta"><span>5.9 MB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Guides Section -->
-      <section class="section" id="guides">
-        <div class="section-header">
-          <div class="section-icon">&#128161;</div>
-          <div class="section-info">
-            <p class="section-label">Knowledge</p>
-            <h2 class="section-title">GUIDES</h2>
-          </div>
-        </div>
-        <div class="card-grid">
-          <div class="card" onclick="window.open('pdfs/HBF-Introduction.pdf','_blank')">
-            <p class="card-label">HBF</p>
-            <h3 class="card-title">INTRODUCTION</h3>
-            <p class="card-desc">Handstand Basics Framework introduction.</p>
-            <div class="card-meta"><span>126 KB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/Mobility-vs-Flexibility.pdf','_blank')">
-            <p class="card-label">Mobility</p>
-            <h3 class="card-title">MOBILITY VS FLEXIBILITY</h3>
-            <p class="card-desc">Key differences for training.</p>
-            <div class="card-meta"><span>57 KB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/Solar-System-Deployment-HBS.pdf','_blank')">
-            <p class="card-label">Philosophy</p>
-            <h3 class="card-title">SOLAR SYSTEM DEPLOYMENT</h3>
-            <p class="card-desc">Saturno training philosophy.</p>
-            <div class="card-meta"><span>230 KB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/Grip-Training-Templates.pdf','_blank')">
-            <p class="card-label">Grip</p>
-            <h3 class="card-title">GRIP TRAINING TEMPLATES</h3>
-            <p class="card-desc">Essential grip work.</p>
-            <div class="card-meta"><span>119 KB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/Move-List-Database.pdf','_blank')">
-            <p class="card-label">Database</p>
-            <h3 class="card-title">MOVE LIST DATABASE</h3>
-            <p class="card-desc">Complete exercise database.</p>
-            <div class="card-meta"><span>476 KB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-          <div class="card" onclick="window.open('pdfs/Calisthenics-Skills-Programming-Ebook.pdf','_blank')">
-            <p class="card-label">Ebook</p>
-            <h3 class="card-title">CALISTHENICS SKILLS PROGRAMMING</h3>
-            <p class="card-desc">Programming for skill development.</p>
-            <div class="card-meta"><span>14.5 MB</span><span class="card-action">Download &darr;</span></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Music Section -->
+      <!-- SECTION 3: MUSIC -->
       <section class="section" id="music">
         <div class="section-header">
-          <div class="section-icon">&#127925;</div>
-          <div class="section-info">
-            <p class="section-label">Training Audio</p>
-            <h2 class="section-title">MUSIC LIBRARY</h2>
-          </div>
+          <span class="section-number">03</span>
+          <h2 class="section-title">MUSIC</h2>
         </div>
-        <div class="coming-soon">
-          <h3>40 TRACKS BY CATEGORY</h3>
-          <p>Curated Saturno training tracks. White Universe, Black Universe, Meditation, Hip Hop, High Energy. Coming soon.</p>
+        <div class="music-player">
+          <div class="music-track">
+            <div class="music-art"><div class="music-art-icon"></div></div>
+            <div class="music-info">
+              <div class="music-title">TEARS OF JOY (CHILL)</div>
+              <div class="music-artist">Gabo Saturno</div>
+            </div>
+          </div>
+          <audio controls class="music-audio">
+            <source src="audio/Tears-Of-Joy-Chill.mp3" type="audio/mpeg">
+            Your browser does not support audio.
+          </audio>
+          <div class="music-coming">40 TRACKS ACROSS 8 CATEGORIES -- COMING SOON</div>
         </div>
       </section>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
-      Saturno Movement &mdash; Bonus Vault<br>
+      SATURNO MOVEMENT -- BONUS VAULT<br>
       support@saturnomovement.com
     </footer>
   </div>
 
   <script>
-    // Check auth for GitHub Pages fallback
+    // Auth check (GitHub Pages fallback)
     (function() {
       const auth = localStorage.getItem('vault_auth');
-      // If no auth and we're on GitHub Pages, redirect to gate
       if (!auth && window.location.hostname.includes('github.io')) {
         window.location.replace('/titan-forge/gate.html');
       }
     })();
 
-    // Create stars
+    // Stars
     const starsContainer = document.getElementById('stars');
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 120; i++) {
       const star = document.createElement('div');
       star.className = 'star';
       star.style.cssText = `
         left: ${Math.random() * 100}%;
         top: ${Math.random() * 100}%;
-        width: ${1 + Math.random() * 2}px;
-        height: ${1 + Math.random() * 2}px;
+        width: ${1 + Math.random() * 1.5}px;
+        height: ${1 + Math.random() * 1.5}px;
         --duration: ${2 + Math.random() * 4}s;
         animation-delay: ${Math.random() * 3}s;
       `;
       starsContainer.appendChild(star);
     }
 
-    // Scroll to section
+    // Scroll
     function scrollTo(id) {
       const el = document.getElementById(id);
       if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -824,13 +752,80 @@
     function submitBH() {
       const name = document.getElementById('bhName').value.trim();
       const email = document.getElementById('bhEmail').value.trim();
-      if (!email) return alert('Please enter your email.');
+      if (!email) return;
       console.log('Signup:', { name, email });
-      alert('Thanks! You are on the list.');
+      alert('You are on the list.');
       closeModal();
       document.getElementById('bhName').value = '';
       document.getElementById('bhEmail').value = '';
     }
+
+    // MVP Tools - JS driven array (easy to add/remove)
+    const tools = [
+      { name: "Breathing Pacer", path: "tools/breathing-pacer.html", tag: "Wellness", desc: "Guided breathing patterns for recovery and focus." },
+      { name: "Cosmic Timer", path: "tools/cosmic-timer.html", tag: "Training", desc: "Interval timer with custom work/rest cycles." },
+      { name: "Rep Counter", path: "tools/rep-counter.html", tag: "Training", desc: "Track reps in real time during your sets." },
+      { name: "Sleep Protocol", path: "tools/sleep-protocol.html", tag: "Recovery", desc: "Guided wind-down routine for optimal recovery." },
+      { name: "Orbital Tracker", path: "tools/orbital-tracker.html", tag: "Progress", desc: "Visual progress tracking across training cycles." },
+      { name: "Nebula Breath", path: "tools/nebula-breath.html", tag: "Wellness", desc: "Deep breathing visualization for meditation." },
+      { name: "Core Values", path: "tools/core-values.html", tag: "Mindset", desc: "Define and track your core training values." },
+      { name: "Values Roulette", path: "tools/values-roulette.html", tag: "Mindset", desc: "Random value prompts for reflection." },
+      { name: "Movement Galaxy", path: "tools/movement-galaxy.html", tag: "Training", desc: "Interactive movement pattern explorer." },
+      { name: "Constellation Builder", path: "tools/constellation-builder.html", tag: "Creative", desc: "Build custom skill constellations." },
+      { name: "Constellation", path: "tools/constellation.html", tag: "Visual", desc: "View your training constellation map." },
+      { name: "Galaxy Zoom", path: "tools/galaxy-zoom.html", tag: "Visual", desc: "Zoom through your training galaxy." },
+      { name: "Alien Oracle", path: "tools/alien-oracle.html", tag: "Fun", desc: "Get cosmic training wisdom from beyond." },
+      { name: "Alien Trainer", path: "tools/SATURNO_ALIEN_TRAINER.html", tag: "Training", desc: "AI-powered movement coach." },
+      { name: "Aurora", path: "tools/aurora.html", tag: "Visual", desc: "Northern lights meditation visual." },
+      { name: "Asteroid Belt", path: "tools/asteroid-belt.html", tag: "Visual", desc: "Navigate through training challenges." },
+      { name: "Big Bang", path: "tools/big-bang.html", tag: "Visual", desc: "Explosive training visualization." },
+      { name: "Binary Star", path: "tools/binary-star.html", tag: "Training", desc: "Paired exercise system." },
+      { name: "Black Hole", path: "tools/black-hole.html", tag: "Visual", desc: "Immersive focus visualization." },
+      { name: "Comet Trail", path: "tools/comet-trail.html", tag: "Visual", desc: "Track your training momentum." },
+      { name: "Cosmic Dust", path: "tools/cosmic-dust.html", tag: "Visual", desc: "Ambient training atmosphere." },
+      { name: "Dark Matter", path: "tools/dark-matter.html", tag: "Mindset", desc: "Explore the unseen aspects of training." },
+      { name: "Event Horizon", path: "tools/event-horizon.html", tag: "Training", desc: "Point of no return challenges." },
+      { name: "Galactic Core", path: "tools/galactic-core.html", tag: "Training", desc: "Core training system hub." },
+      { name: "Gravity Well", path: "tools/gravity-well.html", tag: "Training", desc: "Progressive resistance training tool." },
+      { name: "Hyperspace", path: "tools/hyperspace.html", tag: "Visual", desc: "Warp-speed motivation visual." },
+      { name: "Lunar Cycle", path: "tools/lunar-cycle.html", tag: "Recovery", desc: "Training periodization by lunar phases." },
+      { name: "Meteor Shower", path: "tools/meteor-shower.html", tag: "Visual", desc: "Rapid-fire training challenges." },
+      { name: "Neutron Star", path: "tools/neutron-star.html", tag: "Training", desc: "High-density training protocol." },
+      { name: "Plasma Burst", path: "tools/plasma-burst.html", tag: "Training", desc: "Explosive power training module." },
+      { name: "Progression Pathfinder", path: "tools/progression-pathfinder.html", tag: "Progress", desc: "Find your next progression step." },
+      { name: "Pulsar", path: "tools/pulsar.html", tag: "Training", desc: "Rhythmic training pattern generator." },
+      { name: "Quantum Leap", path: "tools/quantum-leap.html", tag: "Training", desc: "Breakthrough training protocol." },
+      { name: "Red Giant", path: "tools/red-giant.html", tag: "Training", desc: "Volume training expansion system." },
+      { name: "Ring of Fire", path: "tools/ring-of-fire.html", tag: "Training", desc: "Circuit training challenge." },
+      { name: "Singularity", path: "tools/singularity.html", tag: "Mindset", desc: "Single-focus training session." },
+      { name: "Solar Flare", path: "tools/solar-flare.html", tag: "Training", desc: "High-intensity burst protocol." },
+      { name: "Solar Wind", path: "tools/solar-wind.html", tag: "Recovery", desc: "Active recovery flow session." },
+      { name: "Stargate", path: "tools/stargate.html", tag: "Training", desc: "Portal to new training dimensions." },
+      { name: "Supernova", path: "tools/supernova.html", tag: "Training", desc: "Maximum effort training session." },
+      { name: "Void Walker", path: "tools/void-walker.html", tag: "Mindset", desc: "Mental toughness training." },
+      { name: "White Dwarf", path: "tools/white-dwarf.html", tag: "Recovery", desc: "Compact recovery protocol." },
+      { name: "Wormhole Generator", path: "tools/wormhole-generator.html", tag: "Creative", desc: "Generate new training connections." },
+      { name: "Transcript to PDF", path: "tools/transcript-to-pdf.html", tag: "Utility", desc: "Convert training notes to PDF." },
+      { name: "Music Organizer", path: "tools/music-organizer.html", tag: "Utility", desc: "Organize your training playlists." },
+      { name: "Master Hub", path: "tools/saturno-master-hub.html", tag: "Hub", desc: "Voice-enabled empire consolidation hub." },
+    ];
+
+    // Render tools
+    const toolGrid = document.getElementById('toolGrid');
+    document.getElementById('toolCount').textContent = tools.length + ' TOOLS';
+
+    tools.forEach(tool => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.onclick = () => window.location.href = tool.path;
+      card.innerHTML = `
+        <p class="card-tag">${tool.tag}</p>
+        <h3 class="card-title">${tool.name.toUpperCase()}</h3>
+        <p class="card-desc">${tool.desc}</p>
+        <span class="card-action">LAUNCH</span>
+      `;
+      toolGrid.appendChild(card);
+    });
   </script>
 </body>
 </html>
