@@ -15,6 +15,7 @@ export default function middleware(request) {
   const needsAuth =
     path === '/bonus.html' ||
     path === '/bonus' ||
+    path === '/vault' ||
     path.startsWith('/tools/cf4-full-program-bonus/');
 
   if (!needsAuth) {

@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/vault", "destination": "/bonus.html" },
     { "source": "/bonus", "destination": "/bonus.html" }
   ]
 }
