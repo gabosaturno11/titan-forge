@@ -126,22 +126,12 @@
     .nav-brand {
       display: flex;
       align-items: center;
-      gap: 12px;
     }
 
     .nav-logo {
-      width: 36px;
-      height: 36px;
-      filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5));
-    }
-
-    .nav-title {
-      font-size: 14px;
-      font-weight: 800;
-      font-style: italic;
-      background: linear-gradient(135deg, var(--text-primary), var(--purple-glow));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      width: 40px;
+      height: 40px;
+      filter: brightness(10);
     }
 
     .nav-links {
@@ -194,9 +184,9 @@
     .hero h1 {
       font-size: 42px;
       font-weight: 800;
-      font-style: italic;
       letter-spacing: -0.02em;
       margin-bottom: 16px;
+      text-transform: uppercase;
       background: linear-gradient(135deg, var(--text-primary), var(--purple-glow), var(--blue-glow));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -559,7 +549,6 @@
       <div class="nav-container">
         <div class="nav-brand">
           <img src="planet-logo.png" alt="Saturno" class="nav-logo">
-          <span class="nav-title">SATURNO VAULT</span>
         </div>
         <div class="nav-links">
           <span class="nav-link" onclick="scrollTo('apps')">Apps</span>
