@@ -257,7 +257,7 @@
         <section class="panel flex-1 flex flex-col min-w-0">
             <div class="panel-header">
                 <span class="panel-title text-cyan-400">02 / CAPTION MULTIPLIER</span>
-                <span class="text-[9px] text-zinc-600">CLAUDE API</span>
+                <span class="text-[9px] text-zinc-600">BEAST API</span>
             </div>
             <div class="panel-body flex-grow flex flex-col gap-4 overflow-y-auto">
                 <div>
@@ -344,7 +344,7 @@ Example: 'Mastery isn't about perfection. It's about showing up before you're re
 
     <!-- FOOTER -->
     <footer class="h-8 border-t border-zinc-900 bg-black flex items-center justify-between px-4 text-[9px] shrink-0">
-        <span class="text-zinc-600">SATURNO FORGE V2.0 — Direct Claude API</span>
+        <span class="text-zinc-600">SATURNO FORGE V2.0 — Beast API Backend</span>
         <span class="text-zinc-700">Ctrl+S: PDF | Ctrl+M: Multiply</span>
     </footer>
 
@@ -426,34 +426,41 @@ Example: 'Mastery isn't about perfection. It's about showing up before you're re
         }
 
         // ═══════════════════════════════════════════════════════════════════════
-        // DIRECT CLAUDE API CALL
+        // BEAST API BACKEND
         // ═══════════════════════════════════════════════════════════════════════
+        const BEAST_API = 'https://saturno-beast-api.vercel.app/api/synthesize';
+
         async function callClaude(prompt) {
             const apiKey = getApiKey();
             if (!apiKey) throw new Error('No API key');
 
-            const response = await fetch('https://api.anthropic.com/v1/messages', {
+            const response = await fetch(BEAST_API, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-api-key': apiKey,
-                    'anthropic-version': '2023-06-01',
-                    'anthropic-dangerous-direct-browser-access': 'true'
+                    'x-api-key': apiKey
                 },
                 body: JSON.stringify({
-                    model: 'claude-sonnet-4-20250514',
-                    max_tokens: 2000,
-                    messages: [{ role: 'user', content: prompt }]
+                    content: prompt,
+                    mode: currentVoiceMode,
+                    faders: {
+                        certainty: 7,
+                        formality: 4,
+                        intensity: 6,
+                        intimacy: 6,
+                        abstraction: 5,
+                        density: 5
+                    }
                 })
             });
 
             if (!response.ok) {
                 const err = await response.json().catch(() => ({}));
-                throw new Error(err.error?.message || `API error ${response.status}`);
+                throw new Error(err.error || `API error ${response.status}`);
             }
 
             const data = await response.json();
-            return data.content?.[0]?.text || '';
+            return data.output || data.result || data.content || '';
         }
 
         // ═══════════════════════════════════════════════════════════════════════
@@ -693,7 +700,8 @@ Output ONLY the final content. No explanations or meta-commentary.`;
         // Init
         updateApiButton();
         log('FORGE initialized');
-        log(hasApiKey() ? 'API key found' : 'No API key - click API KEY button');
+        log('Backend: saturno-beast-api.vercel.app');
+        log(hasApiKey() ? 'API key ready' : 'No API key - click API KEY');
     </script>
 
 </body>
