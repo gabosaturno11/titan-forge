@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TITAN V1.2 | SATURNO FORGE</title>
+    <title>TITAN V1.3 | SATURNO FORGE</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
@@ -447,7 +447,7 @@
     <!-- Header -->
     <header class="header">
         <div class="header-left">
-            <div class="logo">TITAN<span>_</span>V1.2</div>
+            <div class="logo">TITAN<span>_</span>V1.3</div>
             <div class="status-pills">
                 <span id="api-status" class="active">API: Checking...</span>
                 <span id="mode-status">Mode: /RawMode</span>
@@ -472,6 +472,17 @@
     <main class="main">
         <!-- Sidebar -->
         <aside class="sidebar">
+            <!-- YouTube Transcript -->
+            <div class="panel">
+                <div class="panel-title">YouTube Transcript</div>
+                <input type="text" id="yt-url" class="form-input" placeholder="Paste YouTube URL..." style="margin-bottom: 8px; font-size: 10px; padding: 8px;">
+                <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                    <button class="btn" style="flex: 1; font-size: 9px; padding: 6px;" onclick="getYTTranscript()">Get Transcript</button>
+                    <button class="btn" style="flex: 1; font-size: 9px; padding: 6px;" onclick="copyYTPrompt()">Copy Prompt</button>
+                </div>
+                <p style="font-size: 9px; color: var(--text-muted); line-height: 1.4;">Paste URL → Get Transcript → Copy to input → Synthesize</p>
+            </div>
+
             <!-- Master Faders -->
             <div class="panel">
                 <div class="panel-title">Master Faders</div>
@@ -667,6 +678,41 @@ The Forge will synthesize through your active voice mode..."></textarea>
     <script src="js/api-config.js"></script>
     <script src="js/claude-api.js"></script>
     <script>
+        // YouTube Transcript Functions
+        function getYTTranscript() {
+            const url = document.getElementById('yt-url').value.trim();
+            if (!url) {
+                showToast('Enter a YouTube URL first', 'error');
+                return;
+            }
+            let videoId = '';
+            try {
+                const urlObj = new URL(url);
+                videoId = urlObj.searchParams.get('v') || urlObj.pathname.split('/').pop();
+            } catch (e) {
+                videoId = url;
+            }
+            window.open('https://youtubetranscript.com/?v=' + videoId, '_blank');
+            showToast('Transcript page opened - copy and paste below', 'success');
+        }
+
+        function copyYTPrompt() {
+            const prompt = `Summarize this YouTube video transcript into:
+
+1. **TITLE** - Clear, descriptive title
+2. **KEY POINTS** - 5-7 main takeaways as bullets
+3. **DETAILED SUMMARY** - 2-3 paragraphs of main content
+4. **ACTION ITEMS** - Practical steps to take
+5. **QUOTES** - Memorable quotes (if any)
+
+Keep it professional but accessible. Focus on actionable insights.
+
+TRANSCRIPT:
+[Paste transcript here]`;
+            navigator.clipboard.writeText(prompt);
+            showToast('Summary prompt copied - paste in Claude/GPT', 'success');
+        }
+
         // State
         let currentMode = 'Raw';
         let faders = { f1: 5, f2: 5, f3: 5, f4: 5, f5: 5, f6: 5 };

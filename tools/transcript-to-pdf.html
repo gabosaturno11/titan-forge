@@ -3,126 +3,214 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Transcript to PDF | SATURNO</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>YouTube → Summary → PDF | SATURNO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg: #050508;
-      --card: #0a0a10;
-      --border: rgba(255,255,255,0.08);
+      --bg: #050711;
+      --card: rgba(10, 14, 30, 0.8);
+      --border: rgba(0, 255, 204, 0.1);
+      --border-hover: rgba(0, 255, 204, 0.3);
       --text: #fff;
       --muted: rgba(255,255,255,0.5);
-      --blue: #3b82f6;
-      --purple: #8b5cf6;
+      --cyan: #00ffcc;
+      --purple: #6d28d9;
     }
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Sora', sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       padding: 40px;
     }
     .container { max-width: 900px; margin: 0 auto; }
+
+    .header { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+    .logo { width: 40px; height: 40px; filter: brightness(10); }
     h1 {
-      font-size: 24px;
-      margin-bottom: 8px;
-      background: linear-gradient(135deg, var(--blue), var(--purple));
+      font-size: 22px;
+      font-weight: 800;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, var(--text), var(--cyan));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .subtitle { color: var(--muted); margin-bottom: 32px; }
-    .input-section {
+    .subtitle { color: var(--muted); margin-bottom: 32px; font-size: 13px; }
+
+    .section {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 12px;
       padding: 24px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+      position: relative;
     }
-    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: linear-gradient(180deg, var(--cyan), var(--purple));
+    }
+    .section-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.1em; }
     input, textarea {
       width: 100%;
-      background: var(--bg);
+      background: rgba(0, 0, 0, 0.4);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px;
+      padding: 14px;
       color: var(--text);
       font-family: inherit;
-      font-size: 14px;
+      font-size: 13px;
     }
-    input:focus, textarea:focus { outline: none; border-color: var(--blue); }
-    textarea { height: 300px; resize: vertical; }
-    .btn-row { display: flex; gap: 12px; margin-top: 16px; }
+    input:focus, textarea:focus { outline: none; border-color: var(--cyan); }
+    textarea { height: 200px; resize: vertical; line-height: 1.7; }
+    textarea.prompt-box { height: 120px; font-size: 12px; }
+
+    .yt-row { display: flex; gap: 12px; }
+    .yt-row input { flex: 1; }
+
+    .btn-row { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
     .btn {
       padding: 12px 24px;
-      border-radius: 8px;
       border: none;
       cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.2s;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: all 0.3s;
     }
     .btn-primary {
-      background: linear-gradient(135deg, var(--blue), var(--purple));
-      color: white;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      color: var(--bg);
     }
+    .btn-primary:hover { box-shadow: 0 0 20px rgba(0, 255, 204, 0.3); transform: translateY(-2px); }
     .btn-secondary {
-      background: var(--card);
+      background: transparent;
       border: 1px solid var(--border);
       color: var(--text);
     }
+    .btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    .copy-btn {
+      background: var(--cyan);
+      color: var(--bg);
+      padding: 8px 16px;
+      font-size: 10px;
+    }
+
+    .tip {
+      background: rgba(0, 255, 204, 0.05);
+      border-left: 2px solid var(--cyan);
+      padding: 12px 16px;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+    .tip a { color: var(--cyan); }
+
     #preview {
       background: white;
       color: #1a1a1a;
       padding: 40px;
-      border-radius: 8px;
       font-size: 14px;
       line-height: 1.8;
       display: none;
+      margin-top: 24px;
     }
-    #preview h1 { color: #1a1a1a; -webkit-text-fill-color: #1a1a1a; font-size: 28px; margin-bottom: 8px; }
-    #preview .meta { color: #666; font-size: 12px; margin-bottom: 24px; }
+    #preview .pdf-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #eee; }
+    #preview .pdf-logo { width: 48px; height: 48px; }
+    #preview .pdf-brand { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: #666; }
+    #preview h1 { color: #1a1a1a; -webkit-text-fill-color: #1a1a1a; font-size: 24px; margin-bottom: 8px; font-weight: 700; }
+    #preview .meta { color: #888; font-size: 11px; margin-bottom: 24px; }
     #preview p { margin-bottom: 16px; }
+    #preview h2 { font-size: 16px; margin: 24px 0 12px; color: #333; }
+    #preview ul { margin-left: 20px; margin-bottom: 16px; }
+    #preview li { margin-bottom: 8px; }
+    #preview .pdf-footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #eee; font-size: 10px; color: #999; text-align: center; }
 
-    /* Mobile Responsive */
     @media (max-width: 768px) {
       body { padding: 20px; }
-      h1 { font-size: 20px; }
-      .subtitle { font-size: 12px; margin-bottom: 24px; }
-      .input-section { padding: 16px; }
-      input, textarea { padding: 10px; font-size: 13px; }
-      textarea { height: 200px; }
-      .btn-row { flex-wrap: wrap; }
-      .btn { flex: 1; min-width: 100px; padding: 10px 16px; font-size: 12px; }
-      #preview { padding: 24px; font-size: 13px; }
-      #preview h1 { font-size: 22px; }
-    }
-
-    @media (max-width: 480px) {
-      body { padding: 16px; }
       h1 { font-size: 18px; }
-      .btn-row { flex-direction: column; }
-      .btn { width: 100%; }
+      .section { padding: 16px; }
+      .yt-row { flex-direction: column; }
+      textarea { height: 150px; }
+      .btn { flex: 1; min-width: 100px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Transcript to PDF</h1>
-    <p class="subtitle">Paste a video transcript and convert it to a formatted PDF</p>
+    <div class="header">
+      <img src="../planet-logo.png" alt="Saturno" class="logo">
+      <h1>YouTube → Summary → PDF</h1>
+    </div>
+    <p class="subtitle">Get transcript, summarize with AI, export branded PDF</p>
 
-    <div class="input-section">
+    <!-- STEP 1: YouTube Transcript -->
+    <div class="section">
+      <p class="section-label">Step 1 — Get YouTube Transcript</p>
+      <label>YouTube Video URL</label>
+      <div class="yt-row">
+        <input type="text" id="ytUrl" placeholder="https://www.youtube.com/watch?v=...">
+        <button class="btn btn-secondary" onclick="getTranscript()">Get Transcript</button>
+      </div>
+      <div class="tip">
+        <strong>How it works:</strong> Paste the YouTube URL and click "Get Transcript" to open a transcript service. Copy the transcript and paste it below.
+        <br>Or manually: Go to YouTube → Click "..." under video → "Show transcript" → Copy all.
+      </div>
+    </div>
+
+    <!-- STEP 2: Summary Prompt -->
+    <div class="section">
+      <p class="section-label">Step 2 — AI Summary Prompt</p>
+      <label>Copy this prompt to Claude or ChatGPT</label>
+      <textarea class="prompt-box" id="summaryPrompt" readonly>Summarize this YouTube video transcript into a structured document with:
+
+1. **TITLE** - A clear, descriptive title for the content
+2. **KEY POINTS** - 5-7 main takeaways as bullet points
+3. **DETAILED SUMMARY** - 2-3 paragraphs covering the main content
+4. **ACTION ITEMS** - Practical steps the viewer can take
+5. **QUOTES** - Any memorable or important quotes (if applicable)
+
+Keep the tone professional but accessible. Focus on actionable insights.
+
+TRANSCRIPT:
+[Paste transcript here]</textarea>
+      <div class="btn-row">
+        <button class="btn copy-btn" onclick="copyPrompt()">Copy Prompt</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Content Input -->
+    <div class="section">
+      <p class="section-label">Step 3 — Paste Your Content</p>
       <label>Document Title</label>
-      <input type="text" id="title" placeholder="e.g., HBS Module 1: Foundation">
+      <input type="text" id="title" placeholder="e.g., HBS Module 1: Foundation Principles" style="margin-bottom: 16px;">
 
-      <label style="margin-top: 16px;">Transcript</label>
-      <textarea id="transcript" placeholder="Paste your transcript here..."></textarea>
+      <label>Content (paste AI summary or raw transcript)</label>
+      <textarea id="transcript" placeholder="Paste your AI-generated summary or transcript here..."></textarea>
+    </div>
 
+    <!-- STEP 4: Generate -->
+    <div class="section">
+      <p class="section-label">Step 4 — Generate Branded PDF</p>
       <div class="btn-row">
         <button class="btn btn-primary" onclick="generatePDF()">Generate PDF</button>
         <button class="btn btn-secondary" onclick="previewPDF()">Preview</button>
-        <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+        <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
       </div>
     </div>
 
@@ -130,42 +218,107 @@
   </div>
 
   <script>
-    function formatTranscript(text) {
-      // Split into paragraphs
-      const paragraphs = text.split(/\n\n+/).filter(p => p.trim());
-      return paragraphs.map(p => `<p>${p.trim()}</p>`).join('');
+    // Step 1: Open transcript service
+    function getTranscript() {
+      const url = document.getElementById('ytUrl').value.trim();
+      if (!url) {
+        alert('Please enter a YouTube URL');
+        return;
+      }
+      // Extract video ID
+      let videoId = '';
+      try {
+        const urlObj = new URL(url);
+        videoId = urlObj.searchParams.get('v') || urlObj.pathname.split('/').pop();
+      } catch (e) {
+        videoId = url;
+      }
+      // Open transcript service
+      window.open(`https://youtubetranscript.com/?v=${videoId}`, '_blank');
     }
 
+    // Step 2: Copy prompt
+    function copyPrompt() {
+      const prompt = document.getElementById('summaryPrompt');
+      prompt.select();
+      document.execCommand('copy');
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy Prompt', 2000);
+    }
+
+    // Format content with markdown-like parsing
+    function formatContent(text) {
+      // Handle markdown-style formatting
+      let html = text
+        // Headers
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm, '<h2>$1</h2>')
+        // Bold
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        // Bullet points
+        .replace(/^[-•] (.+)$/gm, '<li>$1</li>')
+        .replace(/^(\d+)\. (.+)$/gm, '<li>$2</li>');
+
+      // Wrap consecutive <li> in <ul>
+      html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+
+      // Split remaining into paragraphs
+      const lines = html.split(/\n\n+/);
+      html = lines.map(line => {
+        if (line.startsWith('<h') || line.startsWith('<ul')) return line;
+        if (line.trim()) return `<p>${line.trim()}</p>`;
+        return '';
+      }).join('\n');
+
+      return html;
+    }
+
+    // Preview
     function previewPDF() {
-      const title = document.getElementById('title').value || 'Untitled';
-      const transcript = document.getElementById('transcript').value;
+      const title = document.getElementById('title').value || 'Untitled Document';
+      const content = document.getElementById('transcript').value;
       const preview = document.getElementById('preview');
 
       preview.innerHTML = `
+        <div class="pdf-header">
+          <img src="../planet-logo.png" alt="Saturno" class="pdf-logo" onerror="this.style.display='none'">
+          <div>
+            <div class="pdf-brand">SATURNO MOVEMENT</div>
+          </div>
+        </div>
         <h1>${title}</h1>
-        <div class="meta">SATURNO MOVEMENT | Generated ${new Date().toLocaleDateString()}</div>
-        ${formatTranscript(transcript)}
+        <div class="meta">Generated ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+        ${formatContent(content)}
+        <div class="pdf-footer">
+          SATURNO MOVEMENT | saturnomovement.com
+        </div>
       `;
       preview.style.display = 'block';
+      preview.scrollIntoView({ behavior: 'smooth' });
     }
 
+    // Generate PDF
     function generatePDF() {
       previewPDF();
       const preview = document.getElementById('preview');
-      const title = document.getElementById('title').value || 'transcript';
+      const title = document.getElementById('title').value || 'document';
 
       const opt = {
-        margin: [15, 15],
+        margin: [15, 15, 20, 15],
         filename: `${title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
+        html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
       html2pdf().set(opt).from(preview).save();
     }
 
+    // Clear all
     function clearAll() {
+      document.getElementById('ytUrl').value = '';
       document.getElementById('title').value = '';
       document.getElementById('transcript').value = '';
       document.getElementById('preview').style.display = 'none';
