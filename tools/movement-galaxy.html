@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Movement Galaxy | Saturno Movement</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Stars background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Nebula effects */
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .nebula-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #FFD700, transparent);
+            top: -200px;
+            right: -200px;
+        }
+
+        .nebula-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #00CED1, transparent);
+            bottom: -150px;
+            left: -150px;
+        }
+
+        .nebula-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #FF6B6B, transparent);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(10,10,10,0.9), transparent);
+        }
+
+        .logo {
+            height: 50px;
+            filter: drop-shadow(0 0 10px rgba(255,215,0,0.5));
+        }
+
+        h1 {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 4px;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255,215,0,0.5);
+            z-index: 100;
+        }
+
+        /* Galaxy container */
+        .galaxy-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        /* Central sun (Core) */
+        .core {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #FFD700, #FF8C00, #FF4500);
+            box-shadow:
+                0 0 60px rgba(255,215,0,0.8),
+                0 0 120px rgba(255,140,0,0.4),
+                inset 0 0 30px rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #0a0a0a;
+            text-align: center;
+            animation: corePulse 4s ease-in-out infinite;
+        }
+
+        .core:hover {
+            transform: scale(1.1);
+            box-shadow:
+                0 0 80px rgba(255,215,0,1),
+                0 0 160px rgba(255,140,0,0.6);
+        }
+
+        @keyframes corePulse {
+            0%, 100% { box-shadow: 0 0 60px rgba(255,215,0,0.8), 0 0 120px rgba(255,140,0,0.4); }
+            50% { box-shadow: 0 0 80px rgba(255,215,0,1), 0 0 160px rgba(255,140,0,0.6); }
+        }
+
+        /* Orbital paths */
+        .orbit {
+            position: absolute;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* Planets */
+        .planet {
+            position: absolute;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.6rem;
+            font-weight: 500;
+            text-align: center;
+            padding: 5px;
+            z-index: 5;
+        }
+
+        .planet:hover {
+            transform: scale(1.3) !important;
+            z-index: 20;
+        }
+
+        .planet.active {
+            transform: scale(1.5) !important;
+            z-index: 25;
+        }
+
+        /* Planet variations */
+        .planet-push {
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle at 30% 30%, #FF6B6B, #DC143C);
+            box-shadow: 0 0 30px rgba(255,107,107,0.6), inset 0 0 15px rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .planet-pull {
+            width: 65px;
+            height: 65px;
+            background: radial-gradient(circle at 30% 30%, #4ECDC4, #00CED1);
+            box-shadow: 0 0 30px rgba(78,205,196,0.6), inset 0 0 15px rgba(255,255,255,0.2);
+            color: #0a0a0a;
+        }
+
+        .planet-squat {
+            width: 75px;
+            height: 75px;
+            background: radial-gradient(circle at 30% 30%, #9B59B6, #8E44AD);
+            box-shadow: 0 0 30px rgba(155,89,182,0.6), inset 0 0 15px rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .planet-hinge {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #F39C12, #E67E22);
+            box-shadow: 0 0 30px rgba(243,156,18,0.6), inset 0 0 15px rgba(255,255,255,0.2);
+            color: #0a0a0a;
+        }
+
+        .planet-core {
+            width: 55px;
+            height: 55px;
+            background: radial-gradient(circle at 30% 30%, #3498DB, #2980B9);
+            box-shadow: 0 0 30px rgba(52,152,219,0.6), inset 0 0 15px rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .planet-balance {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle at 30% 30%, #2ECC71, #27AE60);
+            box-shadow: 0 0 30px rgba(46,204,113,0.6), inset 0 0 15px rgba(255,255,255,0.2);
+            color: #0a0a0a;
+        }
+
+        .planet-mobility {
+            width: 45px;
+            height: 45px;
+            background: radial-gradient(circle at 30% 30%, #E74C3C, #C0392B);
+            box-shadow: 0 0 30px rgba(231,76,60,0.6), inset 0 0 15px rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        /* Info panel */
+        .info-panel {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            background: rgba(20,20,20,0.95);
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-panel.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .info-panel h2 {
+            color: var(--planet-color, #FFD700);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-panel .exercises {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .exercise-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .exercise-item:hover {
+            background: rgba(255,215,0,0.2);
+            transform: translateX(5px);
+        }
+
+        .exercise-item.completed {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+
+        .exercise-level {
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255,215,0,0.2);
+            color: #FFD700;
+        }
+
+        .close-panel {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            background: rgba(255,215,0,0.1);
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 8px;
+            color: #FFD700;
+            font-family: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: rgba(255,215,0,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255,215,0,0.2);
+        }
+
+        /* Stats display */
+        .stats {
+            position: fixed;
+            top: 130px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 2rem;
+            font-size: 0.7rem;
+            color: #888;
+            z-index: 100;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-value {
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        /* Asteroid belt */
+        .asteroid-belt {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .asteroid {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #666;
+            border-radius: 50%;
+            animation: asteroidOrbit var(--duration) linear infinite;
+        }
+
+        @keyframes asteroidOrbit {
+            from { transform: rotate(0deg) translateX(var(--radius)) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(var(--radius)) rotate(-360deg); }
+        }
+
+        /* Comet trail */
+        .comet {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, white, #00CED1);
+            border-radius: 50%;
+            animation: cometPath 15s linear infinite;
+            box-shadow:
+                -10px 0 10px rgba(0,206,209,0.5),
+                -20px 0 15px rgba(0,206,209,0.3),
+                -35px 0 20px rgba(0,206,209,0.1);
+        }
+
+        @keyframes cometPath {
+            0% { transform: translate(-100vw, 100vh); }
+            100% { transform: translate(100vw, -100vh); }
+        }
+
+        /* Footer */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.7rem;
+            color: #444;
+            z-index: 100;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            header { padding: 0.5rem 1rem; }
+            .logo { height: 35px; }
+
+            h1 {
+                top: 60px;
+                font-size: 1rem;
+                letter-spacing: 2px;
+            }
+
+            .stats {
+                top: 100px;
+                gap: 1rem;
+                font-size: 0.6rem;
+            }
+
+            .core {
+                width: 70px;
+                height: 70px;
+                font-size: 0.5rem;
+            }
+
+            .planet {
+                font-size: 0.45rem;
+                padding: 3px;
+            }
+
+            .planet-push { width: 50px; height: 50px; }
+            .planet-pull { width: 45px; height: 45px; }
+            .planet-squat { width: 55px; height: 55px; }
+            .planet-hinge { width: 40px; height: 40px; }
+            .planet-core { width: 38px; height: 38px; }
+            .planet-balance { width: 35px; height: 35px; }
+            .planet-mobility { width: 32px; height: 32px; }
+
+            .orbit:nth-child(1) { width: 140px !important; height: 140px !important; }
+            .orbit:nth-child(2) { width: 200px !important; height: 200px !important; }
+            .orbit:nth-child(3) { width: 260px !important; height: 260px !important; }
+            .orbit:nth-child(4) { width: 320px !important; height: 320px !important; }
+            .orbit:nth-child(5) { width: 380px !important; height: 380px !important; }
+
+            .info-panel {
+                bottom: 80px;
+                width: 95%;
+                padding: 1rem;
+            }
+
+            .info-panel h2 { font-size: 1rem; }
+            .exercise-item { font-size: 0.7rem; padding: 0.4rem; }
+
+            .controls {
+                bottom: 10px;
+                gap: 0.5rem;
+            }
+
+            .btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.65rem;
+            }
+
+            .nebula-1 { width: 300px; height: 300px; top: -100px; right: -100px; }
+            .nebula-2 { width: 250px; height: 250px; bottom: -75px; left: -75px; }
+            .nebula-3 { width: 200px; height: 200px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Nebulae -->
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <!-- Stars -->
+    <div class="stars" id="stars"></div>
+
+    <!-- Comet -->
+    <div class="comet"></div>
+
+    <!-- Header -->
+    <header>
+        <img src="https://raw.githubusercontent.com/gabosaturno11/titan-forge/main/assets/logo-planete-azul.png"
+             alt="Saturno Movement"
+             class="logo"
+             onerror="this.style.display='none'">
+    </header>
+
+    <h1>MOVEMENT GALAXY</h1>
+
+    <!-- Stats -->
+    <div class="stats">
+        <div class="stat">
+            <span>Explored:</span>
+            <span class="stat-value" id="explored">0/7</span>
+        </div>
+        <div class="stat">
+            <span>Exercises:</span>
+            <span class="stat-value" id="completed">0</span>
+        </div>
+        <div class="stat">
+            <span>Mastery:</span>
+            <span class="stat-value" id="mastery">0%</span>
+        </div>
+    </div>
+
+    <!-- Galaxy -->
+    <div class="galaxy-container" id="galaxy">
+        <!-- Orbits -->
+        <div class="orbit" style="width: 200px; height: 200px;"></div>
+        <div class="orbit" style="width: 300px; height: 300px;"></div>
+        <div class="orbit" style="width: 400px; height: 400px;"></div>
+        <div class="orbit" style="width: 500px; height: 500px;"></div>
+        <div class="orbit" style="width: 600px; height: 600px;"></div>
+
+        <!-- Core -->
+        <div class="core" id="core">YOUR<br>CORE</div>
+
+        <!-- Planets will be added dynamically -->
+    </div>
+
+    <!-- Info Panel -->
+    <div class="info-panel" id="infoPanel">
+        <button class="close-panel" onclick="closePanel()">&times;</button>
+        <h2 id="panelTitle">Planet Name</h2>
+        <div class="exercises" id="exerciseList"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="btn" onclick="toggleOrbit()" id="orbitBtn">PAUSE</button>
+        <button class="btn" onclick="resetProgress()">RESET</button>
+        <button class="btn" onclick="playAmbient()" id="soundBtn">VENUS 221Hz</button>
+    </div>
+
+    <footer>SATURNO MOVEMENT</footer>
+
+    <script>
+        // Audio context
+        let audioCtx = null;
+        let isOrbiting = true;
+        let ambientPlaying = false;
+        let ambientOsc = null;
+
+        // Movement patterns data
+        const movementPatterns = {
+            push: {
+                name: 'PUSH',
+                color: '#FF6B6B',
+                orbit: 150,
+                speed: 20,
+                exercises: [
+                    { name: 'Wall Push-Up', level: 'Beginner' },
+                    { name: 'Incline Push-Up', level: 'Beginner' },
+                    { name: 'Knee Push-Up', level: 'Beginner' },
+                    { name: 'Standard Push-Up', level: 'Intermediate' },
+                    { name: 'Diamond Push-Up', level: 'Intermediate' },
+                    { name: 'Archer Push-Up', level: 'Advanced' },
+                    { name: 'One-Arm Push-Up', level: 'Master' }
+                ]
+            },
+            pull: {
+                name: 'PULL',
+                color: '#4ECDC4',
+                orbit: 200,
+                speed: 25,
+                exercises: [
+                    { name: 'Dead Hang', level: 'Beginner' },
+                    { name: 'Scapula Pulls', level: 'Beginner' },
+                    { name: 'Negative Pull-Up', level: 'Intermediate' },
+                    { name: 'Chin-Up', level: 'Intermediate' },
+                    { name: 'Pull-Up', level: 'Intermediate' },
+                    { name: 'Archer Pull-Up', level: 'Advanced' },
+                    { name: 'One-Arm Pull-Up', level: 'Master' }
+                ]
+            },
+            squat: {
+                name: 'SQUAT',
+                color: '#9B59B6',
+                orbit: 250,
+                speed: 18,
+                exercises: [
+                    { name: 'Assisted Squat', level: 'Beginner' },
+                    { name: 'Box Squat', level: 'Beginner' },
+                    { name: 'Bodyweight Squat', level: 'Intermediate' },
+                    { name: 'Bulgarian Split Squat', level: 'Intermediate' },
+                    { name: 'Shrimp Squat', level: 'Advanced' },
+                    { name: 'Pistol Squat', level: 'Advanced' },
+                    { name: 'Dragon Squat', level: 'Master' }
+                ]
+            },
+            hinge: {
+                name: 'HINGE',
+                color: '#F39C12',
+                orbit: 200,
+                speed: 22,
+                exercises: [
+                    { name: 'Good Morning', level: 'Beginner' },
+                    { name: 'Hip Hinge', level: 'Beginner' },
+                    { name: 'Single-Leg RDL', level: 'Intermediate' },
+                    { name: 'Nordic Curl Negative', level: 'Intermediate' },
+                    { name: 'Nordic Curl', level: 'Advanced' },
+                    { name: 'Natural Ham Glute Raise', level: 'Master' }
+                ]
+            },
+            core: {
+                name: 'CORE',
+                color: '#3498DB',
+                orbit: 150,
+                speed: 24,
+                exercises: [
+                    { name: 'Dead Bug', level: 'Beginner' },
+                    { name: 'Plank', level: 'Beginner' },
+                    { name: 'Hollow Body Hold', level: 'Intermediate' },
+                    { name: 'Hanging Knee Raise', level: 'Intermediate' },
+                    { name: 'Dragon Flag', level: 'Advanced' },
+                    { name: 'Front Lever Tuck', level: 'Advanced' },
+                    { name: 'Full Front Lever', level: 'Master' }
+                ]
+            },
+            balance: {
+                name: 'BALANCE',
+                color: '#2ECC71',
+                orbit: 250,
+                speed: 30,
+                exercises: [
+                    { name: 'Single-Leg Stand', level: 'Beginner' },
+                    { name: 'Crow Pose', level: 'Intermediate' },
+                    { name: 'Wall Handstand', level: 'Intermediate' },
+                    { name: 'Freestanding Handstand', level: 'Advanced' },
+                    { name: 'Handstand Walk', level: 'Advanced' },
+                    { name: 'One-Arm Handstand', level: 'Master' }
+                ]
+            },
+            mobility: {
+                name: 'MOBILITY',
+                color: '#E74C3C',
+                orbit: 300,
+                speed: 35,
+                exercises: [
+                    { name: 'Cat-Cow', level: 'Beginner' },
+                    { name: 'World\'s Greatest Stretch', level: 'Beginner' },
+                    { name: 'Deep Squat Hold', level: 'Intermediate' },
+                    { name: 'Pancake Stretch', level: 'Intermediate' },
+                    { name: 'Jefferson Curl', level: 'Advanced' },
+                    { name: 'Bridge', level: 'Advanced' },
+                    { name: 'Full Bridge Push-Up', level: 'Master' }
+                ]
+            }
+        };
+
+        // State
+        let explored = new Set();
+        let completed = new Set();
+        let planetElements = [];
+        let animationId = null;
+
+        // Initialize
+        function init() {
+            createStars();
+            createPlanets();
+            createAsteroidBelt();
+            loadProgress();
+            updateStats();
+            startOrbit();
+        }
+
+        // Create stars
+        function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.cssText = `
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    width: ${Math.random() * 3 + 1}px;
+                    height: ${Math.random() * 3 + 1}px;
+                    --duration: ${Math.random() * 3 + 2}s;
+                    animation-delay: ${Math.random() * 2}s;
+                `;
+                container.appendChild(star);
+            }
+        }
+
+        // Create planets
+        function createPlanets() {
+            const galaxy = document.getElementById('galaxy');
+            const patterns = Object.keys(movementPatterns);
+            const angleStep = (2 * Math.PI) / patterns.length;
+
+            patterns.forEach((key, index) => {
+                const pattern = movementPatterns[key];
+                const planet = document.createElement('div');
+                planet.className = `planet planet-${key}`;
+                planet.dataset.pattern = key;
+                planet.innerHTML = pattern.name;
+                planet.style.setProperty('--orbit', pattern.orbit + 'px');
+                planet.style.setProperty('--speed', pattern.speed + 's');
+                planet.style.setProperty('--start-angle', (angleStep * index) + 'rad');
+
+                planet.addEventListener('click', () => showPlanetInfo(key));
+
+                galaxy.appendChild(planet);
+                planetElements.push({
+                    element: planet,
+                    angle: angleStep * index,
+                    orbit: pattern.orbit,
+                    speed: 0.02 + (index * 0.005)
+                });
+            });
+        }
+
+        // Create asteroid belt
+        function createAsteroidBelt() {
+            const galaxy = document.getElementById('galaxy');
+            for (let i = 0; i < 30; i++) {
+                const asteroid = document.createElement('div');
+                asteroid.className = 'asteroid';
+                asteroid.style.cssText = `
+                    --radius: ${270 + Math.random() * 30}px;
+                    --duration: ${40 + Math.random() * 20}s;
+                    transform: rotate(${Math.random() * 360}deg) translateX(${270 + Math.random() * 30}px);
+                `;
+                galaxy.appendChild(asteroid);
+            }
+        }
+
+        // Orbit animation
+        function startOrbit() {
+            function animate() {
+                if (isOrbiting) {
+                    const centerX = window.innerWidth / 2;
+                    const centerY = window.innerHeight / 2;
+
+                    planetElements.forEach(planet => {
+                        planet.angle += planet.speed;
+                        const x = Math.cos(planet.angle) * planet.orbit;
+                        const y = Math.sin(planet.angle) * planet.orbit;
+                        planet.element.style.left = (centerX + x - 30) + 'px';
+                        planet.element.style.top = (centerY + y - 30) + 'px';
+                    });
+                }
+                animationId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        // Show planet info
+        function showPlanetInfo(pattern) {
+            const data = movementPatterns[pattern];
+            explored.add(pattern);
+            saveProgress();
+            updateStats();
+            playSound('select');
+
+            const panel = document.getElementById('infoPanel');
+            const title = document.getElementById('panelTitle');
+            const list = document.getElementById('exerciseList');
+
+            title.textContent = data.name;
+            title.style.color = data.color;
+            panel.style.setProperty('--planet-color', data.color);
+
+            list.innerHTML = data.exercises.map((ex, i) => {
+                const key = `${pattern}-${i}`;
+                const isCompleted = completed.has(key);
+                return `
+                    <div class="exercise-item ${isCompleted ? 'completed' : ''}"
+                         onclick="toggleExercise('${key}')">
+                        <span style="color: ${isCompleted ? '#2ECC71' : '#444'}">${isCompleted ? '[x]' : '[ ]'}</span>
+                        <span>${ex.name}</span>
+                        <span class="exercise-level">${ex.level}</span>
+                    </div>
+                `;
+            }).join('');
+
+            panel.classList.add('visible');
+
+            // Highlight planet
+            planetElements.forEach(p => p.element.classList.remove('active'));
+            const planetEl = document.querySelector(`[data-pattern="${pattern}"]`);
+            if (planetEl) planetEl.classList.add('active');
+        }
+
+        // Toggle exercise completion
+        function toggleExercise(key) {
+            if (completed.has(key)) {
+                completed.delete(key);
+            } else {
+                completed.add(key);
+                playSound('complete');
+            }
+            saveProgress();
+            updateStats();
+
+            // Re-render current panel
+            const pattern = key.split('-')[0];
+            showPlanetInfo(pattern);
+        }
+
+        // Close panel
+        function closePanel() {
+            document.getElementById('infoPanel').classList.remove('visible');
+            planetElements.forEach(p => p.element.classList.remove('active'));
+        }
+
+        // Toggle orbit
+        function toggleOrbit() {
+            isOrbiting = !isOrbiting;
+            document.getElementById('orbitBtn').textContent = isOrbiting ? 'PAUSE' : 'RESUME';
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('explored').textContent = `${explored.size}/7`;
+            document.getElementById('completed').textContent = completed.size;
+
+            // Calculate mastery
+            const totalExercises = Object.values(movementPatterns)
+                .reduce((sum, p) => sum + p.exercises.length, 0);
+            const mastery = Math.round((completed.size / totalExercises) * 100);
+            document.getElementById('mastery').textContent = `${mastery}%`;
+        }
+
+        // Progress persistence
+        function saveProgress() {
+            localStorage.setItem('movementGalaxy', JSON.stringify({
+                explored: Array.from(explored),
+                completed: Array.from(completed)
+            }));
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem('movementGalaxy');
+            if (saved) {
+                const data = JSON.parse(saved);
+                explored = new Set(data.explored);
+                completed = new Set(data.completed);
+            }
+        }
+
+        function resetProgress() {
+            if (confirm('Reset all progress?')) {
+                explored.clear();
+                completed.clear();
+                saveProgress();
+                updateStats();
+                closePanel();
+                playSound('reset');
+            }
+        }
+
+        // Sound effects
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'select') {
+                // Cosmic whoosh
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = 'sine';
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(2000, now);
+                filter.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'complete') {
+                // Achievement sparkle
+                [1, 1.25, 1.5].forEach((mult, i) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880 * mult, now + i * 0.08);
+
+                    gain.gain.setValueAtTime(0, now + i * 0.08);
+                    gain.gain.linearRampToValueAtTime(0.15, now + i * 0.08 + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.2);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start(now + i * 0.08);
+                    osc.stop(now + i * 0.08 + 0.2);
+                });
+            } else if (type === 'reset') {
+                // Descending tone
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.4);
+
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+        }
+
+        // Venus frequency meditation ambient (221.23 Hz)
+        let ambientNodes = [];
+        let lfoNodes = [];
+
+        function playAmbient() {
+            initAudio();
+
+            if (ambientPlaying) {
+                // Fade out and stop
+                ambientNodes.forEach(node => {
+                    if (node.gain) {
+                        node.gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
+                    }
+                });
+                setTimeout(() => {
+                    ambientNodes.forEach(n => { if (n.osc) n.osc.stop(); });
+                    lfoNodes.forEach(n => n.stop());
+                    ambientNodes = [];
+                    lfoNodes = [];
+                }, 1100);
+                ambientPlaying = false;
+                return;
+            }
+
+            ambientPlaying = true;
+            const now = audioCtx.currentTime;
+
+            // Venus frequency: 221.23 Hz - love, harmony, beauty
+            const venusFreq = 221.23;
+
+            // Create reverb (convolver simulation with delay)
+            const createReverb = () => {
+                const delay = audioCtx.createDelay();
+                const feedback = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+                delay.delayTime.value = 0.3;
+                feedback.gain.value = 0.4;
+                filter.type = 'lowpass';
+                filter.frequency.value = 2000;
+                delay.connect(feedback);
+                feedback.connect(filter);
+                filter.connect(delay);
+                return { input: delay, output: filter };
+            };
+
+            // Main Venus drone
+            const venusOsc = audioCtx.createOscillator();
+            const venusGain = audioCtx.createGain();
+            const venusFilter = audioCtx.createBiquadFilter();
+
+            venusOsc.type = 'sine';
+            venusOsc.frequency.setValueAtTime(venusFreq, now);
+            venusFilter.type = 'lowpass';
+            venusFilter.frequency.setValueAtTime(400, now);
+            venusGain.gain.setValueAtTime(0, now);
+            venusGain.gain.linearRampToValueAtTime(0.08, now + 3);
+
+            venusOsc.connect(venusFilter);
+            venusFilter.connect(venusGain);
+            venusGain.connect(audioCtx.destination);
+            venusOsc.start(now);
+
+            ambientNodes.push({ osc: venusOsc, gain: venusGain });
+
+            // Sub-harmonic (octave below)
+            const subOsc = audioCtx.createOscillator();
+            const subGain = audioCtx.createGain();
+
+            subOsc.type = 'sine';
+            subOsc.frequency.setValueAtTime(venusFreq / 2, now);
+            subGain.gain.setValueAtTime(0, now);
+            subGain.gain.linearRampToValueAtTime(0.05, now + 4);
+
+            subOsc.connect(subGain);
+            subGain.connect(audioCtx.destination);
+            subOsc.start(now);
+
+            ambientNodes.push({ osc: subOsc, gain: subGain });
+
+            // Fifth harmonic for richness
+            const fifthOsc = audioCtx.createOscillator();
+            const fifthGain = audioCtx.createGain();
+
+            fifthOsc.type = 'sine';
+            fifthOsc.frequency.setValueAtTime(venusFreq * 1.5, now);
+            fifthGain.gain.setValueAtTime(0, now);
+            fifthGain.gain.linearRampToValueAtTime(0.03, now + 5);
+
+            fifthOsc.connect(fifthGain);
+            fifthGain.connect(audioCtx.destination);
+            fifthOsc.start(now);
+
+            ambientNodes.push({ osc: fifthOsc, gain: fifthGain });
+
+            // Binaural beat layer (4 Hz theta for meditation)
+            const leftOsc = audioCtx.createOscillator();
+            const rightOsc = audioCtx.createOscillator();
+            const leftGain = audioCtx.createGain();
+            const rightGain = audioCtx.createGain();
+            const merger = audioCtx.createChannelMerger(2);
+
+            leftOsc.type = 'sine';
+            rightOsc.type = 'sine';
+            leftOsc.frequency.setValueAtTime(venusFreq, now);
+            rightOsc.frequency.setValueAtTime(venusFreq + 4, now); // 4 Hz theta difference
+
+            leftGain.gain.setValueAtTime(0, now);
+            rightGain.gain.setValueAtTime(0, now);
+            leftGain.gain.linearRampToValueAtTime(0.04, now + 6);
+            rightGain.gain.linearRampToValueAtTime(0.04, now + 6);
+
+            leftOsc.connect(leftGain);
+            rightOsc.connect(rightGain);
+            leftGain.connect(merger, 0, 0);
+            rightGain.connect(merger, 0, 1);
+            merger.connect(audioCtx.destination);
+
+            leftOsc.start(now);
+            rightOsc.start(now);
+
+            ambientNodes.push({ osc: leftOsc, gain: leftGain });
+            ambientNodes.push({ osc: rightOsc, gain: rightGain });
+
+            // Slow evolving pad with LFO
+            const padOsc = audioCtx.createOscillator();
+            const padGain = audioCtx.createGain();
+            const padFilter = audioCtx.createBiquadFilter();
+            const lfo = audioCtx.createOscillator();
+            const lfoGain = audioCtx.createGain();
+
+            padOsc.type = 'triangle';
+            padOsc.frequency.setValueAtTime(venusFreq * 2, now);
+
+            padFilter.type = 'lowpass';
+            padFilter.frequency.setValueAtTime(300, now);
+
+            lfo.type = 'sine';
+            lfo.frequency.setValueAtTime(0.1, now); // Very slow modulation
+            lfoGain.gain.setValueAtTime(100, now);
+
+            lfo.connect(lfoGain);
+            lfoGain.connect(padFilter.frequency);
+
+            padGain.gain.setValueAtTime(0, now);
+            padGain.gain.linearRampToValueAtTime(0.025, now + 8);
+
+            padOsc.connect(padFilter);
+            padFilter.connect(padGain);
+            padGain.connect(audioCtx.destination);
+
+            lfo.start(now);
+            padOsc.start(now);
+
+            ambientNodes.push({ osc: padOsc, gain: padGain });
+            lfoNodes.push(lfo);
+
+            // Cosmic shimmer (very high, very quiet)
+            const shimmerOsc = audioCtx.createOscillator();
+            const shimmerGain = audioCtx.createGain();
+            const shimmerFilter = audioCtx.createBiquadFilter();
+
+            shimmerOsc.type = 'sine';
+            shimmerOsc.frequency.setValueAtTime(venusFreq * 4, now);
+            shimmerFilter.type = 'highpass';
+            shimmerFilter.frequency.setValueAtTime(600, now);
+            shimmerGain.gain.setValueAtTime(0, now);
+            shimmerGain.gain.linearRampToValueAtTime(0.015, now + 10);
+
+            shimmerOsc.connect(shimmerFilter);
+            shimmerFilter.connect(shimmerGain);
+            shimmerGain.connect(audioCtx.destination);
+            shimmerOsc.start(now);
+
+            ambientNodes.push({ osc: shimmerOsc, gain: shimmerGain });
+        }
+
+        // Core click
+        document.getElementById('core').addEventListener('click', () => {
+            playSound('select');
+            alert('Your CORE is the center of your movement universe.\n\nExplore the planets to discover exercises for each movement pattern.');
+        });
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            // Planets will auto-adjust in animation loop
+        });
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CORE VALUES | Saturno Movement</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --purple: #9D4EDD; --blue: #00D4FF; --gold: #FFD700; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; }
+
+        .stars-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .star { position: absolute; width: 2px; height: 2px; background: #fff; border-radius: 50%; animation: twinkle 3s ease-in-out infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+
+        .header { text-align: center; margin-bottom: 24px; }
+        .logo { width: 70px; height: 70px; margin: 0 auto 16px; background: linear-gradient(135deg, var(--purple), var(--blue)); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 40px rgba(157, 78, 221, 0.4); }
+        .logo-text { font-size: 12px; font-weight: 700; letter-spacing: 2px; }
+        .header h1 { font-size: 16px; font-weight: 700; letter-spacing: 4px; color: var(--purple); text-transform: uppercase; margin-bottom: 4px; }
+        .header p { font-size: 10px; color: #666; letter-spacing: 2px; }
+
+        .message-card { background: linear-gradient(135deg, rgba(157, 78, 221, 0.1), rgba(0, 212, 255, 0.05)); border: 1px solid rgba(157, 78, 221, 0.3); border-radius: 16px; padding: 24px; margin-bottom: 20px; text-align: center; }
+        .greeting { font-size: 12px; color: var(--blue); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+        .main-message { font-size: 18px; font-weight: 300; color: #fff; line-height: 1.8; margin-bottom: 16px; }
+        .main-message strong { color: var(--purple); font-weight: 700; }
+        .signature { font-size: 11px; color: var(--gold); letter-spacing: 1px; }
+
+        .values-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .value-card { background: rgba(255, 255, 255, 0.02); border: 1px solid #1a1a2e; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .value-card:hover { border-color: var(--purple); background: rgba(157, 78, 221, 0.05); transform: translateY(-2px); }
+        .value-card.active { border-color: var(--blue); background: rgba(0, 212, 255, 0.1); }
+        .value-icon { font-size: 24px; margin-bottom: 8px; }
+        .value-name { font-size: 11px; font-weight: 700; color: var(--purple); letter-spacing: 1px; margin-bottom: 4px; }
+        .value-meaning { font-size: 9px; color: #666; line-height: 1.4; }
+
+        .daily-intention { background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.2); border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+        .intention-label { font-size: 9px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .intention-text { font-size: 14px; color: #fff; font-style: italic; line-height: 1.6; }
+
+        .affirmation-section { text-align: center; margin-bottom: 20px; }
+        .affirmation-btn { padding: 16px 32px; border-radius: 8px; border: 2px solid var(--purple); background: transparent; color: var(--purple); font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
+        .affirmation-btn:hover { background: var(--purple); color: #000; box-shadow: 0 0 30px rgba(157, 78, 221, 0.4); }
+
+        .reminder { background: rgba(0, 0, 0, 0.3); border-radius: 8px; padding: 16px; text-align: center; }
+        .reminder-text { font-size: 10px; color: #555; line-height: 1.6; }
+        .reminder-text span { color: var(--blue); }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--purple); color: var(--purple); }
+        .sound-toggle.active { color: var(--purple); border-color: var(--purple); }
+    </style>
+</head>
+<body>
+    <div class="stars-bg" id="starsBg"></div>
+
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Core Values</h1>
+            <p>The Saturno Movement Philosophy</p>
+        </div>
+
+        <div class="message-card">
+            <div class="greeting" id="greeting">Good Morning, Warrior</div>
+            <div class="main-message" id="mainMessage">
+                You are not just training your body.<br>
+                You are <strong>forging your character</strong>.<br><br>
+                Every rep is a promise to yourself.<br>
+                Every session builds <strong>who you become</strong>.
+            </div>
+            <div class="signature">- Saturno Movement</div>
+        </div>
+
+        <div class="values-grid" id="valuesGrid"></div>
+
+        <div class="daily-intention">
+            <div class="intention-label">Today's Intention</div>
+            <div class="intention-text" id="intentionText">"I will show up for myself, even when it's hard. Progress over perfection."</div>
+        </div>
+
+        <div class="affirmation-section">
+            <button class="affirmation-btn" id="affirmationBtn">NEW AFFIRMATION</button>
+        </div>
+
+        <div class="reminder">
+            <div class="reminder-text">
+                Remember: <span>Consistency beats intensity</span>.<br>
+                You're not competing with anyone but yesterday's version of yourself.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create stars
+        const starsBg = document.getElementById('starsBg');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            star.style.width = (1 + Math.random() * 2) + 'px';
+            star.style.height = star.style.width;
+            starsBg.appendChild(star);
+        }
+
+        let audioCtx = null, soundEnabled = true;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'reveal') {
+                for (let i = 0; i < 4; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(400 + i * 100, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.3);
+                    }, i * 100);
+                }
+            } else if (type === 'select') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(500, now);
+                osc.frequency.exponentialRampToValueAtTime(700, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.15);
+            }
+        }
+
+        const coreValues = [
+            { icon: '///', name: 'DISCIPLINE', meaning: 'Show up every day. No excuses, no shortcuts.' },
+            { icon: '|||', name: 'PATIENCE', meaning: 'Trust the process. Results take time.' },
+            { icon: '+++', name: 'INTEGRITY', meaning: 'Full range of motion. Every rep counts.' },
+            { icon: '###', name: 'HUMILITY', meaning: 'Always a student. Always learning.' },
+            { icon: '***', name: 'PERSISTENCE', meaning: 'Fall seven times, stand up eight.' },
+            { icon: '===', name: 'BALANCE', meaning: 'Train hard, recover harder.' }
+        ];
+
+        const affirmations = [
+            "I am stronger than my excuses.",
+            "My body achieves what my mind believes.",
+            "I am building the best version of myself.",
+            "Every rep brings me closer to my goals.",
+            "I embrace the challenge. I welcome the growth.",
+            "Discipline is choosing what I want most over what I want now.",
+            "I am capable of more than I know.",
+            "Progress, not perfection, is my path.",
+            "I show up for myself, especially on hard days.",
+            "My potential is limitless."
+        ];
+
+        const intentions = [
+            "I will show up for myself, even when it's hard. Progress over perfection.",
+            "Today I choose growth over comfort. Every challenge is an opportunity.",
+            "I will listen to my body while pushing my limits.",
+            "I am committed to becoming 1% better today.",
+            "My training is a gift I give myself. I will honor it.",
+            "I release comparison. My only competition is who I was yesterday."
+        ];
+
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour < 12) return "Good Morning, Warrior";
+            if (hour < 17) return "Good Afternoon, Warrior";
+            if (hour < 21) return "Good Evening, Warrior";
+            return "Night Training, Warrior";
+        }
+
+        function renderValues() {
+            const grid = document.getElementById('valuesGrid');
+            grid.innerHTML = coreValues.map((v, i) => `
+                <div class="value-card" data-idx="${i}">
+                    <div class="value-icon">${v.icon}</div>
+                    <div class="value-name">${v.name}</div>
+                    <div class="value-meaning">${v.meaning}</div>
+                </div>
+            `).join('');
+
+            grid.querySelectorAll('.value-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    grid.querySelectorAll('.value-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    playSound('select');
+                });
+            });
+        }
+
+        function newAffirmation() {
+            const text = affirmations[Math.floor(Math.random() * affirmations.length)];
+            document.getElementById('intentionText').textContent = '"' + text + '"';
+            playSound('reveal');
+        }
+
+        function init() {
+            document.getElementById('greeting').textContent = getGreeting();
+            document.getElementById('intentionText').textContent = '"' + intentions[Math.floor(Math.random() * intentions.length)] + '"';
+            renderValues();
+        }
+
+        document.getElementById('affirmationBtn').addEventListener('click', newAffirmation);
+
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
+        });
+
+        init();
+    </script>
+</body>
+</html>

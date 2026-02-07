@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ORBITAL TRACKER | Weekly Training</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #0a0a0a;
+            --purple: #9D4EDD;
+            --blue: #4361EE;
+            --cyan: #00D4FF;
+            --green: #00FF88;
+            --gold: #FFD700;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 10px;
+            background: radial-gradient(circle at 30% 30%, var(--blue), var(--purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(67, 97, 238, 0.4);
+        }
+
+        .logo-text {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+            letter-spacing: 2px;
+        }
+
+        /* Orbital Display */
+        .orbital-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 24px;
+        }
+
+        .orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 1px dashed #222;
+        }
+
+        .orbit-1 { width: 100%; height: 100%; }
+        .orbit-2 { width: 80%; height: 80%; }
+        .orbit-3 { width: 60%; height: 60%; }
+
+        .sun {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle at 30% 30%, var(--gold), #FF6B00);
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .sun-label {
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .day-planet {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 5;
+        }
+
+        .day-planet:hover {
+            transform: scale(1.2);
+        }
+
+        .day-planet.inactive {
+            background: #1a1a2e;
+            border: 2px solid #333;
+        }
+
+        .day-planet.rest {
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            box-shadow: 0 0 15px rgba(67, 97, 238, 0.4);
+        }
+
+        .day-planet.trained {
+            background: linear-gradient(135deg, var(--green), var(--cyan));
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .day-planet.today {
+            border: 2px solid var(--gold);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .day-letter {
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        /* Week Stats */
+        .week-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .week-stat {
+            text-align: center;
+        }
+
+        .week-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--cyan);
+        }
+
+        .week-stat-label {
+            font-size: 9px;
+            color: #666;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Day Details */
+        .day-details {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid #1a1a2e;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .day-title {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .day-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .day-status.trained {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--green);
+        }
+
+        .day-status.rest {
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--blue);
+        }
+
+        .day-status.inactive {
+            background: rgba(255,255,255,0.05);
+            color: #666;
+        }
+
+        .workout-list {
+            list-style: none;
+        }
+
+        .workout-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #1a1a2e;
+        }
+
+        .workout-item:last-child {
+            border-bottom: none;
+        }
+
+        .workout-check {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #333;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .workout-check:hover {
+            border-color: var(--cyan);
+        }
+
+        .workout-check.done {
+            background: var(--green);
+            border-color: var(--green);
+        }
+
+        .workout-check.done::after {
+            content: '';
+            width: 6px;
+            height: 3px;
+            border-left: 2px solid #000;
+            border-bottom: 2px solid #000;
+            transform: rotate(-45deg) translateY(-1px);
+        }
+
+        .workout-name {
+            flex: 1;
+            font-size: 12px;
+        }
+
+        .workout-name.done {
+            color: #666;
+            text-decoration: line-through;
+        }
+
+        /* Add Workout */
+        .add-workout {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .add-input {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #222;
+            background: var(--bg);
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            outline: none;
+        }
+
+        .add-input:focus {
+            border-color: var(--cyan);
+        }
+
+        .add-btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--cyan);
+            background: transparent;
+            color: var(--cyan);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-btn:hover {
+            background: var(--cyan);
+            color: #000;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #222;
+            background: transparent;
+            color: #666;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .action-btn:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .sound-toggle:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .sound-toggle.active {
+            color: var(--purple);
+            border-color: var(--purple);
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-text">SM</span>
+            </div>
+            <h1>Orbital Tracker</h1>
+            <p>Weekly Training Log</p>
+        </div>
+
+        <div class="orbital-container" id="orbitalContainer">
+            <div class="orbit orbit-1"></div>
+            <div class="orbit orbit-2"></div>
+            <div class="orbit orbit-3"></div>
+            <div class="sun">
+                <span class="sun-label">WEEK</span>
+            </div>
+        </div>
+
+        <div class="week-stats">
+            <div class="week-stat">
+                <div class="week-stat-value" id="trainedDays">0</div>
+                <div class="week-stat-label">Trained</div>
+            </div>
+            <div class="week-stat">
+                <div class="week-stat-value" id="restDays">0</div>
+                <div class="week-stat-label">Rest</div>
+            </div>
+            <div class="week-stat">
+                <div class="week-stat-value" id="totalWorkouts">0</div>
+                <div class="week-stat-label">Workouts</div>
+            </div>
+        </div>
+
+        <div class="day-details" id="dayDetails">
+            <div class="day-header">
+                <span class="day-title" id="dayTitle">Monday</span>
+                <span class="day-status inactive" id="dayStatus">Planned</span>
+            </div>
+            <ul class="workout-list" id="workoutList"></ul>
+            <div class="add-workout">
+                <input type="text" class="add-input" id="addInput" placeholder="Add workout...">
+                <button class="add-btn" id="addBtn">ADD</button>
+            </div>
+            <div class="quick-actions" style="margin-top: 12px;">
+                <button class="action-btn" data-workout="Push">Push</button>
+                <button class="action-btn" data-workout="Pull">Pull</button>
+                <button class="action-btn" data-workout="Legs">Legs</button>
+                <button class="action-btn" data-workout="Core">Core</button>
+                <button class="action-btn" data-workout="Skills">Skills</button>
+                <button class="action-btn" data-workout="Cardio">Cardio</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // AUDIO SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'complete') {
+                const osc = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc2.type = 'sine';
+
+                osc.frequency.setValueAtTime(523.25, now);
+                osc2.frequency.setValueAtTime(659.25, now);
+
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+                osc.connect(gain);
+                osc2.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc2.start(now);
+                osc.stop(now + 0.3);
+                osc2.stop(now + 0.3);
+
+            } else if (type === 'add') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.15);
+
+            } else if (type === 'click') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DATA
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+        const FULL_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+        function getWeekKey() {
+            const now = new Date();
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay());
+            return startOfWeek.toISOString().split('T')[0];
+        }
+
+        function loadWeekData() {
+            const key = 'orbital_' + getWeekKey();
+            const data = localStorage.getItem(key);
+            if (data) {
+                return JSON.parse(data);
+            }
+            // Initialize empty week
+            return {
+                0: { workouts: [], completed: [] },
+                1: { workouts: [], completed: [] },
+                2: { workouts: [], completed: [] },
+                3: { workouts: [], completed: [] },
+                4: { workouts: [], completed: [] },
+                5: { workouts: [], completed: [] },
+                6: { workouts: [], completed: [] }
+            };
+        }
+
+        function saveWeekData(data) {
+            const key = 'orbital_' + getWeekKey();
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+
+        let weekData = loadWeekData();
+        let selectedDay = new Date().getDay();
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DOM ELEMENTS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const orbitalContainer = document.getElementById('orbitalContainer');
+        const trainedDays = document.getElementById('trainedDays');
+        const restDays = document.getElementById('restDays');
+        const totalWorkouts = document.getElementById('totalWorkouts');
+        const dayTitle = document.getElementById('dayTitle');
+        const dayStatus = document.getElementById('dayStatus');
+        const workoutList = document.getElementById('workoutList');
+        const addInput = document.getElementById('addInput');
+        const addBtn = document.getElementById('addBtn');
+        const soundToggle = document.getElementById('soundToggle');
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // RENDER ORBITAL
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function renderOrbital() {
+            // Remove existing planets
+            document.querySelectorAll('.day-planet').forEach(p => p.remove());
+
+            const today = new Date().getDay();
+            const centerX = 150;
+            const centerY = 150;
+
+            DAYS.forEach((day, i) => {
+                const planet = document.createElement('div');
+                planet.className = 'day-planet';
+                planet.dataset.day = i;
+
+                const dayData = weekData[i];
+                const hasWorkouts = dayData.workouts.length > 0;
+                const allCompleted = hasWorkouts && dayData.completed.length === dayData.workouts.length;
+
+                if (allCompleted) {
+                    planet.classList.add('trained');
+                } else if (hasWorkouts) {
+                    planet.classList.add('rest');
+                } else {
+                    planet.classList.add('inactive');
+                }
+
+                if (i === today) {
+                    planet.classList.add('today');
+                }
+
+                if (i === selectedDay) {
+                    planet.style.transform = 'scale(1.3)';
+                }
+
+                // Position in orbit
+                const angle = ((i - 1) / 7) * Math.PI * 2 - Math.PI / 2;
+                const radius = 125;
+                const x = centerX + Math.cos(angle) * radius - 18;
+                const y = centerY + Math.sin(angle) * radius - 18;
+
+                planet.style.left = x + 'px';
+                planet.style.top = y + 'px';
+
+                planet.innerHTML = `<span class="day-letter">${day}</span>`;
+
+                planet.addEventListener('click', () => {
+                    playSound('click');
+                    selectedDay = i;
+                    renderOrbital();
+                    renderDayDetails();
+                });
+
+                orbitalContainer.appendChild(planet);
+            });
+        }
+
+        function renderDayDetails() {
+            const dayData = weekData[selectedDay];
+
+            dayTitle.textContent = FULL_DAYS[selectedDay];
+
+            const hasWorkouts = dayData.workouts.length > 0;
+            const allCompleted = hasWorkouts && dayData.completed.length === dayData.workouts.length;
+
+            if (allCompleted) {
+                dayStatus.textContent = 'COMPLETE';
+                dayStatus.className = 'day-status trained';
+            } else if (hasWorkouts) {
+                dayStatus.textContent = 'IN PROGRESS';
+                dayStatus.className = 'day-status rest';
+            } else {
+                dayStatus.textContent = 'PLANNED';
+                dayStatus.className = 'day-status inactive';
+            }
+
+            workoutList.innerHTML = '';
+            dayData.workouts.forEach((workout, i) => {
+                const isDone = dayData.completed.includes(i);
+                const li = document.createElement('li');
+                li.className = 'workout-item';
+                li.innerHTML = `
+                    <div class="workout-check ${isDone ? 'done' : ''}" data-index="${i}"></div>
+                    <span class="workout-name ${isDone ? 'done' : ''}">${workout}</span>
+                `;
+                workoutList.appendChild(li);
+            });
+
+            // Bind check events
+            document.querySelectorAll('.workout-check').forEach(check => {
+                check.addEventListener('click', () => {
+                    const idx = parseInt(check.dataset.index);
+                    const dayData = weekData[selectedDay];
+
+                    if (dayData.completed.includes(idx)) {
+                        dayData.completed = dayData.completed.filter(i => i !== idx);
+                    } else {
+                        dayData.completed.push(idx);
+                        playSound('complete');
+                    }
+
+                    saveWeekData(weekData);
+                    renderOrbital();
+                    renderDayDetails();
+                    updateStats();
+                });
+            });
+        }
+
+        function updateStats() {
+            let trained = 0;
+            let rest = 0;
+            let total = 0;
+
+            for (let i = 0; i < 7; i++) {
+                const dayData = weekData[i];
+                if (dayData.workouts.length > 0) {
+                    total += dayData.completed.length;
+                    if (dayData.completed.length === dayData.workouts.length) {
+                        trained++;
+                    }
+                } else {
+                    rest++;
+                }
+            }
+
+            trainedDays.textContent = trained;
+            restDays.textContent = rest;
+            totalWorkouts.textContent = total;
+        }
+
+        function addWorkout(name) {
+            if (!name.trim()) return;
+
+            weekData[selectedDay].workouts.push(name.trim());
+            saveWeekData(weekData);
+            playSound('add');
+            renderOrbital();
+            renderDayDetails();
+            updateStats();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // EVENT LISTENERS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        addBtn.addEventListener('click', () => {
+            addWorkout(addInput.value);
+            addInput.value = '';
+        });
+
+        addInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addWorkout(addInput.value);
+                addInput.value = '';
+            }
+        });
+
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                addWorkout(btn.dataset.workout);
+            });
+        });
+
+        soundToggle.addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            soundToggle.classList.toggle('active', soundEnabled);
+            if (soundEnabled) playSound('click');
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        renderOrbital();
+        renderDayDetails();
+        updateStats();
+    </script>
+</body>
+</html>

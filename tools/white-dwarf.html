@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WHITE DWARF | Quick Workout</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --white: #E0E7FF; --blue: #00D4FF; --purple: #9D4EDD; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+
+        .header { text-align: center; margin-bottom: 20px; }
+        .logo { width: 50px; height: 50px; margin: 0 auto 10px; background: radial-gradient(circle at 30% 30%, #fff, var(--white)); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 40px rgba(224, 231, 255, 0.5); }
+        .logo-text { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: #000; }
+        .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 3px; background: linear-gradient(135deg, #fff, var(--white)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .header p { font-size: 9px; color: #666; margin-top: 4px; letter-spacing: 2px; }
+
+        .time-select { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
+        .time-btn { padding: 12px 20px; border-radius: 8px; border: 1px solid #333; background: transparent; color: #666; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .time-btn:hover { border-color: var(--white); color: var(--white); }
+        .time-btn.active { background: var(--white); border-color: var(--white); color: #000; }
+
+        .dwarf-container { position: relative; width: 160px; height: 160px; margin: 0 auto 24px; }
+        .dwarf { width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #fff, var(--white), #A5B4FC); display: flex; align-items: center; justify-content: center; flex-direction: column; box-shadow: 0 0 60px rgba(224, 231, 255, 0.4); animation: dwarfPulse 2s ease-in-out infinite; }
+        @keyframes dwarfPulse { 0%, 100% { box-shadow: 0 0 60px rgba(224, 231, 255, 0.4); } 50% { box-shadow: 0 0 80px rgba(224, 231, 255, 0.6); } }
+        .dwarf.active { animation: dwarfBurn 0.5s ease-in-out infinite; }
+        @keyframes dwarfBurn { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+
+        .dwarf-time { font-size: 32px; font-weight: 700; color: #000; }
+        .dwarf-label { font-size: 9px; color: #333; letter-spacing: 2px; text-transform: uppercase; }
+
+        .workout-card { background: rgba(224, 231, 255, 0.05); border: 1px solid rgba(224, 231, 255, 0.2); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .workout-title { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .workout-rounds { font-size: 11px; color: var(--white); }
+
+        .exercise-list { display: flex; flex-direction: column; gap: 8px; }
+        .exercise-item { display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(255, 255, 255, 0.02); border-radius: 6px; transition: all 0.2s; }
+        .exercise-item.active { background: rgba(224, 231, 255, 0.1); border-left: 3px solid var(--white); }
+        .exercise-item.done { opacity: 0.5; }
+        .exercise-num { width: 24px; height: 24px; border-radius: 50%; background: #1a1a2e; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #666; }
+        .exercise-item.active .exercise-num { background: var(--white); color: #000; }
+        .exercise-item.done .exercise-num { background: var(--purple); color: #fff; }
+        .exercise-name { flex: 1; font-size: 12px; color: #888; }
+        .exercise-item.active .exercise-name { color: var(--white); font-weight: 600; }
+        .exercise-reps { font-size: 11px; color: #666; }
+        .exercise-item.active .exercise-reps { color: var(--blue); }
+
+        .controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; }
+        .btn { padding: 14px 28px; border-radius: 8px; border: 2px solid var(--white); background: transparent; color: var(--white); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { background: var(--white); color: #000; }
+        .btn.next-btn { border-color: var(--blue); color: var(--blue); }
+        .btn.next-btn:hover { background: var(--blue); color: #000; }
+
+        .progress-bar { height: 6px; background: #1a1a2e; border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--white), var(--blue)); transition: width 0.3s; }
+
+        .stats { display: flex; justify-content: center; gap: 32px; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 20px; font-weight: 700; color: var(--white); }
+        .stat-label { font-size: 9px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--white); color: var(--white); }
+        .sound-toggle.active { color: var(--white); border-color: var(--white); }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>White Dwarf</h1>
+            <p>Quick Workout</p>
+        </div>
+
+        <div class="time-select">
+            <button class="time-btn active" data-time="5">5 MIN</button>
+            <button class="time-btn" data-time="10">10 MIN</button>
+            <button class="time-btn" data-time="15">15 MIN</button>
+        </div>
+
+        <div class="dwarf-container">
+            <div class="dwarf" id="dwarf">
+                <div class="dwarf-time" id="timerDisplay">5:00</div>
+                <div class="dwarf-label">Remaining</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+
+        <div class="workout-card">
+            <div class="workout-title">
+                <span>Quick Circuit</span>
+                <span class="workout-rounds" id="roundDisplay">Round 1</span>
+            </div>
+            <div class="exercise-list" id="exerciseList"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="startBtn">START</button>
+            <button class="btn next-btn" id="nextBtn">NEXT</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="workoutsCompleted">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="totalMinutes">0</div>
+                <div class="stat-label">Minutes</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx = null, soundEnabled = true;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'tick') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.03);
+            } else if (type === 'next') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(1000, now + 0.1);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.15);
+            } else if (type === 'round') {
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(400 + i * 150, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.2);
+                    }, i * 100);
+                }
+            } else if (type === 'complete') {
+                for (let i = 0; i < 6; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(300 + i * 100, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.25);
+                    }, i * 80);
+                }
+            }
+        }
+
+        const workouts = {
+            5: [
+                { name: 'Push-ups', reps: '10' },
+                { name: 'Squats', reps: '15' },
+                { name: 'Plank', reps: '20s' },
+                { name: 'Lunges', reps: '10' }
+            ],
+            10: [
+                { name: 'Burpees', reps: '8' },
+                { name: 'Push-ups', reps: '12' },
+                { name: 'Squats', reps: '20' },
+                { name: 'Mountain Climbers', reps: '20' },
+                { name: 'Plank', reps: '30s' }
+            ],
+            15: [
+                { name: 'Jumping Jacks', reps: '30' },
+                { name: 'Push-ups', reps: '15' },
+                { name: 'Squats', reps: '20' },
+                { name: 'Burpees', reps: '10' },
+                { name: 'Lunges', reps: '12 each' },
+                { name: 'Plank', reps: '45s' }
+            ]
+        };
+
+        let state = {
+            duration: 5,
+            timeLeft: 300,
+            isRunning: false,
+            currentExercise: 0,
+            round: 1,
+            workoutsCompleted: parseInt(localStorage.getItem('whitedwarf_workouts') || '0'),
+            totalMinutes: parseInt(localStorage.getItem('whitedwarf_minutes') || '0'),
+            intervalId: null
+        };
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        function renderExercises() {
+            const list = document.getElementById('exerciseList');
+            const exercises = workouts[state.duration];
+            list.innerHTML = exercises.map((ex, i) => `
+                <div class="exercise-item ${i === state.currentExercise ? 'active' : ''} ${i < state.currentExercise ? 'done' : ''}">
+                    <div class="exercise-num">${i + 1}</div>
+                    <div class="exercise-name">${ex.name}</div>
+                    <div class="exercise-reps">${ex.reps}</div>
+                </div>
+            `).join('');
+        }
+
+        function updateDisplay() {
+            document.getElementById('timerDisplay').textContent = formatTime(state.timeLeft);
+            document.getElementById('roundDisplay').textContent = `Round ${state.round}`;
+
+            const totalTime = state.duration * 60;
+            const elapsed = totalTime - state.timeLeft;
+            document.getElementById('progressFill').style.width = (elapsed / totalTime * 100) + '%';
+
+            document.getElementById('workoutsCompleted').textContent = state.workoutsCompleted;
+            document.getElementById('totalMinutes').textContent = state.totalMinutes;
+
+            document.getElementById('startBtn').textContent = state.isRunning ? 'PAUSE' : 'START';
+            document.getElementById('dwarf').classList.toggle('active', state.isRunning);
+
+            renderExercises();
+        }
+
+        function nextExercise() {
+            const exercises = workouts[state.duration];
+            state.currentExercise++;
+
+            if (state.currentExercise >= exercises.length) {
+                state.currentExercise = 0;
+                state.round++;
+                playSound('round');
+            } else {
+                playSound('next');
+            }
+
+            updateDisplay();
+        }
+
+        function start() {
+            if (state.isRunning) {
+                state.isRunning = false;
+                if (state.intervalId) { clearInterval(state.intervalId); state.intervalId = null; }
+                updateDisplay();
+                return;
+            }
+
+            state.isRunning = true;
+            initAudio();
+
+            state.intervalId = setInterval(() => {
+                state.timeLeft--;
+
+                if (state.timeLeft % 10 === 0) {
+                    playSound('tick');
+                }
+
+                if (state.timeLeft <= 0) {
+                    complete();
+                    return;
+                }
+
+                updateDisplay();
+            }, 1000);
+
+            updateDisplay();
+        }
+
+        function complete() {
+            state.isRunning = false;
+            if (state.intervalId) { clearInterval(state.intervalId); state.intervalId = null; }
+
+            state.workoutsCompleted++;
+            state.totalMinutes += state.duration;
+            localStorage.setItem('whitedwarf_workouts', state.workoutsCompleted);
+            localStorage.setItem('whitedwarf_minutes', state.totalMinutes);
+
+            playSound('complete');
+
+            // Reset for next workout
+            state.timeLeft = state.duration * 60;
+            state.currentExercise = 0;
+            state.round = 1;
+
+            updateDisplay();
+        }
+
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.duration = parseInt(btn.dataset.time);
+                state.timeLeft = state.duration * 60;
+                state.currentExercise = 0;
+                state.round = 1;
+                if (state.isRunning) {
+                    state.isRunning = false;
+                    if (state.intervalId) { clearInterval(state.intervalId); state.intervalId = null; }
+                }
+                updateDisplay();
+            });
+        });
+
+        document.getElementById('startBtn').addEventListener('click', start);
+        document.getElementById('nextBtn').addEventListener('click', nextExercise);
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1065 @@
+CLAUDE ter in strategic mode! harvest what I paste for the final plan:::
+
+
+PASS 1:
+
+You are CLAUDE CODE in SURGICAL AUDIT MODE.
+CONSTRAINTS (NON-NEGOTIABLE):
+- READ-ONLY. Do NOT write, deploy, run shell commands, or call external APIs.
+- Do NOT modify files, keys, or configs. Only ANALYZE and PRODUCE PLANS.
+- Assume you have ~3 hours of focused work. Use all of it.
+CONTEXT:
+- Repo: titan-forge/ (Forge console + tools)
+- Backend: BEAST API (vercel), endpoints: /api/health, /api/capture, /api/sessions, /api/transcribe, /api/synthesize, /api/pipeline
+- Goal: Gabo must ship the BF25 Bonus Vault funnel + email reactivation + safe kernel structure.
+YOUR JOB (PRIORITIZED):
+1) SECURITY & KEY RISK AUDIT (HIGHEST PRIORITY)
+- Scan ALL code (js/api-config.js, claude-api.js, backend code, extension code) for:
+  - Hard-coded API keys
+  - Tokens, secrets, webhooks
+  - Places where env vars SHOULD be used but aren’t
+- Output:
+  - A list of all sensitive items found (redacted format, e.g. sk-***last4).
+  - Exact file paths + line ranges.
+  - Recommended .env layout and rotation checklist.
+  - Concrete steps to make this repo safe if it ever goes public.
+2) KERNEL & OS MAP (TITAN FORGE + NEXUS)
+- Build a SINGLE DIAGRAM (in markdown) of the current system:
+  - Frontend HTML apps (titan.html, nexus.html, synapse.html, capture.html, pipelines.html, batch-generator.html, writer.html, onboarding.html, logs.html).
+  - Backend endpoints and what uses them.
+  - Chrome extension → capture flow → backend → Notion/Nexus.
+- Output:
+  - “KERNEL_HUB.md” as text: a proposed Notion KERNEL_HUB page structure with:
+    - OS Index
+    - Prompt Vault
+    - Agent List
+    - Bonus Vault / PDFs
+    - Capture → Card → Pipeline flow
+  - Show it as markdown so Gabo can paste directly into Notion.
+3) BF25 BONUS VAULT FUNNEL SUPPORT
+- Read any existing bonus vault / victory belt / Saturno Movement related copies or pages in the repo.
+- Output:
+  - A clean, minimal BF25 Bonus Vault page wireframe (sections, IDs, copy placeholders) that fits the current design system (dark theme, accent #00ffcc, no emojis, squared corners).
+  - A JSON or markdown spec for:
+    - signup form fields
+    - Brevo tags (e.g. `bf25_bonus`, `hbs_interest`)
+    - webhook / endpoint suggestions (ONLY as suggestions, no code execution).
+4) TASK MATRIX (48 HOURS)
+- Produce a “TASK_MATRIX.md” plan with:
+  - Section 1: TODAY (2–3 must-do tasks ONLY, centered on the BF25 funnel + email)
+  - Section 2: NEXT 7 DAYS (kernel/backup work, no new tools)
+  - Section 3: LATER (nice-to-have builds)
+- Each task:
+  - <= 1 sentence
+  - Has [owner: Gabo | Claude Code] and a simple status placeholder [TODO].
+FORMAT:
+- Return EVERYTHING as:
+  1) SECURITY_AUDIT section
+  2) KERNEL_MAP section
+  3) BF25_FUNNEL_SUPPORT section
+  4) TASK_MATRIX section
+REMINDERS:
+- No file modifications.
+- No external calls.
+- Think like a senior infra/devops lead who loves tired founders.
+
+
+
+
+
+CLAUDE:
+
+STRATEGIC MODE: ON. Harvesting.
+PASS 1 — Intelligence extracted:
+What this reveals that we DIDN'T have before:
+titan-forge has MORE apps than the ecosystem guide shows:
+
+nexus.html — NEW, not in V2 guide
+synapse.html — NEW, not in V2 guide
+capture.html — NEW, not in V2 guide
+pipelines.html — NEW, not in V2 guide
+That's 10 HTML apps in titan-forge, not 6
+
+BEAST API has MORE endpoints:
+
+/api/capture — NEW
+/api/sessions — NEW
+/api/transcribe — NEW
+/api/synthesize — NEW
+/api/pipeline — NEW
+That's 6 endpoints, different from the 5 we documented (transform, health, modes, presets, batch)
+
+New system connections revealed:
+
+Chrome extension → capture flow → backend → Notion/Nexus (full pipeline)
+Brevo email integration with tags (bf25_bonus, hbs_interest)
+BF25 Bonus Vault is a funnel, not just a page
+KERNEL_HUB is the Notion architecture target
+
+Security concern flagged:
+
+js/api-config.js and claude-api.js likely have hardcoded keys
+
+Stored. Ready for PASS 2. Send it.
+
+
+
+
+
+
+
+
+
+
+
+PASS 2: 
+
+Alright, let’s wire the thing so Future Gabo wakes up to an actual **Saturno Hub MVP** instead of 40 tabs and a headache.
+
+I’ll give you:
+
+1. **North Star: “Wake Up Wired” spec** (so every AI knows what “done” means)
+2. **Claude Project job** (Brain: SATURNO_ENV_BRAIN)
+3. **Cursor job** (Repo surgeon in `saturno-hub`)
+4. **Claude Code job** (Environment engineer on C2 + C1)
+
+Copy-paste each block where it belongs.
+
+---
+
+## 1️⃣ North Star — “Wake Up Wired” Spec
+
+**By tomorrow morning, “DONE” means:**
+
+1. **Saturno Hub MVP online**
+
+   * Single gateway page using Titan design language.
+   * Sections:
+
+     * Hero: “Saturno Hub — Ableton of Movement (MVP)”
+     * Mini-sale CTA: “Join Founding Wave” (collects email → Brevo list).
+     * Bonus Vault preview: “50+ PDFs + 20 WTF tools” (link to bonus vault index page).
+     * HBS teaser: “Handstand Bootcamp starts on [DATE] — Waitlist open.”
+     * “Tools” strip: links to Titan Forge, Victory Belt, Bonus Vault tools, etc.
+
+2. **APIs routed sanely**
+
+   * Any AI text synthesis (Hub → Titan / tools) goes through **BEAST API** (no direct Anthropic or CORS hacks).
+
+3. **Bonus Vault skeleton ready**
+
+   * One index page listing:
+
+     * Slots for **50 PDFs** (title, status: ready / WIP / idea).
+     * Slots for **20 interactive tools** (link to existing HTML or “coming soon”).
+   * At least a handful wired to real existing assets, the rest can be placeholders with clear labels.
+
+4. **Pipelines primed**
+
+   * Titan Forge not “perfect”, but:
+
+     * TITAN + Batch Generator wired to BEAST API endpoint.
+     * One **content multiplier pipeline** documented: “Transcript → Hooks → Posts → Email → PDF.”
+
+5. **Member control = “good-enough gate”**
+
+   * Simple approach for now:
+
+     * Email capture → Brevo list “SATURNO_HUB_FOUNDER”.
+     * Thank-you page with links to current assets.
+     * Later you can add proper login; tonight it just needs to **not be chaos**.
+
+Everything below is aimed at that.
+
+---
+
+## 2️⃣ Claude Project (CL2) — SATURNO_ENV_BRAIN Overnight Job
+
+Paste this as a **prompt in your main Claude project** and run it as `/plan + /execute` for tonight.
+
+```text
+MODE: /plan + /execute
+GOAL: Wake up with Saturno Hub MVP wired enough to sell a tiny wave, deliver bonuses, and not break future infra.
+
+You are SATURNO_ENV_BRAIN.
+
+Use the TITON rules already in this project AND the “SATURNO ECOSYSTEM — Full Deployment Guide V2” HTML as references.
+
+Tonight’s job:
+
+1) LOCK THE NORTH STAR
+   - Write a 1-page spec called `SATURNO_HUB_MVP_SPEC.md` with:
+     - Purpose: “Ableton of Movement” front door.
+     - Sections on the page:
+       - Hero (promise + one-line pitch).
+       - Mini-sale CTA (founding wave, 50+ PDFs, 20 tools).
+       - Bonus Vault section (what’s inside + link).
+       - HBS teaser (date TBD field and what they get).
+       - “Forge” strip (links to Titan, Victory Belt CC, Bonus Vault tools).
+     - Constraints:
+       - No new frameworks. Use existing saturno-hub stack.
+       - Design: Titan Forge / Saturno ecosystem style.
+     - Data contracts for:
+       - Bonus Vault items (id, title, type[pdf|tool], url, status).
+       - BEAST API usage (endpoint + payload).
+
+   - Output the spec in 3 formats:
+     - Clean markdown (for README in saturno-hub).
+     - Short JSON schema (for Cursor to use).
+     - A bullet list of acceptance criteria.
+
+2) TASK MATRIX FOR TONIGHT ONLY
+   - Produce a mini 48H plan **just for this goal**:
+     - 3–5 tasks for Cursor.
+     - 3–5 tasks for Claude Code.
+     - 3–5 tasks for Notion/Brevo (no overkill, only what’s needed to capture leads and send downloads).
+
+   - Each task:
+     - `title`
+     - `owner` (Cursor | Claude Code | Notion | Gabo)
+     - `repo_or_location`
+     - `definition_of_done` (1–2 lines).
+
+3) AGENT_HOOKS
+   - Generate:
+     - `for_cursor` → prompt to drop into Cursor when opening `saturno-hub` repo.
+     - `for_claude_code` → prompt to run on C2 first, then C1, to wire manifests and BEAST API connections.
+     - `for_notion` → instructions for Notion AI to create:
+       - “SATURNO_HUB_MVP” page.
+       - A simple DB: `BONUS_VAULT_ITEMS` with status.
+
+4) OUTPUT FORMAT
+   - Return:
+     1. EXEC_SUMMARY (bullets).
+     2. `SATURNO_HUB_MVP_SPEC` (markdown).
+     3. `TASK_MATRIX_48H` (table-style text).
+     4. `AGENT_HOOKS` (3 copy-pasteable prompts).
+
+Requirements:
+- Do NOT expand scope to full ecosystem cleanup. Stick to Saturno Hub MVP, Bonus Vault skeleton, and BEAST API wiring needed to support them.
+- Assume Cursor and Claude Code will obey safety rules and ask before destructive moves.
+- Keep everything dense and copy-pasteable.
+```
+
+---
+
+## 3️⃣ Cursor — Repo Surgeon for `saturno-hub` (Hub MVP)
+
+When you open Cursor inside the `saturno-hub` repo, drop this in as the **first prompt**.
+
+```text
+SYSTEM: SATURNO_REPO_SURGEON for `saturno-hub`
+
+GOAL TONIGHT:
+Implement the minimum Saturno Hub MVP so Gabo can:
+- Collect emails for a “Founding Wave” mini-sale.
+- Point people to a Bonus Vault index (50 PDFs / 20 tools slots).
+- Tease Handstand Bootcamp (HBS) date.
+- Link out to key tools (Titan Forge, Victory Belt CC, Bonus Vault apps).
+
+Use the `SATURNO_HUB_MVP_SPEC` and TASK_MATRIX_48H from SATURNO_ENV_BRAIN if present. If not, infer the following structure.
+
+1) AUDIT FIRST
+   - Summarize current saturno-hub structure:
+     - entrypoint (Vite/HTML).
+     - components/sections.
+     - design tokens (colors, fonts).
+   - Output a short ENV_SUMMARY and wait for my “OK”.
+
+2) PAGE STRUCTURE
+   Implement or refactor the main page into these sections:
+
+   - <HeroSection>
+     - Headline: “Saturno Hub — The Ableton of Movement (MVP)”
+     - Sub: one line about unifying training, tools, and AI.
+     - Primary CTA button: “Join Founding Wave”
+       - For now: link to a Brevo landing or `#founding-wave` section anchor.
+
+   - <FoundingWaveSection>
+     - Copy block explaining:
+       - 50+ PDFs, 20+ interactive tools.
+       - Early access + community.
+     - Email capture form:
+       - For now, keep it as:
+         - ACTION URL placeholder: `{{BREVO_FORM_URL}}`
+         - Fields: email, first_name.
+       - Make the form code easy for me to paste the real URL.
+
+   - <BonusVaultSection>
+     - Simple list or grid:
+       - 50 slots represented by:
+         - Title, type (PDF/tool), status (Ready, WIP, Idea).
+       - Hard-code a few **real** ones:
+         - Victory Belt PDFs.
+         - Existing Titan tools (batch generator, transcript-to-pdf, etc.).
+       - The rest can show “Reserved slot”.
+
+   - <HBSSection>
+     - Text like:
+       - “Handstand Bootcamp launches [DATE_TBD]. Get on the early list via Founding Wave.”
+       - Keep the date as a clear `TODO` field.
+
+   - <ToolsStripSection>
+     - Link cards for:
+       - Titan Forge.
+       - Victory Belt CC.
+       - Bonus Vault apps (command.html, music-organizer.html, transcript-to-pdf.html, etc.).
+     - Use existing Saturno design language (no new brand).
+
+3) BEAST API CONSIDERATION
+   - If saturno-hub currently calls any AI endpoint:
+     - Route it through BEAST API (`/api/transform`) with a clearly marked config block.
+   - If not, just:
+     - Add a commented `AI_CONFIG` section explaining how Hub will talk to BEAST later.
+
+4) IMPLEMENTATION RULES
+   - No new frameworks.
+   - Keep CSS consistent with Titan/Forge ecosystem.
+   - No hard-coded API keys.
+   - Surface all configuration as:
+     - `config.ts` or `config.js` (or similar) OR
+     - clearly commented constants at the top of the main file.
+
+5) DELIVERABLES
+   - Updated main page with sections above.
+   - A small `README_MVP_HUB.md` describing:
+     - What changed.
+     - How to run locally.
+     - Where to paste Brevo form URL.
+     - Where to edit Bonus Vault items.
+
+Please:
+- Propose a 3–5 step micro-plan.
+- Then implement incrementally, showing diffs or file lists after each step.
+```
+
+---
+
+## 4️⃣ Claude Code — ENV Engineer Overnight Job (C2 then C1)
+
+Use this as the **Claude Code job** starting on C2 (primary dev), then on C1 for manifests.
+
+```text
+TITLE: SATURNO_ENV_ENGINEER — Overnight Wiring for Saturno Hub MVP
+
+GOAL:
+Support Saturno Hub MVP by:
+- Mapping the key repos and HTML apps needed.
+- Ensuring Titan Forge → BEAST API wiring is clear and ready.
+- Manifesting Bonus Vault assets and tools into a single index Gabo can use.
+
+MACHINE STEP 1 — RUN ON C2 (MacBook Pro)
+
+// 1. REPO MANIFEST
+- In home/Projects (or equivalent), generate:
+  - `~/saturno/state/REPOS_MANIFEST.json` with:
+    - name
+    - path
+    - git_remote
+    - last_commit hash/date
+  - Focus at least on:
+    - titan-forge
+    - victory-belt-cc
+    - saturno-hub
+    - saturno-beast-api
+
+// 2. TITAN → BEAST API CHECK
+- Open `titan-forge` repo.
+- Locate:
+  - `js/api-config.js`
+  - `js/claude-api.js`
+  - any direct Anthropic/CORS calls.
+- Produce:
+  - `~/saturno/state/TITAN_BEAST_WIRING_PLAN.md` describing:
+    - Current behavior.
+    - Which files need to be changed so TITAN and batch-generator use `https://saturno-beast-api.vercel.app/api/transform`.
+    - Suggested minimal code changes (pseudo-code, not executed).
+- Do NOT edit files yet; just output the plan + file paths.
+
+// 3. SATURNO HUB REPO CHECK
+- In `saturno-hub` repo, create:
+  - `~/saturno/state/SATURNO_HUB_STRUCTURE.md`:
+    - outline of pages/components.
+    - where main entry file lives.
+    - where to add the Hub MVP sections defined in the spec.
+
+MACHINE STEP 2 — RUN ON C1 (iMac)
+
+// 4. DOWNLOADS / BONUS VAULT MANIFEST
+- In “FROM IMAC DOWN…” Downloads folder:
+  - For `saturno-bonus-vault/`, generate:
+    - `saturno-bonus-vault/BONUS_VAULT_MANIFEST.json` containing:
+      - for each relevant HTML/app:
+        - id
+        - filename
+        - type: [app | extension | tool | page]
+        - description (1-line from context)
+    - Do NOT move files; only read and manifest.
+  - For:
+    - `meta-prompt-transformer/`
+    - `files (1)/`
+    - `victory-belt-cc-check/`
+    - generate a simple `MANIFEST.md` each summarizing contents and likely role.
+
+// 5. RISK REPORT
+- Create `~/saturno/state/ENV_RISKS_OVERNIGHT.md` listing:
+  - Any OneDrive paths containing `.git` (just list them, no actions).
+  - Any duplicated repos you can detect by name.
+  - Sync conflict folders (e.g., DESKTOP_HIVE_FEB2), with “do not touch” warnings.
+
+// 6. OUTPUT STYLE
+For each step:
+- Print a short EXEC_SUMMARY.
+- Show where each manifest file was written.
+- Never delete or move anything.
+- Never print secret content (if you see keys, just note “API key present in file X”).
+
+The idea:
+By the time Gabo wakes up, he has:
+- REPOS_MANIFEST.json
+- TITAN_BEAST_WIRING_PLAN.md
+- SATURNO_HUB_STRUCTURE.md
+- BONUS_VAULT_MANIFEST.json
+- MANIFESTs for the extra folders
+- ENV_RISKS_OVERNIGHT.md
+
+so he and Cursor can finish wiring Saturno Hub MVP and Bonus Vault into a sellable, safe system.
+```
+
+---
+
+Once you’ve dropped these in:
+
+* **Claude Project** gives you the Hub spec + task matrix + hooks.
+* **Cursor** shapes the actual `saturno-hub` MVP page.
+* **Claude Code** hands you manifests + wiring plans so nothing is blind.
+
+You film, you coach, you sell; the monsters hold the cables.
+
+
+
+* TRITON PASS 3
+
+
+Let me hit all the things you just raised and then I’ll give you the **BONUS_VAULT_ITEMS JSON schema** you can paste straight into Claude / Cursor.
+
+---
+
+## 1️⃣ “How will it know it’s mine?” (Command center + music + assets)
+
+You solve this with **metadata**, not vibes.
+
+Every manifest we generate (repos, apps, bonus vault, music, etc.) should have **ownership + role fields** so any AI can say:
+
+* “This is a Gabo original”
+* “This is a client asset”
+* “This is third-party / stock”
+* “This is a system tool, not a product”
+
+For your **command center + music player + tracks**, I’d add these fields in the relevant manifest (e.g. `BONUS_VAULT_ITEMS.json` or `MUSIC_LIBRARY.json`):
+
+* `owner`: `"Gabo Saturno"`
+* `origin`: `"original" | "licensed" | "third_party"`
+* `category`: `"music" | "pdf" | "tool" | "course" | "other"`
+* `audience`: `"community" | "clients" | "internal"`
+* `product_role`: `"hero_offer" | "bonus" | "utility" | "archive"`
+
+That’s how any agent can **categorize and respect** your stuff:
+
+* If `owner = "Gabo Saturno"` and `origin = "original"` → this is part of your IP universe.
+* If `category = "music"` → media player + track lists pull from here.
+* If `product_role = "bonus"` → it belongs in the Bonus Vault grid, not the main flagship lane.
+
+We don’t need to guess; we tell the system explicitly.
+
+---
+
+## 2️⃣ Categorization + “where to find the music”
+
+Minimal structure to keep this sane:
+
+* `BONUS_VAULT_ITEMS.json` → ALL public-facing goodies
+
+  * PDFs, interactive tools, music packs, mini-courses.
+
+* `MUSIC_LIBRARY.json` → specifically for your tracks
+  Fields like:
+
+  * `id`, `title`, `bpm`, `mood`, `path_or_url`, `owner`, `origin`, `usage_rights`.
+
+Command center / media player just **reads those manifests** and renders UI.
+AI doesn’t need to search your whole drive; it just uses the index.
+
+---
+
+## 3️⃣ Stripe wiring (now vs later)
+
+For **Wake Up Wired**, Stripe can be **very dumb and effective**:
+
+* **Phase 1 (Tonight / Tomorrow):**
+
+  * 1 product in Stripe = “Saturno Hub Founding Wave”
+  * Use the **Stripe Checkout link** directly on the Hub MVP (`href="https://buy.stripe.com/..."`).
+  * After purchase, Stripe takes their email anyway (for receipts).
+    You can manually export founders if you have to.
+
+* **Phase 2 (Later):**
+
+  * Connect Stripe → Brevo via:
+
+    * Zapier / n8n OR
+    * Brevo’s Stripe integration.
+  * Automation: “Stripe: new customer → Add to Brevo list SATURNO_HUB_FOUNDER → send Welcome + Bonus Vault link.”
+
+Schema-wise, we just need to give Cursor / Claude a **parking spot**:
+
+* `stripe_link` or `stripe_price_id`
+* `access_level: "paid_only"`
+
+So the Hub knows: “Show this CTA only for paid.” Actual enforcement can be v2.
+
+---
+
+## 4️⃣ Brevo connection (for Hub + Bonus Vault)
+
+Again, minimum:
+
+* **Brevo form URL** (hosted form) for:
+
+  * Founding Wave capture
+  * General Bonus Vault opt-in (if you want a separate list)
+
+We **do not** need to wire API calls tonight. Just:
+
+* In Hub MVP code:
+
+  * `<form action="{{BREVO_FORM_URL}}" method="post">...`
+* In schema:
+
+  * `brevo_list_id` and/or `brevo_form_url`
+
+Later, you can add:
+
+* Webhooks: Brevo → BEAST / backend for more advanced logic.
+* Automated sequences: “Welcome to Saturno Hub” → “Here’s your Bonus Vault” → “HBS invite”.
+
+---
+
+## 5️⃣ JSON Schema for `BONUS_VAULT_ITEMS` (for Cursor / Claude)
+
+Here’s the **usable schema** you asked for. This is what you give to Cursor so it can build the grid + any API wiring.
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BONUS_VAULT_ITEMS",
+  "type": "object",
+  "properties": {
+    "items": {
+      "type": "array",
+      "description": "All bonus vault assets: PDFs, tools, music, etc.",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "item_type",
+          "status",
+          "owner",
+          "origin",
+          "category",
+          "access_level"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable ID, e.g. BV_001"
+          },
+          "slug": {
+            "type": "string",
+            "description": "URL-safe slug, e.g. victory-belt-checklist"
+          },
+          "title": {
+            "type": "string",
+            "description": "Display name of the asset"
+          },
+          "short_description": {
+            "type": "string",
+            "description": "One-line explanation for the grid card"
+          },
+          "long_description": {
+            "type": "string",
+            "description": "Optional longer description for detail view"
+          },
+          "item_type": {
+            "type": "string",
+            "enum": ["pdf", "tool", "music", "bundle", "course", "other"],
+            "description": "What kind of thing this is"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ready", "wip", "idea", "legacy"],
+            "description": "Readiness state for shipping"
+          },
+          "owner": {
+            "type": "string",
+            "description": "Primary owner/creator, e.g. 'Gabo Saturno'"
+          },
+          "origin": {
+            "type": "string",
+            "enum": ["original", "licensed", "third_party"],
+            "description": "IP origin"
+          },
+          "category": {
+            "type": "string",
+            "description": "Broad category, e.g. 'music', 'handstand', 'mobility', 'business'"
+          },
+          "audience": {
+            "type": "string",
+            "description": "Target audience, e.g. 'community', 'clients', 'internal'"
+          },
+          "product_role": {
+            "type": "string",
+            "enum": ["hero_offer", "bonus", "utility", "archive"],
+            "description": "Role in your product stack"
+          },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Freeform tags: 'beginner', 'advanced', 'music-pack', etc."
+          },
+          "source_location": {
+            "type": "string",
+            "enum": ["github", "gdrive", "local", "url", "other"],
+            "description": "Where the master file currently lives"
+          },
+          "repo": {
+            "type": "string",
+            "description": "If github-based, the repo name"
+          },
+          "path_or_url": {
+            "type": "string",
+            "description": "Relative path or full URL for download/access"
+          },
+          "thumbnail_url": {
+            "type": "string",
+            "description": "Optional thumbnail or cover image"
+          },
+          "duration_minutes": {
+            "type": "number",
+            "description": "For audio/video assets"
+          },
+          "stripe_product_id": {
+            "type": "string",
+            "description": "Stripe product or price id, if paid"
+          },
+          "stripe_link": {
+            "type": "string",
+            "description": "Direct Stripe Checkout link for this specific asset or bundle"
+          },
+          "access_level": {
+            "type": "string",
+            "enum": ["free", "email_gate", "paid_only", "internal"],
+            "description": "What the user must do to access it"
+          },
+          "brevo_list_id": {
+            "type": "string",
+            "description": "Brevo list to add user to when they access this item (if applicable)"
+          },
+          "brevo_form_url": {
+            "type": "string",
+            "description": "Optional direct form URL used on landing pages"
+          },
+          "version": {
+            "type": "string",
+            "description": "Semantic version, e.g. '1.0.0'"
+          },
+          "last_updated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When this entry was last updated"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Internal notes for you/agents"
+          }
+        }
+      }
+    }
+  },
+  "required": ["items"]
+}
+```
+
+How to use this immediately:
+
+* **Claude Project** → use this schema when asking:
+  “Generate a starter `BONUS_VAULT_ITEMS.json` with:
+
+  * 10 real items
+  * 60 placeholder slots labeled E.g. ‘Reserved Slot #X’.”
+
+* **Cursor** → build the Hub MVP grid directly from this JSON:
+
+  * Each card = one `item`.
+  * Use `status` and `access_level` to decide how it renders.
+  * For music, use `item_type = "music"` + `path_or_url` to feed the media player.
+  
+  
+  
+  
+  ```json
+{
+  "meta": {
+    "id": "WAKE_UP_WIRED_PROTOCOL",
+    "label": "Saturno Hub MVP – 48H Deathbed Edition",
+    "color": "💀⚡",
+    "description": "If I died tomorrow, this is the minimum set of prompts + schemas that lets any AI clean Gabo’s environment, wire Saturno Hub MVP, and ship the Bonus Vault.",
+    "version": "1.0.0"
+  },
+
+  "north_star": {
+    "id": "P0_NORTH_STAR",
+    "label": "Wake Up Wired – Definition of Done",
+    "color": "🌅",
+    "prompt": "You are the Overseer of the Wake Up Wired protocol.\n\nBy the end of the next 48 hours, the environment is considered SUCCESSFUL if ALL of these are true:\n\n1) SATURNO HUB MVP\n- A single landing page exists and is deployed (Saturno Hub).\n- Sections: Hero, Founding Wave CTA, Bonus Vault preview, HBS teaser, Tools Strip.\n- The page collects emails for a Brevo list (SATURNO_HUB_FOUNDER) via a form URL placeholder.\n\n2) BONUS VAULT INDEX\n- A JSON file BONUS_VAULT_ITEMS.json exists and follows the schema in this config.\n- It contains at least 10 real items (existing PDFs/tools/music) and 60 labelled placeholder slots.\n- Saturno Hub MVP can render a grid/list view of these items.\n\n3) BEAST API ROUTING\n- No public-facing frontend calls Anthropic directly.\n- TITAN and Batch Generator are wired (or clearly planned) to use https://saturno-beast-api.vercel.app/api/transform.\n\n4) ENVIRONMENT MAPS\n- REPOS_MANIFEST.json and BONUS_VAULT_MANIFEST.json exist and list the key repos + HTML tools.\n- ENV_RISKS_OVERNIGHT.md exists and lists G Drive / OneDrive sync hazards and duplicate repos.\n\n5) REVENUE SWITCH\n- A Stripe Checkout link exists for a single SKU: “Saturno Hub Founding Wave”.\n- This link is referenced in Saturno Hub MVP and can be toggled on/off via a config value.\n\nEvery other task is optional. These 5 items define WAKE UP WIRED."
+  },
+
+  "schemas": {
+    "bonus_vault_items_schema": {
+      "id": "SCHEMA_BONUS_VAULT_ITEMS",
+      "label": "Bonus Vault Items JSON Schema",
+      "color": "📦",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "BONUS_VAULT_ITEMS",
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "All bonus vault assets: PDFs, tools, music, etc.",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "title",
+                "item_type",
+                "status",
+                "owner",
+                "origin",
+                "category",
+                "access_level"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Stable ID, e.g. BV_001"
+                },
+                "slug": {
+                  "type": "string",
+                  "description": "URL-safe slug, e.g. victory-belt-checklist"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Display name of the asset"
+                },
+                "short_description": {
+                  "type": "string",
+                  "description": "One-line explanation for the grid card"
+                },
+                "long_description": {
+                  "type": "string",
+                  "description": "Optional longer description for detail view"
+                },
+                "item_type": {
+                  "type": "string",
+                  "enum": ["pdf", "tool", "music", "bundle", "course", "other"],
+                  "description": "What kind of thing this is"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["ready", "wip", "idea", "legacy"],
+                  "description": "Readiness state for shipping"
+                },
+                "owner": {
+                  "type": "string",
+                  "description": "Primary owner/creator, e.g. 'Gabo Saturno'"
+                },
+                "origin": {
+                  "type": "string",
+                  "enum": ["original", "licensed", "third_party"],
+                  "description": "IP origin"
+                },
+                "category": {
+                  "type": "string",
+                  "description": "Broad category, e.g. 'music', 'handstand', 'mobility', 'business'"
+                },
+                "audience": {
+                  "type": "string",
+                  "description": "Target audience, e.g. 'community', 'clients', 'internal'"
+                },
+                "product_role": {
+                  "type": "string",
+                  "enum": ["hero_offer", "bonus", "utility", "archive"],
+                  "description": "Role in your product stack"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Freeform tags: 'beginner', 'advanced', 'music-pack', etc."
+                },
+                "source_location": {
+                  "type": "string",
+                  "enum": ["github", "gdrive", "local", "url", "other"],
+                  "description": "Where the master file currently lives"
+                },
+                "repo": {
+                  "type": "string",
+                  "description": "If github-based, the repo name"
+                },
+                "path_or_url": {
+                  "type": "string",
+                  "description": "Relative path or full URL for download/access"
+                },
+                "thumbnail_url": {
+                  "type": "string",
+                  "description": "Optional thumbnail or cover image"
+                },
+                "duration_minutes": {
+                  "type": "number",
+                  "description": "For audio/video assets"
+                },
+                "stripe_product_id": {
+                  "type": "string",
+                  "description": "Stripe product or price id, if paid"
+                },
+                "stripe_link": {
+                  "type": "string",
+                  "description": "Direct Stripe Checkout link for this specific asset or bundle"
+                },
+                "access_level": {
+                  "type": "string",
+                  "enum": ["free", "email_gate", "paid_only", "internal"],
+                  "description": "What the user must do to access it"
+                },
+                "brevo_list_id": {
+                  "type": "string",
+                  "description": "Brevo list to add user to when they access this item (if applicable)"
+                },
+                "brevo_form_url": {
+                  "type": "string",
+                  "description": "Optional direct form URL used on landing pages"
+                },
+                "version": {
+                  "type": "string",
+                  "description": "Semantic version, e.g. '1.0.0'"
+                },
+                "last_updated": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When this entry was last updated"
+                },
+                "notes": {
+                  "type": "string",
+                  "description": "Internal notes for you/agents"
+                }
+              }
+            }
+          }
+        },
+        "required": ["items"]
+      }
+    }
+  },
+
+  "chain": [
+    {
+      "id": "P1_CLAUDE_PROJECT_BRAIN",
+      "role": "system",
+      "label": "SATURNO_ENV_BRAIN — Claude Project (CL2)",
+      "color": "🧠",
+      "prompt": "ROLE: You are SATURNO_ENV_BRAIN running inside Claude Project on CL2.\nMISSION: Produce the minimum blueprints so other agents can wire Saturno Hub MVP, Bonus Vault, and BEAST API without guessing.\n\nINPUTS: (a) The WAKE UP WIRED north_star in this config. (b) The BONUS_VAULT_ITEMS schema in this config. (c) Any attached Saturno Ecosystem V2 HTML or notes.\n\nTASKS:\n1) SPEC: Generate SATURNO_HUB_MVP_SPEC.md with:\n   - Purpose: Ableton-of-Movement front door.\n   - Page sections: Hero, Founding Wave CTA, Bonus Vault, HBS teaser, Tools strip.\n   - Data contracts: BONUS_VAULT_ITEMS (refer to schema id=SCHEMA_BONUS_VAULT_ITEMS) and a minimal HUB_CONFIG with keys: { brevo_form_url, stripe_checkout_link, bonus_vault_json_path, beast_api_base }.\n   - Acceptance criteria list (5–10 bullets).\n\n2) TASK MATRIX 48H: Create a compact table mapping tasks to owners:\n   - Owners: Gabo, Cursor, ClaudeCode, Notion, Brevo.\n   - Columns: id, title, owner, repo_or_location, definition_of_done.\n   - Include only the tasks needed to satisfy the WAKE UP WIRED north_star.\n\n3) AGENT_HOOKS: Output 3 prompts:\n   - hook_cursor: First prompt to paste into Cursor when opening saturno-hub repo.\n   - hook_claude_code: First prompt to run on Claude Code for mapping repos + manifests.\n   - hook_notion: Prompt for Notion AI to create the HUB page + BONUS_VAULT_ITEMS DB.\n\n4) BONUS_VAULT_STARTER: Using the BONUS_VAULT_ITEMS schema, create a starter BONUS_VAULT_ITEMS.json with:\n   - 10 real or near-real items from Gabo's world (Victory Belt, Titan Forge tools, music packs).\n   - 60 placeholder items labelled 'Reserved Slot #NN'.\n   - Make sure each object is schema-compliant and clearly marks owner='Gabo Saturno', origin='original' when appropriate.\n\nOUTPUT FORMAT:\n- EXEC_SUMMARY: 5–7 bullets.\n- SATURNO_HUB_MVP_SPEC (markdown block).\n- TASK_MATRIX_48H (markdown table).\n- AGENT_HOOKS: { \"hook_cursor\": \"...\", \"hook_claude_code\": \"...\", \"hook_notion\": \"...\" }.\n- BONUS_VAULT_ITEMS.json (valid JSON object).\n\nRULES:\n- Assume Google Drive is unreliable as a source of truth; prefer Git + local paths when in doubt.\n- Never expand scope beyond Wake Up Wired north_star.\n- Use short, deployable text; no essays."
+    },
+
+    {
+      "id": "P2_CURSOR_HUB_SURGEON",
+      "role": "system",
+      "label": "SATURNO_REPO_SURGEON — Cursor in `saturno-hub`",
+      "color": "🪚",
+      "prompt": "ROLE: You are SATURNO_REPO_SURGEON running inside Cursor, attached to the `saturno-hub` repo.\nMISSION: Implement Saturno Hub MVP as the single gateway landing page using the SATURNO_HUB_MVP_SPEC and BONUS_VAULT_ITEMS.json.\n\nINPUTS:\n- SATURNO_HUB_MVP_SPEC.md (if present).\n- BONUS_VAULT_ITEMS.json following the schema.\n- Existing saturno-hub codebase.\n\nPIPELINE:\n1) AUDIT (FAST):\n   - Identify the main entry file (e.g., src/App.tsx or main index.html) and overall structure.\n   - Print a 5–8 line summary and a 3-step implementation plan.\n\n2) IMPLEMENT HUB PAGE:\n   Build or refactor the main page into these sections:\n   - Hero: Headline 'Saturno Hub — Ableton of Movement', one-line sub, primary CTA button linking to BREVO_FORM_URL placeholder.\n   - Founding Wave Section: Brief copy about founding wave, simple email capture form with action='{{BREVO_FORM_URL}}' and obvious TODO comment.\n   - Bonus Vault Section: Grid or list powered by BONUS_VAULT_ITEMS.json. Show title, item_type, status badge, access_level. Use simple filters (e.g., type chips).\n   - HBS Section: Teaser text with clearly marked placeholder for date, pointing people back to Founding Wave list.\n   - Tools Strip: Cards linking to key deployed tools (Titan Forge, Victory Belt CC, Bonus Vault tools like transcript-to-pdf, music-organizer, etc.).\n\n3) CONFIG SURFACE:\n   - Implement a small config file or constant object HUB_CONFIG with fields:\n     - brevo_form_url (string)\n     - stripe_checkout_link (string)\n     - bonus_vault_json_path (string or import)\n     - beast_api_base (string, default 'https://saturno-beast-api.vercel.app')\n   - Use HUB_CONFIG in the page where appropriate; never inline these URLs.\n\n4) BEAST API TOUCHPOINTS:\n   - If saturno-hub currently calls any AI endpoints, reroute them to HUB_CONFIG.beast_api_base + '/api/transform'.\n   - If it does not yet call AI, just add a commented-out function `transformWithBeast(text, mode)` showing the intended usage.\n\n5) README_MVP_HUB:\n   - Create README_MVP_HUB.md in the repo root with:\n     - How to run locally.\n     - Where HUB_CONFIG lives and how to set Brevo + Stripe.\n     - Where BONUS_VAULT_ITEMS.json lives and how to add/edit items.\n\nRULES:\n- Do not introduce new frameworks or design systems.\n- Respect the existing Saturno design language (dark theme, JetBrains/Sora where used).\n- No secrets or API keys in code. Everything goes through HUB_CONFIG.\n- Keep diffs small and incremental; show file lists after each major change."
+    },
+
+    {
+      "id": "P3_CLAUDE_CODE_ENV_ENGINEER",
+      "role": "system",
+      "label": "SATURNO_ENV_ENGINEER — Claude Code on C2 then C1",
+      "color": "💾",
+      "prompt": "ROLE: You are SATURNO_ENV_ENGINEER running inside Claude Code.\nMISSION: Map the physical environment, manifest the Bonus Vault, and surface sync risks so Gabo and Cursor don't guess.\n\nSTAGE 1 — RUN ON C2 (MacBook Pro, main dev machine)\n1) REPOS_MANIFEST.json\n   - Scan typical project roots (e.g., ~/Desktop, ~/Projects, ~/saturno, or as instructed) for Git repos.\n   - For each relevant repo (titan-forge, victory-belt-cc, saturno-hub, saturno-beast-api, saturno-bonus-vault if present):\n     - name, path, git_remote_url, last_commit_hash, last_commit_date.\n   - Write to ~/saturno/state/REPOS_MANIFEST.json (create folders if needed).\n\n2) TITAN_BEAST_WIRING_PLAN.md\n   - In titan-forge repo, locate:\n     - js/api-config.js\n     - js/claude-api.js\n     - any fetch/XHR calls to Anthropic or CORS proxies.\n   - WITHOUT editing files, generate TITAN_BEAST_WIRING_PLAN.md at ~/saturno/state/ with:\n     - Current behavior (where keys live, which endpoints are used).\n     - Exact files + functions that must change to use BEAST API /api/transform instead.\n     - Pseudo-code for the new fetch wrapper.\n\n3) SATURNO_HUB_STRUCTURE.md\n   - In saturno-hub repo, list:\n     - Main entry file and route structure.\n     - Where HUB MVP sections should live.\n   - Save as ~/saturno/state/SATURNO_HUB_STRUCTURE.md.\n\nSTAGE 2 — RUN ON C1 (iMac, Downloads chaos)\n4) BONUS_VAULT_MANIFEST.json\n   - In the 'FROM IMAC DOWN...' or Downloads folder, focus on:\n     - saturno-bonus-vault/\n     - meta-prompt-transformer/\n     - files (1)/\n     - victory-belt-cc-check/\n   - For saturno-bonus-vault/, create BONUS_VAULT_MANIFEST.json inside that folder with entries:\n     - id, filename, type[extension|app|tool|page|doc], description (1 line), path_relative.\n   - For the other folders, create MANIFEST.md summarizing contents and suspected role.\n\n5) ENV_RISKS_OVERNIGHT.md\n   - Search for OneDrive paths containing .git or repo copies.\n   - List:\n     - OneDrive paths with repos.\n     - Any folders with sync conflict indicators (e.g., red dots, '(conflicted copy)').\n     - Clear instructions: 'Do not code here' for risky locations.\n   - Save file to ~/saturno/state/ENV_RISKS_OVERNIGHT.md.\n\nRULES:\n- Never move, delete, or rename files. Only read and write manifests.\n- Do not print or log any secrets; if you see keys, just note 'API key present in file X'.\n- Always print a short EXEC_SUMMARY at the end listing which manifest files were created."
+    },
+
+    {
+      "id": "P4_NOTION_BONUS_VAULT_OS",
+      "role": "system",
+      "label": "Notion AI – Bonus Vault DB + Hub Page",
+      "color": "📒",
+      "prompt": "You are Notion_AI_OS, helping Gabo set up the Saturno Hub OS in Notion.\n\nTASK 1 — Create HUB PAGE\n- Create a page named 'SATURNO HUB MVP'.\n- Add sections:\n  - 'North Star' — paste the WAKE UP WIRED definition of done.\n  - 'Hub Spec' — placeholder for SATURNO_HUB_MVP_SPEC.\n  - 'Links' — bullets for: Saturno Hub live URL, Titan Forge, Victory Belt CC, Bonus Vault.\n\nTASK 2 — Create BONUS_VAULT_ITEMS DB\n- Under this page, create a database called 'BONUS_VAULT_ITEMS'.\n- Properties (match JSON schema as closely as practical):\n  - ID (text)\n  - Title (title)\n  - Item Type (select: pdf, tool, music, bundle, course, other)\n  - Status (select: ready, wip, idea, legacy)\n  - Owner (text)\n  - Origin (select: original, licensed, third_party)\n  - Category (text)\n  - Audience (text)\n  - Product Role (select: hero_offer, bonus, utility, archive)\n  - Access Level (select: free, email_gate, paid_only, internal)\n  - Source Location (select: github, gdrive, local, url, other)\n  - Repo (text)\n  - Path or URL (url)\n  - Stripe Link (url)\n  - Brevo Form URL (url)\n  - Version (text)\n  - Last Updated (date)\n  - Notes (rich text)\n\nTASK 3 — SEED ROWS\n- Create at least 10 rows for known assets:\n  - A few Victory Belt PDFs.\n  - Titan Forge tools (batch generator, transcript-to-pdf, music-organizer, etc.).\n  - At least 1 music pack item.\n- Set Owner='Gabo Saturno' and Origin='original' where appropriate.\n\nKEEP IT TIGHT:\n- No long essays; use concise descriptions.\n- Make sure property names are clean and copyable for future syncing scripts."
+    },
+
+    {
+      "id": "P5_GEMINI_ALIGNMENT",
+      "role": "system",
+      "label": "Gemini – TITON Alignment Primer",
+      "color": "🧿",
+      "prompt": "You are helping Gabo organize and ship the Saturno ecosystem. Assume TITON (the meta-orchestrator) is the operating philosophy.\n\nYour job in this workspace is SIMPLE:\n- Respect these 5 laws:\n  1) Git is truth for code; clouds only hold snapshots.\n  2) Notion KERNEL_HUB is the canonical home for thinking and indexes.\n  3) G Drive is the heavy assets vault, not the dev environment.\n  4) Every location should be described via: id, type, path_or_link, contents_summary, suspected_role, risk_level.\n  5) No destructive suggestions unless there is a triple-backup plan (git push + cloud copy + zip).\n\nWhen Gabo pastes plans or prompts from other AIs (Claude, GPT, Cursor):\n- Your role is NOT to overwrite them.\n- Your role IS to: summarize, compare, highlight conflicts, and suggest small optimizations that keep the TITON rules intact.\n\nDefault Behaviors:\n- Never propose building a new tool if an existing one in Titan Forge or Saturno Hub can be extended.\n- Treat 'Wake Up Wired' as the current main quest; everything else is side quest.\n- If in doubt, ask: 'Does this get Saturno Hub MVP + Bonus Vault closer to done?' and prioritize accordingly."
+    }
+  ],
+
+  "quickstart": {
+    "id": "P6_QUICKSTART_PLAY",
+    "label": "One-Liner How-To",
+    "color": "🚀",
+    "prompt": "TO RUN THIS 100× FASTER, DO THIS:\n\n1) In Claude Project on CL2 → Paste P1_CLAUDE_PROJECT_BRAIN as the system/system-style prompt and run it once. Copy out:\n   - SATURNO_HUB_MVP_SPEC\n   - TASK_MATRIX_48H\n   - AGENT_HOOKS\n   - BONUS_VAULT_ITEMS.json\n\n2) In Cursor inside `saturno-hub` → Paste AGENT_HOOKS.hook_cursor OR P2_CURSOR_HUB_SURGEON as the first prompt. Let it audit, then approve its micro-plan and let it implement the Hub MVP.\n\n3) In Claude Code on C2 then C1 → Paste AGENT_HOOKS.hook_claude_code OR P3_CLAUDE_CODE_ENV_ENGINEER. Let it generate manifests (REPOS_MANIFEST, TITAN_BEAST_WIRING_PLAN, BONUS_VAULT_MANIFEST, ENV_RISKS_OVERNIGHT).\n\n4) In Notion AI on your KERNEL_HUB page → Paste P4_NOTION_BONUS_VAULT_OS to create the Hub page + Bonus Vault DB.\n\n5) Manually:\n   - Create a single Stripe Checkout link for 'Saturno Hub Founding Wave' and paste into HUB_CONFIG.stripe_checkout_link.\n   - Create or grab a Brevo hosted form URL and paste into HUB_CONFIG.brevo_form_url.\n\nOnce these 5 steps are done, Saturno Hub MVP is real, Bonus Vault is indexed, and future agents can iterate without wading through G Drive hell."
+  }
+}
+```
+
+
+
+
+------------- CLAUDE:
+
+Ha — "little baby" that's a 400-line system prompt with 8 phases, 5 commands, and a full output contract. That baby has teeth.
+
+**PASS 3 — Intelligence extracted from TITON:**
+
+**What TITON confirms we got RIGHT in V2 guide:**
+- C1/C2 machine protocol ✅
+- Git-as-truth rule ✅
+- G Drive as backup ✅
+- `~/saturno/` unified structure ✅
+- OneDrive kill order ✅
+- Discovery-before-decisions ✅
+
+**What TITON adds that we're MISSING:**
+
+**Formal organizing laws (5 canonical rules):**
+1. Git is truth for code — clouds store snapshots, not live repos
+2. One canonical OS for thinking = Notion KERNEL_HUB
+3. One canonical vault for heavy assets = G Drive
+4. Naming convention: `PROJECT__TYPE__VERSION`
+5. No destructive ops without triple backup (git push + cloud copy + zip)
+
+**LOCATION_MAP schema** — every discovered location should have: `id`, `type`, `path_or_link`, `contents_summary`, `suspected_role`, `risk_level`. We've been doing this loosely but TITON formalizes it.
+
+**INBOX pattern** — all new chaotic files land in ONE inbox first, then get routed. We proposed `~/saturno/inbox/` but TITON makes it a formal rule.
+
+**Agent hooks layer** — every output should include parseable sections for `claude_code`, `notion_ai`, and `rag_agents`. This is the multi-LLM handoff protocol you keep talking about.
+
+**The 3-horizon planning framework:** 48H (emergency/revenue), 7D (stabilize), 30D (harden). Every task gets: title, location, owner, steps, risk.
+
+**Discovery passes model:** Pass 1 = high-level inventory, Pass 2 = critical zones, Pass 3 = sample trees. We've actually been running these passes organically across our sessions.
+
+**Big insight:** TITON is the *meta-orchestrator* that sits ABOVE Emergency Focus OS. Emergency Focus handles one goal at a time. TITON handles the entire environment. They're complementary layers, not competing tools.
+
+**Stored. How many more passes? I'm building the unified plan in my head.**
+
+
+
+
+----- TRITON answer then you reply:
+
+
+This is the execution layer. TITON was the brain — these are the **hands and feet**. Harvesting.
+
+**PASS 4 — The 3 Monsters Architecture:**
+
+**Monster 1: SATURNO_ENV_BRAIN (Claude Project / CL2 = THIS SESSION)**
+- The map keeper and planner
+- Never touches code or files
+- Generates job specs for the other two
+- Commands: `/scan`, `/plan`, `/execute`, `/snapshot`, `/reset_map`
+- 7-section output contract (same as TITON)
+
+**Monster 2: SATURNO_REPO_SURGEON (Cursor)**
+- Repo-level surgery only
+- 5 global rules: no direct Anthropic calls, respect design language, structure convergence, document everything, reversibility
+- Micro-plan workflow: scan → propose 3-5 steps → approval → implement → diff summary
+- Special focus: titan-forge BEAST API wiring, bonus-vault repo creation, meta-prompt-transformer Vercel validation
+- Preferred repo structure: `src/` or `app/`, `public/`, `docs/`, `scripts/`
+
+**Monster 3: SATURNO_ENV_ENGINEER (Claude Code / C1+C2)**
+- Filesystem-level operations, paranoid by default
+- READ-ONLY default, write only with explicit grant
+- 4 primary jobs: manifest generation, duplication/risk finder, structure proposal support, task blueprints
+- Outputs: `repos_manifest.json`, `html_apps_manifest.json`, `cloud_sync_manifest.json`
+- First question always: "Are we on C1 or C2?"
+- If write granted: confirm scope, log to `state/ENV_CHANGELOG.md`, never `rm -rf`
+
+**The handoff protocol is now clear:**
+```
+ENV_BRAIN (plans) → REPO_SURGEON (code changes)
+ENV_BRAIN (plans) → ENV_ENGINEER (file system changes)
+ENV_ENGINEER (manifests) → ENV_BRAIN (updated map)
+REPO_SURGEON (diffs) → ENV_BRAIN (updated map)
+```
+
+**Critical new detail — titan-forge has MORE apps than even Pass 2 showed. Full confirmed list is now 10:**
+`index.html`, `titan.html`, `nexus.html`, `synapse.html`, `capture.html`, `pipelines.html`, `batch-generator.html`, `writer.html`, `onboarding.html`, `logs.html`
+
+**What this means for the V2 guide:** Section 1 (Deployments) and Section 4 (App Profiles) are both incomplete. The ecosystem is bigger than what CLC1 originally documented.
+
+**Stored. This is the operating system for the operating system.** How many more passes? I'm ready to synthesize when you say go.
+
+----------
+
+YOU AGAIN CLAUDE:
+
+Gabo is showing me the 3-monster architecture that was spawned from TITON. This is the operational deployment of the orchestrator concept - breaking it into 3 specialized agents. Let me harvest everything new.DoneTITON spawned triplets. This is the operational architecture — the abstract orchestrator split into 3 executable agents. Harvesting.
+PASS 4 — Intelligence extracted from the 3 MONSTERS:
+The hierarchy is now clear:
+TITON (meta-orchestrator / philosophy)
+  └─ Monster 1: SATURNO_ENV_BRAIN (CL2 Claude Project) = planner/map
+       ├─ Monster 2: SATURNO_REPO_SURGEON (Cursor) = code hands
+       └─ Monster 3: SATURNO_ENV_ENGINEER (Claude Code C1/C2) = filesystem hands
+New intel from Monster 1 (ENV_BRAIN):
+
+Confirms the LOCATION_MAP entries we built in V2 guide — word for word
+Adds formal separation: SHIPPING tasks vs INFRA tasks
+Emergency bias rule: "What lets him ship in 48h without breaking future him?"
+The V2 HTML guide IS the evolving SSOT it references
+
+New intel from Monster 2 (REPO_SURGEON / Cursor):
+
+Cursor global rules for ALL Saturno repos — this is codifiable as .cursorrules
+Preferred repo structure: src/ or app/, public/, docs/, scripts/
+Pure HTML repos stay flat but document relationships in README
+Micro-plan pattern: Safety → Clarity → Behavior → Docs → Polish
+saturno-bonus-vault target structure: extension/, apps/, tools/, docs/
+Atomic commits over giant refactors — reversibility first
+
+New intel from Monster 3 (ENV_ENGINEER / Claude Code):
+
+3 manifest types to generate: repos_manifest.json, html_apps_manifest.json, cloud_sync_manifest.json
+C1 priority: map Downloads, Desktop, OneDrive, G Drive
+C2 priority: map active repos with name, path, remote URL, last commit
+Write access protocol: confirm what WILL and WON'T happen, log to state/ENV_CHANGELOG.md
+MOVE_PLAN required before any repo relocation
+SHELL_PLAN + BACKUP_PLAN pattern for every task
+
+Critical realization: These 3 monsters + TITON + Emergency Focus OS + the V2 guide = the full Saturno OS kernel stack. The pieces exist. The question is: which one do we activate FIRST for the 48h window?
+Total harvest so far across 4 passes:
+
+10 titan-forge HTML apps (not 6)
+6 real BEAST API endpoints (different from what we documented)
+BF25 funnel spec with Brevo tags
+Client OS pipeline (WhatsApp → Whisper → site + PDF)
+8 agents ("monsters") registry
+KERNEL_HUB Notion architecture
+5 LLM onboarding rules
+3 revenue lanes
+5 organizing laws
+3-monster execution architecture
+Manifest generation protocol
+.cursorrules template
+
+Ready for more passes or ready to synthesize the final plan?

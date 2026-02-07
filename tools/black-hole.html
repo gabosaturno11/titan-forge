@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BLACK HOLE | Deep Stretch Timer</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #050508;
+            --purple: #9D4EDD;
+            --blue: #4361EE;
+            --deep-purple: #7B2CBF;
+            --event-horizon: #1a0a2e;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Black Hole Visual */
+        .black-hole-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vmin;
+            height: 100vmin;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .accretion-disk {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 2px solid;
+            opacity: 0;
+            animation: accrete 8s linear infinite;
+        }
+
+        @keyframes accrete {
+            0% {
+                transform: translate(-50%, -50%) scale(2) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.1; }
+            100% {
+                transform: translate(-50%, -50%) scale(0.3) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .event-horizon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, #000 40%, var(--event-horizon) 60%, transparent 70%);
+            border-radius: 50%;
+            box-shadow:
+                0 0 60px 20px rgba(123, 44, 191, 0.3),
+                inset 0 0 30px rgba(0,0,0,1);
+        }
+
+        /* Gravitational Lensing */
+        .lens-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            animation: lens 4s ease-in-out infinite;
+        }
+
+        @keyframes lens {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.6; }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 10px;
+            background: radial-gradient(circle at 30% 30%, var(--blue), var(--purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(67, 97, 238, 0.4);
+        }
+
+        .logo-text {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 10px;
+            color: #444;
+            margin-top: 4px;
+            letter-spacing: 2px;
+        }
+
+        /* Timer Display */
+        .timer-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timer-display {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .stretch-name {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: var(--purple);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .timer-time {
+            font-size: 72px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-shadow: 0 0 30px rgba(157, 78, 221, 0.5);
+        }
+
+        .timer-phase {
+            font-size: 10px;
+            color: #666;
+            letter-spacing: 2px;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+
+        /* Gravity Pull Indicator */
+        .gravity-indicator {
+            width: 200px;
+            height: 4px;
+            background: #1a1a2e;
+            border-radius: 2px;
+            margin: 24px 0;
+            overflow: hidden;
+        }
+
+        .gravity-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--blue), var(--purple));
+            border-radius: 2px;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 10px var(--purple);
+        }
+
+        /* Stretch Queue */
+        .stretch-queue {
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 24px;
+        }
+
+        .queue-title {
+            font-size: 9px;
+            color: #666;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .queue-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .queue-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(157, 78, 221, 0.05);
+            border: 1px solid #1a1a2e;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .queue-item.active {
+            background: rgba(157, 78, 221, 0.15);
+            border-color: var(--purple);
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.2);
+        }
+
+        .queue-item.done {
+            opacity: 0.4;
+        }
+
+        .queue-num {
+            width: 24px;
+            height: 24px;
+            background: #1a1a2e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .queue-item.active .queue-num {
+            background: var(--purple);
+        }
+
+        .queue-item.done .queue-num {
+            background: #333;
+        }
+
+        .queue-item.done .queue-num::after {
+            content: '';
+            width: 8px;
+            height: 4px;
+            border-left: 2px solid #fff;
+            border-bottom: 2px solid #fff;
+            transform: rotate(-45deg) translateY(-1px);
+        }
+
+        .queue-info {
+            flex: 1;
+        }
+
+        .queue-name {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .queue-duration {
+            font-size: 10px;
+            color: #666;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            border: 2px solid var(--purple);
+            background: transparent;
+            color: var(--purple);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--purple);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            border-color: #333;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #333;
+            color: #fff;
+            box-shadow: none;
+        }
+
+        /* Presets */
+        .presets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 24px;
+        }
+
+        .preset-btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #222;
+            background: transparent;
+            color: #666;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+
+        .preset-btn.active {
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            border-color: transparent;
+            color: #fff;
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: rgba(5, 5, 8, 0.9);
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .sound-toggle:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .sound-toggle.active {
+            color: var(--purple);
+            border-color: var(--purple);
+        }
+
+        /* Breathing Guide */
+        .breathing-guide {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 1;
+        }
+
+        .breathing-text {
+            font-size: 12px;
+            color: #666;
+            letter-spacing: 2px;
+            animation: breathePulse 8s ease-in-out infinite;
+        }
+
+        @keyframes breathePulse {
+            0%, 100% { opacity: 0.3; }
+            25% { opacity: 1; }
+            50% { opacity: 0.3; }
+            75% { opacity: 1; }
+        }
+
+        .breathing-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--purple);
+            border-radius: 50%;
+            margin: 8px auto 0;
+            animation: breatheDot 8s ease-in-out infinite;
+        }
+
+        @keyframes breatheDot {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            25% { transform: scale(1.5); opacity: 1; }
+            50% { transform: scale(1); opacity: 0.5; }
+            75% { transform: scale(1.5); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="black-hole-container" id="blackHoleContainer">
+        <div class="event-horizon"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-text">SM</span>
+            </div>
+            <h1>Black Hole</h1>
+            <p>Deep Stretch Timer</p>
+        </div>
+
+        <div class="timer-section">
+            <div class="timer-display">
+                <div class="stretch-name" id="stretchName">Select a routine</div>
+                <div class="timer-time" id="timerTime">00:00</div>
+                <div class="timer-phase" id="timerPhase">Ready to descend</div>
+            </div>
+
+            <div class="gravity-indicator">
+                <div class="gravity-fill" id="gravityFill" style="width: 0%"></div>
+            </div>
+
+            <div class="stretch-queue" id="stretchQueue">
+                <div class="queue-title">Stretch Sequence</div>
+                <div class="queue-items" id="queueItems"></div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" id="resetBtn">Reset</button>
+                <button class="btn" id="mainBtn">Start</button>
+                <button class="btn btn-secondary" id="skipBtn">Skip</button>
+            </div>
+
+            <div class="presets">
+                <button class="preset-btn" data-routine="quick">Quick 5</button>
+                <button class="preset-btn active" data-routine="full">Full Body</button>
+                <button class="preset-btn" data-routine="hips">Hip Focus</button>
+                <button class="preset-btn" data-routine="shoulders">Shoulders</button>
+                <button class="preset-btn" data-routine="spine">Spine</button>
+            </div>
+        </div>
+
+        <div class="breathing-guide">
+            <div class="breathing-text" id="breathingText">INHALE</div>
+            <div class="breathing-dot"></div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // BLACK HOLE VISUAL
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const blackHoleContainer = document.getElementById('blackHoleContainer');
+
+        // Create accretion disk particles
+        for (let i = 0; i < 30; i++) {
+            const disk = document.createElement('div');
+            disk.className = 'accretion-disk';
+            const size = 200 + Math.random() * 300;
+            disk.style.width = size + 'px';
+            disk.style.height = size + 'px';
+            disk.style.borderColor = Math.random() > 0.5 ? 'rgba(157, 78, 221, 0.4)' : 'rgba(67, 97, 238, 0.3)';
+            disk.style.animationDelay = (Math.random() * 8) + 's';
+            disk.style.animationDuration = (6 + Math.random() * 4) + 's';
+            blackHoleContainer.appendChild(disk);
+        }
+
+        // Create gravitational lensing rings
+        for (let i = 0; i < 5; i++) {
+            const lens = document.createElement('div');
+            lens.className = 'lens-ring';
+            const size = 160 + i * 30;
+            lens.style.width = size + 'px';
+            lens.style.height = size + 'px';
+            lens.style.animationDelay = (i * 0.5) + 's';
+            blackHoleContainer.appendChild(lens);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // STRETCH ROUTINES
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const ROUTINES = {
+            quick: [
+                { name: 'Forward Fold', duration: 45 },
+                { name: 'Pigeon Pose Right', duration: 45 },
+                { name: 'Pigeon Pose Left', duration: 45 },
+                { name: 'Cat-Cow Flow', duration: 45 },
+                { name: 'Child\'s Pose', duration: 45 }
+            ],
+            full: [
+                { name: 'Neck Rolls', duration: 30 },
+                { name: 'Shoulder Stretch Right', duration: 45 },
+                { name: 'Shoulder Stretch Left', duration: 45 },
+                { name: 'Chest Opener', duration: 45 },
+                { name: 'Forward Fold', duration: 60 },
+                { name: 'Pigeon Pose Right', duration: 60 },
+                { name: 'Pigeon Pose Left', duration: 60 },
+                { name: 'Seated Spinal Twist Right', duration: 45 },
+                { name: 'Seated Spinal Twist Left', duration: 45 },
+                { name: 'Butterfly Stretch', duration: 60 },
+                { name: 'Frog Pose', duration: 60 },
+                { name: 'Child\'s Pose', duration: 60 }
+            ],
+            hips: [
+                { name: '90/90 Stretch Right', duration: 60 },
+                { name: '90/90 Stretch Left', duration: 60 },
+                { name: 'Pigeon Pose Right', duration: 90 },
+                { name: 'Pigeon Pose Left', duration: 90 },
+                { name: 'Frog Pose', duration: 90 },
+                { name: 'Butterfly Stretch', duration: 60 },
+                { name: 'Happy Baby', duration: 60 },
+                { name: 'Hip Flexor Right', duration: 60 },
+                { name: 'Hip Flexor Left', duration: 60 }
+            ],
+            shoulders: [
+                { name: 'Shoulder Circles', duration: 30 },
+                { name: 'Cross Body Stretch Right', duration: 45 },
+                { name: 'Cross Body Stretch Left', duration: 45 },
+                { name: 'Tricep Stretch Right', duration: 30 },
+                { name: 'Tricep Stretch Left', duration: 30 },
+                { name: 'Thread Needle Right', duration: 45 },
+                { name: 'Thread Needle Left', duration: 45 },
+                { name: 'Wall Chest Stretch Right', duration: 45 },
+                { name: 'Wall Chest Stretch Left', duration: 45 },
+                { name: 'Puppy Pose', duration: 60 }
+            ],
+            spine: [
+                { name: 'Cat-Cow Flow', duration: 60 },
+                { name: 'Seated Spinal Twist Right', duration: 60 },
+                { name: 'Seated Spinal Twist Left', duration: 60 },
+                { name: 'Sphinx Pose', duration: 60 },
+                { name: 'Cobra Pose', duration: 45 },
+                { name: 'Thread Needle Right', duration: 45 },
+                { name: 'Thread Needle Left', duration: 45 },
+                { name: 'Supine Twist Right', duration: 60 },
+                { name: 'Supine Twist Left', duration: 60 },
+                { name: 'Child\'s Pose', duration: 60 }
+            ]
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // AUDIO SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let audioCtx = null;
+        let soundEnabled = true;
+        let ambientOsc = null;
+        let ambientGain = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function startAmbient() {
+            if (!soundEnabled || ambientOsc) return;
+            initAudio();
+
+            // Deep drone
+            ambientOsc = audioCtx.createOscillator();
+            const osc2 = audioCtx.createOscillator();
+            ambientGain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+
+            ambientOsc.type = 'sine';
+            osc2.type = 'sine';
+            ambientOsc.frequency.setValueAtTime(55, audioCtx.currentTime); // Low A
+            osc2.frequency.setValueAtTime(82.41, audioCtx.currentTime); // Low E
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(200, audioCtx.currentTime);
+
+            ambientGain.gain.setValueAtTime(0, audioCtx.currentTime);
+            ambientGain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 2);
+
+            ambientOsc.connect(filter);
+            osc2.connect(filter);
+            filter.connect(ambientGain);
+            ambientGain.connect(audioCtx.destination);
+
+            ambientOsc.start();
+            osc2.start();
+        }
+
+        function stopAmbient() {
+            if (ambientOsc && ambientGain) {
+                ambientGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
+                setTimeout(() => {
+                    if (ambientOsc) {
+                        ambientOsc.stop();
+                        ambientOsc = null;
+                        ambientGain = null;
+                    }
+                }, 1000);
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'transition') {
+                // Deep pulse
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(80, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.5);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(300, now);
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.6);
+
+            } else if (type === 'complete') {
+                // Ascending tone
+                const osc = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc2.type = 'sine';
+
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(440, now + 0.5);
+
+                osc2.frequency.setValueAtTime(330, now);
+                osc2.frequency.exponentialRampToValueAtTime(660, now + 0.5);
+
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+
+                osc.connect(gain);
+                osc2.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc2.start(now);
+                osc.stop(now + 0.8);
+                osc2.stop(now + 0.8);
+
+            } else if (type === 'click') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let state = {
+            routine: 'full',
+            stretches: [],
+            currentIndex: 0,
+            timeLeft: 0,
+            totalTime: 0,
+            isRunning: false,
+            intervalId: null,
+            breathPhase: 'inhale'
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DOM ELEMENTS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const stretchName = document.getElementById('stretchName');
+        const timerTime = document.getElementById('timerTime');
+        const timerPhase = document.getElementById('timerPhase');
+        const gravityFill = document.getElementById('gravityFill');
+        const queueItems = document.getElementById('queueItems');
+        const mainBtn = document.getElementById('mainBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const presetBtns = document.querySelectorAll('.preset-btn');
+        const soundToggle = document.getElementById('soundToggle');
+        const breathingText = document.getElementById('breathingText');
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function loadRoutine(routineName) {
+            state.routine = routineName;
+            state.stretches = [...ROUTINES[routineName]];
+            state.currentIndex = 0;
+            state.isRunning = false;
+
+            if (state.intervalId) {
+                clearInterval(state.intervalId);
+                state.intervalId = null;
+            }
+
+            renderQueue();
+            updateDisplay();
+        }
+
+        function renderQueue() {
+            queueItems.innerHTML = '';
+            state.stretches.forEach((stretch, i) => {
+                const item = document.createElement('div');
+                item.className = 'queue-item' +
+                    (i === state.currentIndex ? ' active' : '') +
+                    (i < state.currentIndex ? ' done' : '');
+                item.innerHTML = `
+                    <div class="queue-num">${i < state.currentIndex ? '' : i + 1}</div>
+                    <div class="queue-info">
+                        <div class="queue-name">${stretch.name}</div>
+                        <div class="queue-duration">${stretch.duration}s</div>
+                    </div>
+                `;
+                queueItems.appendChild(item);
+            });
+        }
+
+        function updateDisplay() {
+            if (state.currentIndex < state.stretches.length) {
+                const current = state.stretches[state.currentIndex];
+                stretchName.textContent = current.name;
+
+                if (state.isRunning) {
+                    timerTime.textContent = formatTime(state.timeLeft);
+                    const progress = ((current.duration - state.timeLeft) / current.duration) * 100;
+                    gravityFill.style.width = progress + '%';
+                    timerPhase.textContent = `${state.currentIndex + 1} of ${state.stretches.length}`;
+                } else {
+                    timerTime.textContent = formatTime(current.duration);
+                    gravityFill.style.width = '0%';
+                    timerPhase.textContent = 'Ready to begin';
+                }
+            } else {
+                stretchName.textContent = 'Session Complete';
+                timerTime.textContent = '00:00';
+                timerPhase.textContent = 'Well done';
+                gravityFill.style.width = '100%';
+            }
+
+            mainBtn.textContent = state.isRunning ? 'Pause' : 'Start';
+        }
+
+        function startTimer() {
+            if (state.currentIndex >= state.stretches.length) {
+                loadRoutine(state.routine);
+            }
+
+            state.isRunning = true;
+            state.timeLeft = state.stretches[state.currentIndex].duration;
+            startAmbient();
+
+            state.intervalId = setInterval(() => {
+                state.timeLeft--;
+
+                if (state.timeLeft <= 0) {
+                    nextStretch();
+                }
+
+                updateDisplay();
+            }, 1000);
+
+            updateDisplay();
+        }
+
+        function pauseTimer() {
+            state.isRunning = false;
+            if (state.intervalId) {
+                clearInterval(state.intervalId);
+                state.intervalId = null;
+            }
+            stopAmbient();
+            updateDisplay();
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            loadRoutine(state.routine);
+            playSound('click');
+        }
+
+        function nextStretch() {
+            state.currentIndex++;
+            renderQueue();
+
+            if (state.currentIndex >= state.stretches.length) {
+                pauseTimer();
+                playSound('complete');
+            } else {
+                state.timeLeft = state.stretches[state.currentIndex].duration;
+                playSound('transition');
+            }
+
+            updateDisplay();
+        }
+
+        function skipStretch() {
+            if (!state.isRunning) return;
+            playSound('click');
+            nextStretch();
+        }
+
+        // Breathing animation
+        setInterval(() => {
+            state.breathPhase = state.breathPhase === 'inhale' ? 'exhale' : 'inhale';
+            breathingText.textContent = state.breathPhase.toUpperCase();
+        }, 4000);
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // EVENT LISTENERS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        mainBtn.addEventListener('click', () => {
+            playSound('click');
+            if (state.isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        });
+
+        resetBtn.addEventListener('click', resetTimer);
+        skipBtn.addEventListener('click', skipStretch);
+
+        presetBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                playSound('click');
+                presetBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                loadRoutine(btn.dataset.routine);
+            });
+        });
+
+        soundToggle.addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            soundToggle.classList.toggle('active', soundEnabled);
+
+            if (!soundEnabled) {
+                stopAmbient();
+            } else if (state.isRunning) {
+                startAmbient();
+            }
+
+            if (soundEnabled) playSound('click');
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        loadRoutine('full');
+    </script>
+</body>
+</html>

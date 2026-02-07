@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GRAVITY WELL | Intensity Selector</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #0a0a0a;
+            --purple: #9D4EDD;
+            --blue: #4361EE;
+            --cyan: #00D4FF;
+            --green: #00FF88;
+            --yellow: #FFD700;
+            --orange: #FF6B00;
+            --red: #FF3333;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Gravity Visual */
+        .gravity-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .gravity-line {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            background: linear-gradient(180deg, transparent, var(--purple), transparent);
+            animation: gravityPull 2s ease-in-out infinite;
+        }
+
+        @keyframes gravityPull {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 10px;
+            background: radial-gradient(circle at 30% 30%, var(--blue), var(--purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(67, 97, 238, 0.4);
+        }
+
+        .logo-text {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+            letter-spacing: 2px;
+        }
+
+        /* Gravity Well Display */
+        .well-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 24px;
+        }
+
+        .well-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 2px solid;
+            opacity: 0.3;
+            transition: all 0.5s;
+        }
+
+        .well-ring:nth-child(1) { width: 100%; height: 100%; border-color: var(--green); }
+        .well-ring:nth-child(2) { width: 80%; height: 80%; border-color: var(--cyan); }
+        .well-ring:nth-child(3) { width: 60%; height: 60%; border-color: var(--yellow); }
+        .well-ring:nth-child(4) { width: 40%; height: 40%; border-color: var(--orange); }
+        .well-ring:nth-child(5) { width: 20%; height: 20%; border-color: var(--red); }
+
+        .well-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: #000;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+
+        .well-indicator {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--cyan);
+            box-shadow: 0 0 20px var(--cyan);
+            transform: translate(-50%, -50%);
+            transition: all 0.5s ease-out;
+            cursor: grab;
+            z-index: 10;
+        }
+
+        .well-indicator:active {
+            cursor: grabbing;
+        }
+
+        /* Level Labels */
+        .level-labels {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+        }
+
+        .level-label {
+            position: absolute;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #666;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .level-label.active {
+            color: #fff;
+        }
+
+        /* Current Level Display */
+        .level-display {
+            text-align: center;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .level-name {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .level-desc {
+            font-size: 11px;
+            color: #666;
+            margin-top: 8px;
+            letter-spacing: 1px;
+        }
+
+        .level-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+        }
+
+        .level-stat {
+            text-align: center;
+        }
+
+        .level-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .level-stat-label {
+            font-size: 9px;
+            color: #666;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Level Buttons */
+        .level-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .level-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 8px;
+            border: 1px solid #222;
+            background: rgba(255,255,255,0.02);
+            color: #888;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .level-btn:hover {
+            border-color: #444;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .level-btn.active {
+            border-color: var(--cyan);
+            background: rgba(0, 212, 255, 0.1);
+            color: #fff;
+        }
+
+        .level-btn-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .level-btn-info {
+            flex: 1;
+        }
+
+        .level-btn-name {
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .level-btn-detail {
+            font-size: 9px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .sound-toggle:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .sound-toggle.active {
+            color: var(--purple);
+            border-color: var(--purple);
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="gravity-bg" id="gravityBg"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-text">SM</span>
+            </div>
+            <h1>Gravity Well</h1>
+            <p>Intensity Selector</p>
+        </div>
+
+        <div class="well-container" id="wellContainer">
+            <div class="well-ring"></div>
+            <div class="well-ring"></div>
+            <div class="well-ring"></div>
+            <div class="well-ring"></div>
+            <div class="well-ring"></div>
+            <div class="well-center"></div>
+            <div class="well-indicator" id="wellIndicator"></div>
+            <div class="level-labels">
+                <div class="level-label" style="top: 5%; left: 50%; transform: translateX(-50%);">LIGHT</div>
+                <div class="level-label" style="bottom: 5%; left: 50%; transform: translateX(-50%);">LIGHT</div>
+                <div class="level-label" style="top: 50%; right: 5%; transform: translateY(-50%);">LIGHT</div>
+                <div class="level-label" style="top: 50%; left: 5%; transform: translateY(-50%);">LIGHT</div>
+            </div>
+        </div>
+
+        <div class="level-display">
+            <div class="level-name" id="levelName">MODERATE</div>
+            <div class="level-desc" id="levelDesc">Balanced effort, sustainable pace</div>
+            <div class="level-stats">
+                <div class="level-stat">
+                    <div class="level-stat-value" id="rpeValue">6</div>
+                    <div class="level-stat-label">RPE</div>
+                </div>
+                <div class="level-stat">
+                    <div class="level-stat-value" id="heartRate">130-150</div>
+                    <div class="level-stat-label">HR Zone</div>
+                </div>
+                <div class="level-stat">
+                    <div class="level-stat-value" id="restTime">60s</div>
+                    <div class="level-stat-label">Rest</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="level-buttons" id="levelButtons">
+            <button class="level-btn" data-level="0">
+                <div class="level-btn-indicator" style="background: var(--green)"></div>
+                <div class="level-btn-info">
+                    <div class="level-btn-name">Light</div>
+                    <div class="level-btn-detail">Warm-up / Recovery / Technique</div>
+                </div>
+            </button>
+            <button class="level-btn" data-level="1">
+                <div class="level-btn-indicator" style="background: var(--cyan)"></div>
+                <div class="level-btn-info">
+                    <div class="level-btn-name">Moderate</div>
+                    <div class="level-btn-detail">Balanced effort, sustainable pace</div>
+                </div>
+            </button>
+            <button class="level-btn" data-level="2">
+                <div class="level-btn-indicator" style="background: var(--yellow)"></div>
+                <div class="level-btn-info">
+                    <div class="level-btn-name">Challenging</div>
+                    <div class="level-btn-detail">Pushing limits, controlled strain</div>
+                </div>
+            </button>
+            <button class="level-btn" data-level="3">
+                <div class="level-btn-indicator" style="background: var(--orange)"></div>
+                <div class="level-btn-info">
+                    <div class="level-btn-name">Intense</div>
+                    <div class="level-btn-detail">Near max effort, limited duration</div>
+                </div>
+            </button>
+            <button class="level-btn" data-level="4">
+                <div class="level-btn-indicator" style="background: var(--red)"></div>
+                <div class="level-btn-info">
+                    <div class="level-btn-name">Maximum</div>
+                    <div class="level-btn-detail">All out, brief bursts only</div>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // GRAVITY LINES
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const gravityBg = document.getElementById('gravityBg');
+
+        for (let i = 0; i < 20; i++) {
+            const line = document.createElement('div');
+            line.className = 'gravity-line';
+            line.style.left = (10 + i * 4.5) + '%';
+            line.style.top = Math.random() * 30 + '%';
+            line.style.height = (30 + Math.random() * 40) + '%';
+            line.style.animationDelay = (Math.random() * 2) + 's';
+            gravityBg.appendChild(line);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // LEVELS DATA
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const LEVELS = [
+            {
+                name: 'LIGHT',
+                desc: 'Warm-up, recovery, technique focus',
+                color: '#00FF88',
+                rpe: '3-4',
+                hr: '100-120',
+                rest: '30-45s'
+            },
+            {
+                name: 'MODERATE',
+                desc: 'Balanced effort, sustainable pace',
+                color: '#00D4FF',
+                rpe: '5-6',
+                hr: '130-150',
+                rest: '60s'
+            },
+            {
+                name: 'CHALLENGING',
+                desc: 'Pushing limits, controlled strain',
+                color: '#FFD700',
+                rpe: '7-8',
+                hr: '150-170',
+                rest: '90s'
+            },
+            {
+                name: 'INTENSE',
+                desc: 'Near max effort, limited duration',
+                color: '#FF6B00',
+                rpe: '8-9',
+                hr: '170-185',
+                rest: '2-3 min'
+            },
+            {
+                name: 'MAXIMUM',
+                desc: 'All out effort, brief bursts only',
+                color: '#FF3333',
+                rpe: '10',
+                hr: '185+',
+                rest: '3-5 min'
+            }
+        ];
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // AUDIO SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(level) {
+            if (!soundEnabled) return;
+            initAudio();
+
+            const now = audioCtx.currentTime;
+
+            // Different tone for each level
+            const freqs = [200, 300, 400, 500, 600];
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freqs[level], now);
+            osc.frequency.exponentialRampToValueAtTime(freqs[level] * 1.5, now + 0.1);
+            osc.frequency.exponentialRampToValueAtTime(freqs[level], now + 0.2);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1000 + level * 500, now);
+
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.3);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let currentLevel = 1;
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DOM ELEMENTS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const wellContainer = document.getElementById('wellContainer');
+        const wellIndicator = document.getElementById('wellIndicator');
+        const levelName = document.getElementById('levelName');
+        const levelDesc = document.getElementById('levelDesc');
+        const rpeValue = document.getElementById('rpeValue');
+        const heartRate = document.getElementById('heartRate');
+        const restTime = document.getElementById('restTime');
+        const levelBtns = document.querySelectorAll('.level-btn');
+        const wellRings = document.querySelectorAll('.well-ring');
+        const soundToggle = document.getElementById('soundToggle');
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function setLevel(level) {
+            currentLevel = level;
+            const data = LEVELS[level];
+
+            // Update display
+            levelName.textContent = data.name;
+            levelName.style.color = data.color;
+            levelDesc.textContent = data.desc;
+            rpeValue.textContent = data.rpe;
+            heartRate.textContent = data.hr;
+            restTime.textContent = data.rest;
+
+            // Update buttons
+            levelBtns.forEach((btn, i) => {
+                btn.classList.toggle('active', i === level);
+            });
+
+            // Update rings
+            wellRings.forEach((ring, i) => {
+                const ringLevel = 4 - i; // Reverse order (outer = light)
+                ring.style.opacity = ringLevel <= level ? '0.8' : '0.2';
+                ring.style.boxShadow = ringLevel === level ? `0 0 20px ${data.color}` : 'none';
+            });
+
+            // Update indicator position
+            const containerRect = wellContainer.getBoundingClientRect();
+            const centerX = containerRect.width / 2;
+            const centerY = containerRect.height / 2;
+
+            // Calculate position based on level (center = max, edge = light)
+            const maxRadius = 125;
+            const radius = maxRadius - (level * (maxRadius / 4));
+            const angle = Math.PI * 1.5; // Top
+
+            const x = centerX + Math.cos(angle) * radius;
+            const y = centerY + Math.sin(angle) * radius;
+
+            wellIndicator.style.left = x + 'px';
+            wellIndicator.style.top = y + 'px';
+            wellIndicator.style.background = data.color;
+            wellIndicator.style.boxShadow = `0 0 20px ${data.color}`;
+
+            playSound(level);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // EVENT LISTENERS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        levelBtns.forEach((btn, i) => {
+            btn.addEventListener('click', () => {
+                setLevel(i);
+            });
+        });
+
+        // Drag indicator
+        let isDragging = false;
+
+        wellIndicator.addEventListener('mousedown', () => isDragging = true);
+        wellIndicator.addEventListener('touchstart', () => isDragging = true);
+
+        document.addEventListener('mouseup', () => isDragging = false);
+        document.addEventListener('touchend', () => isDragging = false);
+
+        function handleMove(clientX, clientY) {
+            if (!isDragging) return;
+
+            const rect = wellContainer.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            const dx = clientX - centerX;
+            const dy = clientY - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // Map distance to level
+            const maxRadius = rect.width / 2;
+            const normalizedDistance = Math.min(distance / maxRadius, 1);
+            const newLevel = Math.min(4, Math.floor((1 - normalizedDistance) * 5));
+
+            if (newLevel !== currentLevel) {
+                setLevel(newLevel);
+            }
+        }
+
+        document.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY));
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            handleMove(e.touches[0].clientX, e.touches[0].clientY);
+        });
+
+        // Click on well to set level
+        wellContainer.addEventListener('click', (e) => {
+            const rect = wellContainer.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            const dx = e.clientX - rect.left - centerX;
+            const dy = e.clientY - rect.top - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            const maxRadius = rect.width / 2;
+            const normalizedDistance = Math.min(distance / maxRadius, 1);
+            const newLevel = Math.min(4, Math.floor((1 - normalizedDistance) * 5));
+
+            setLevel(newLevel);
+        });
+
+        soundToggle.addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            soundToggle.classList.toggle('active', soundEnabled);
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        setLevel(1);
+    </script>
+</body>
+</html>

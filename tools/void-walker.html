@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VOID WALKER | Rest Day Recovery</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --void: #1a1a2e; --purple: #9D4EDD; --blue: #00D4FF; --dim: #333; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; }
+
+        .void-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; background: radial-gradient(ellipse at center, var(--void) 0%, var(--bg) 70%); }
+        .void-particle { position: absolute; width: 4px; height: 4px; background: var(--purple); border-radius: 50%; opacity: 0.3; animation: voidFloat 15s ease-in-out infinite; }
+        @keyframes voidFloat { 0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; } 50% { transform: translate(20px, -30px) scale(1.5); opacity: 0.1; } }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; position: relative; z-index: 1; }
+
+        .header { text-align: center; margin-bottom: 24px; }
+        .logo { width: 60px; height: 60px; margin: 0 auto 12px; background: radial-gradient(circle, transparent 30%, var(--purple) 70%, transparent 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: voidPulse 4s ease-in-out infinite; }
+        @keyframes voidPulse { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
+        .logo-text { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: var(--purple); }
+        .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 3px; background: linear-gradient(135deg, var(--purple), var(--dim)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .header p { font-size: 9px; color: #444; margin-top: 4px; letter-spacing: 2px; }
+
+        .recovery-mode { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
+        .mode-btn { padding: 10px 16px; border-radius: 8px; border: 1px solid #222; background: transparent; color: #444; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-transform: uppercase; }
+        .mode-btn:hover { border-color: var(--purple); color: var(--purple); }
+        .mode-btn.active { background: var(--purple); border-color: var(--purple); color: #000; }
+
+        .current-activity { background: rgba(157, 78, 221, 0.03); border: 1px solid rgba(157, 78, 221, 0.15); border-radius: 16px; padding: 24px; margin-bottom: 20px; text-align: center; }
+        .activity-type { font-size: 10px; color: #444; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .activity-name { font-size: 20px; font-weight: 700; color: var(--purple); margin-bottom: 12px; }
+        .activity-desc { font-size: 11px; color: #666; line-height: 1.6; margin-bottom: 16px; }
+        .activity-duration { font-size: 14px; color: var(--blue); }
+
+        .timer-display { text-align: center; margin-bottom: 20px; }
+        .timer-value { font-size: 56px; font-weight: 300; color: var(--purple); opacity: 0.8; }
+        .timer-label { font-size: 10px; color: #444; letter-spacing: 2px; text-transform: uppercase; }
+
+        .progress-section { margin-bottom: 20px; }
+        .progress-bar { height: 4px; background: #111; border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
+        .progress-fill { height: 100%; background: var(--purple); opacity: 0.6; transition: width 1s linear; }
+        .progress-steps { display: flex; justify-content: center; gap: 8px; }
+        .progress-step { width: 8px; height: 8px; border-radius: 50%; background: #1a1a2e; transition: all 0.3s; }
+        .progress-step.done { background: var(--purple); opacity: 0.6; }
+        .progress-step.current { background: var(--blue); box-shadow: 0 0 10px var(--blue); }
+
+        .checklist { background: rgba(0, 0, 0, 0.3); border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+        .checklist-title { font-size: 10px; color: #444; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+        .checklist-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #111; cursor: pointer; transition: all 0.2s; }
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-item:hover { padding-left: 8px; }
+        .check-box { width: 20px; height: 20px; border: 1px solid #333; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .checklist-item.done .check-box { background: var(--purple); border-color: var(--purple); }
+        .checklist-item.done .check-box::after { content: ''; width: 6px; height: 3px; border-left: 2px solid #000; border-bottom: 2px solid #000; transform: rotate(-45deg) translateY(-1px); }
+        .check-text { font-size: 11px; color: #666; }
+        .checklist-item.done .check-text { color: var(--purple); }
+
+        .controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 20px; }
+        .btn { padding: 14px 24px; border-radius: 8px; border: 1px solid var(--purple); background: transparent; color: var(--purple); font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; opacity: 0.7; }
+        .btn:hover { opacity: 1; background: rgba(157, 78, 221, 0.1); }
+
+        .wisdom { text-align: center; padding: 16px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; }
+        .wisdom-text { font-size: 11px; color: #555; font-style: italic; line-height: 1.6; }
+        .wisdom-source { font-size: 9px; color: #333; margin-top: 8px; }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #222; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #444; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--purple); color: var(--purple); }
+        .sound-toggle.active { color: var(--purple); border-color: var(--purple); }
+    </style>
+</head>
+<body>
+    <div class="void-bg" id="voidBg"></div>
+
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Void Walker</h1>
+            <p>Rest Day Recovery</p>
+        </div>
+
+        <div class="recovery-mode">
+            <button class="mode-btn active" data-mode="gentle">GENTLE</button>
+            <button class="mode-btn" data-mode="active">ACTIVE</button>
+            <button class="mode-btn" data-mode="mindful">MINDFUL</button>
+        </div>
+
+        <div class="current-activity">
+            <div class="activity-type" id="activityType">Recovery Activity</div>
+            <div class="activity-name" id="activityName">Light Walking</div>
+            <div class="activity-desc" id="activityDesc">Gentle movement to promote blood flow and aid recovery. Keep it easy and enjoyable.</div>
+            <div class="activity-duration" id="activityDuration">10-15 minutes</div>
+        </div>
+
+        <div class="timer-display">
+            <div class="timer-value" id="timerDisplay">0:00</div>
+            <div class="timer-label">Session Time</div>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-steps" id="progressSteps"></div>
+        </div>
+
+        <div class="checklist">
+            <div class="checklist-title">Recovery Checklist</div>
+            <div id="checklistItems"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="startBtn">BEGIN</button>
+            <button class="btn" id="nextBtn">NEXT</button>
+        </div>
+
+        <div class="wisdom">
+            <div class="wisdom-text" id="wisdomText">"Rest is not idleness, and to lie sometimes on the grass under trees on a summer's day, listening to the murmur of the water, or watching the clouds float across the sky, is by no means a waste of time."</div>
+            <div class="wisdom-source">- John Lubbock</div>
+        </div>
+    </div>
+
+    <script>
+        // Create void particles
+        const voidBg = document.getElementById('voidBg');
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'void-particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+            voidBg.appendChild(particle);
+        }
+
+        let audioCtx = null, soundEnabled = true, droneOsc = null, droneGain = null;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function startDrone() {
+            if (!soundEnabled || droneOsc) return;
+            initAudio();
+            droneOsc = audioCtx.createOscillator();
+            droneGain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(150, audioCtx.currentTime);
+            droneOsc.type = 'sine';
+            droneOsc.frequency.setValueAtTime(60, audioCtx.currentTime);
+            droneGain.gain.setValueAtTime(0, audioCtx.currentTime);
+            droneGain.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 3);
+            droneOsc.connect(filter);
+            filter.connect(droneGain);
+            droneGain.connect(audioCtx.destination);
+            droneOsc.start();
+        }
+
+        function stopDrone() {
+            if (droneOsc && droneGain) {
+                droneGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2);
+                setTimeout(() => {
+                    if (droneOsc) { droneOsc.stop(); droneOsc = null; droneGain = null; }
+                }, 2000);
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'transition') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(400, now + 0.5);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.6);
+            } else if (type === 'check') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(500, now);
+                osc.frequency.exponentialRampToValueAtTime(700, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.15);
+            }
+        }
+
+        const recoveryModes = {
+            gentle: {
+                activities: [
+                    { name: 'Light Walking', desc: 'Gentle movement to promote blood flow. Keep it slow and easy.', duration: '10-15 min' },
+                    { name: 'Gentle Stretching', desc: 'Hold each stretch 30-60 seconds. Never force, just relax into it.', duration: '10 min' },
+                    { name: 'Foam Rolling', desc: 'Slow, gentle pressure on tight areas. Breathe deeply.', duration: '10 min' },
+                    { name: 'Light Yoga', desc: 'Child\'s pose, cat-cow, gentle twists. Move with your breath.', duration: '15 min' }
+                ],
+                checklist: ['Hydrate well', 'Eat nutritious food', 'Get quality sleep', 'Light movement', 'Stretch gently']
+            },
+            active: {
+                activities: [
+                    { name: 'Easy Swim', desc: 'Low intensity laps or water walking. Zero joint impact.', duration: '20-30 min' },
+                    { name: 'Bike Ride', desc: 'Easy pace cycling. Enjoy the scenery, keep heart rate low.', duration: '20-30 min' },
+                    { name: 'Mobility Flow', desc: 'Dynamic stretches, joint circles, controlled movements.', duration: '15 min' },
+                    { name: 'Nature Walk', desc: 'Get outside. Fresh air and light movement for body and mind.', duration: '30 min' }
+                ],
+                checklist: ['Stay hydrated', 'Light cardio done', 'Mobility work', 'Quality nutrition', 'Mental rest']
+            },
+            mindful: {
+                activities: [
+                    { name: 'Meditation', desc: 'Sit quietly. Focus on breath. Let thoughts pass like clouds.', duration: '10-20 min' },
+                    { name: 'Body Scan', desc: 'Lie down and mentally scan from head to toe, releasing tension.', duration: '15 min' },
+                    { name: 'Breathwork', desc: 'Box breathing: 4 count inhale, hold, exhale, hold. Repeat.', duration: '10 min' },
+                    { name: 'Journaling', desc: 'Write about your training, goals, or simply clear your mind.', duration: '15 min' }
+                ],
+                checklist: ['Meditate', 'Practice gratitude', 'Digital detox', 'Connect with nature', 'Quality sleep']
+            }
+        };
+
+        const wisdoms = [
+            { text: '"Rest is not idleness, and to lie sometimes on the grass under trees on a summer\'s day, listening to the murmur of the water, or watching the clouds float across the sky, is by no means a waste of time."', source: 'John Lubbock' },
+            { text: '"Almost everything will work again if you unplug it for a few minutes, including you."', source: 'Anne Lamott' },
+            { text: '"The time to relax is when you don\'t have time for it."', source: 'Sydney J. Harris' },
+            { text: '"Rest when you\'re weary. Refresh and renew yourself, your body, your mind, your spirit. Then get back to work."', source: 'Ralph Marston' },
+            { text: '"Take rest; a field that has rested gives a bountiful crop."', source: 'Ovid' }
+        ];
+
+        let state = {
+            mode: 'gentle',
+            currentIdx: 0,
+            elapsed: 0,
+            isRunning: false,
+            checkedItems: [],
+            intervalId: null
+        };
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        function renderProgressSteps() {
+            const steps = document.getElementById('progressSteps');
+            const activities = recoveryModes[state.mode].activities;
+            steps.innerHTML = activities.map((_, i) => `
+                <div class="progress-step ${i < state.currentIdx ? 'done' : ''} ${i === state.currentIdx ? 'current' : ''}"></div>
+            `).join('');
+        }
+
+        function renderChecklist() {
+            const container = document.getElementById('checklistItems');
+            const items = recoveryModes[state.mode].checklist;
+            container.innerHTML = items.map((item, i) => `
+                <div class="checklist-item ${state.checkedItems.includes(i) ? 'done' : ''}" data-idx="${i}">
+                    <div class="check-box"></div>
+                    <span class="check-text">${item}</span>
+                </div>
+            `).join('');
+
+            container.querySelectorAll('.checklist-item').forEach(item => {
+                item.addEventListener('click', () => toggleCheck(parseInt(item.dataset.idx)));
+            });
+        }
+
+        function toggleCheck(idx) {
+            const pos = state.checkedItems.indexOf(idx);
+            if (pos === -1) {
+                state.checkedItems.push(idx);
+                playSound('check');
+            } else {
+                state.checkedItems.splice(pos, 1);
+            }
+            renderChecklist();
+        }
+
+        function updateDisplay() {
+            const mode = recoveryModes[state.mode];
+            const activity = mode.activities[state.currentIdx];
+
+            document.getElementById('activityType').textContent = state.mode.toUpperCase() + ' RECOVERY';
+            document.getElementById('activityName').textContent = activity.name;
+            document.getElementById('activityDesc').textContent = activity.desc;
+            document.getElementById('activityDuration').textContent = activity.duration;
+
+            document.getElementById('timerDisplay').textContent = formatTime(state.elapsed);
+
+            const targetMin = 15;
+            const progress = Math.min(100, (state.elapsed / (targetMin * 60)) * 100);
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            document.getElementById('startBtn').textContent = state.isRunning ? 'PAUSE' : 'BEGIN';
+
+            renderProgressSteps();
+            renderChecklist();
+        }
+
+        function nextActivity() {
+            const mode = recoveryModes[state.mode];
+            state.currentIdx = (state.currentIdx + 1) % mode.activities.length;
+            state.elapsed = 0;
+            playSound('transition');
+
+            // New wisdom
+            const wisdom = wisdoms[Math.floor(Math.random() * wisdoms.length)];
+            document.getElementById('wisdomText').textContent = wisdom.text;
+            document.querySelector('.wisdom-source').textContent = '- ' + wisdom.source;
+
+            updateDisplay();
+        }
+
+        function start() {
+            if (state.isRunning) {
+                pause();
+                return;
+            }
+
+            state.isRunning = true;
+            initAudio();
+            startDrone();
+
+            state.intervalId = setInterval(() => {
+                state.elapsed++;
+                updateDisplay();
+            }, 1000);
+
+            updateDisplay();
+        }
+
+        function pause() {
+            state.isRunning = false;
+            if (state.intervalId) { clearInterval(state.intervalId); state.intervalId = null; }
+            stopDrone();
+            updateDisplay();
+        }
+
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.mode = btn.dataset.mode;
+                state.currentIdx = 0;
+                state.elapsed = 0;
+                state.checkedItems = [];
+                if (state.isRunning) pause();
+                updateDisplay();
+            });
+        });
+
+        document.getElementById('startBtn').addEventListener('click', start);
+        document.getElementById('nextBtn').addEventListener('click', nextActivity);
+
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
+            if (!soundEnabled) stopDrone();
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>

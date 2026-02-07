@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROGRESSION PATHFINDER | Saturno Movement</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Crimson+Pro:wght@400;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0a0a0a;
+            --bg-card: #111;
+            --border: rgba(255,255,255,0.1);
+            --gold: #d4af37;
+            --cyan: #00ffcc;
+            --green: #22c55e;
+            --text: #e4e4e7;
+            --text-dim: #71717a;
+            --purple: #a855f7;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 24px;
+        }
+
+        /* Pattern Selector */
+        .selector {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .selector h3 {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-dim);
+            margin-bottom: 16px;
+        }
+
+        .pattern-btn {
+            display: block;
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 11px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pattern-btn:hover {
+            border-color: var(--gold);
+            color: var(--text);
+        }
+
+        .pattern-btn.active {
+            border-color: var(--gold);
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold);
+        }
+
+        .pattern-btn .icon {
+            margin-right: 8px;
+        }
+
+        /* Current Level */
+        .current-level {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .current-level label {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+
+        .current-level select {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .current-level select:focus {
+            outline: none;
+            border-color: var(--cyan);
+        }
+
+        /* Path Display */
+        .path-display {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 24px;
+        }
+
+        .path-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .path-header h2 {
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .path-header .stage {
+            font-size: 10px;
+            padding: 4px 12px;
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+        }
+
+        /* Skill Tree */
+        .skill-tree {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .progression-node {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .progression-node::before {
+            content: '';
+            position: absolute;
+            left: 32px;
+            top: -12px;
+            width: 2px;
+            height: 12px;
+            background: var(--border);
+        }
+
+        .progression-node:first-child::before {
+            display: none;
+        }
+
+        .progression-node.current {
+            border-color: var(--gold);
+            background: rgba(212, 175, 55, 0.05);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .progression-node.current .node-dot {
+            background: var(--gold);
+            box-shadow: 0 0 10px var(--gold);
+            animation: pulse 2s infinite;
+        }
+
+        .progression-node.completed {
+            border-color: var(--green);
+            opacity: 0.7;
+        }
+
+        .progression-node.completed .node-dot {
+            background: var(--green);
+        }
+
+        .progression-node.locked {
+            opacity: 0.4;
+        }
+
+        .progression-node.next {
+            border-color: var(--cyan);
+            border-style: dashed;
+        }
+
+        .progression-node.next .node-dot {
+            background: var(--cyan);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        .node-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .node-content {
+            flex: 1;
+        }
+
+        .node-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .node-unlock {
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        .node-stage {
+            font-size: 9px;
+            padding: 2px 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+        }
+
+        .node-stage.foundation { border-color: var(--green); color: var(--green); }
+        .node-stage.intermediate { border-color: var(--cyan); color: var(--cyan); }
+        .node-stage.advanced { border-color: var(--purple); color: var(--purple); }
+        .node-stage.elite { border-color: var(--gold); color: var(--gold); }
+
+        /* Next Steps Panel */
+        .next-steps {
+            margin-top: 24px;
+            padding: 20px;
+            background: rgba(0, 255, 204, 0.05);
+            border: 1px solid rgba(0, 255, 204, 0.2);
+        }
+
+        .next-steps h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--cyan);
+            margin-bottom: 16px;
+        }
+
+        .next-step-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .next-step-item:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            background: var(--cyan);
+            color: var(--bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-info h4 {
+            font-size: 12px;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .step-info p {
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        .step-info .timeline {
+            margin-top: 6px;
+            font-size: 9px;
+            color: var(--gold);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        .footer a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>PROGRESSION PATHFINDER</h1>
+    <p>Find your path through the movement patterns</p>
+</div>
+
+<div class="container">
+    <!-- Pattern Selector -->
+    <div class="selector">
+        <h3>Select Movement Pattern</h3>
+
+        <button class="pattern-btn active" data-pattern="push">
+            <span class="icon">↗</span> Horizontal Push
+        </button>
+        <button class="pattern-btn" data-pattern="pull">
+            <span class="icon">↙</span> Horizontal Pull
+        </button>
+        <button class="pattern-btn" data-pattern="vpull">
+            <span class="icon">↑</span> Vertical Pull
+        </button>
+        <button class="pattern-btn" data-pattern="dip">
+            <span class="icon">↓</span> Downward Press
+        </button>
+        <button class="pattern-btn" data-pattern="ohp">
+            <span class="icon">⬆</span> Overhead Press
+        </button>
+        <button class="pattern-btn" data-pattern="squat">
+            <span class="icon">◇</span> Knee-Dominant
+        </button>
+        <button class="pattern-btn" data-pattern="hinge">
+            <span class="icon">◆</span> Hip-Dominant
+        </button>
+
+        <div class="current-level">
+            <label>Your Current Level</label>
+            <select id="level-select">
+                <option value="0">Just starting</option>
+                <option value="1" selected>Level 1 - Foundation</option>
+                <option value="2">Level 2 - Building</option>
+                <option value="3">Level 3 - Intermediate</option>
+                <option value="4">Level 4 - Advanced</option>
+                <option value="5">Level 5 - Elite</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Path Display -->
+    <div class="path-display">
+        <div class="path-header">
+            <h2 id="pattern-title">HORIZONTAL PUSH PROGRESSION</h2>
+            <span class="stage" id="current-stage">FOUNDATION</span>
+        </div>
+
+        <div class="skill-tree" id="skill-tree">
+            <!-- Nodes will be rendered by JS -->
+        </div>
+
+        <div class="next-steps" id="next-steps">
+            <h3>Your Next 3 Steps</h3>
+            <!-- Steps will be rendered by JS -->
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <img src="../planet-logo.png" alt="Saturno Movement" style="width: 40px; margin-bottom: 12px; opacity: 0.8;">
+    <p><a href="../bonus.html">Saturno Movement</a> | Bonus Tools</p>
+</div>
+
+<script>
+    const PROGRESSIONS = {
+        push: {
+            name: 'HORIZONTAL PUSH PROGRESSION',
+            exercises: [
+                { name: 'Wall Push-Up', unlock: 'Starting point', stage: 'foundation', reps: '3x15' },
+                { name: 'Incline Push-Up', unlock: '15 wall push-ups', stage: 'foundation', reps: '3x12' },
+                { name: 'Knee Push-Up', unlock: '12 incline push-ups', stage: 'foundation', reps: '3x12' },
+                { name: 'Push-Up', unlock: '12 knee push-ups', stage: 'foundation', reps: '3x10' },
+                { name: 'Diamond Push-Up', unlock: '15 clean push-ups', stage: 'intermediate', reps: '3x10' },
+                { name: 'Wide Push-Up', unlock: '12 diamond push-ups', stage: 'intermediate', reps: '3x12' },
+                { name: 'Archer Push-Up', unlock: '12 wide push-ups', stage: 'advanced', reps: '3x8 each' },
+                { name: 'Typewriter Push-Up', unlock: '8 archer push-ups', stage: 'advanced', reps: '3x6 each' },
+                { name: 'One-Arm Push-Up (assisted)', unlock: '6 typewriter push-ups', stage: 'elite', reps: '3x5 each' },
+                { name: 'One-Arm Push-Up', unlock: '5 assisted one-arm', stage: 'elite', reps: '3x3 each' }
+            ]
+        },
+        pull: {
+            name: 'HORIZONTAL PULL PROGRESSION',
+            exercises: [
+                { name: 'Vertical Row (door)', unlock: 'Starting point', stage: 'foundation', reps: '3x15' },
+                { name: 'Incline Row', unlock: '15 vertical rows', stage: 'foundation', reps: '3x12' },
+                { name: 'Inverted Row', unlock: '12 incline rows', stage: 'foundation', reps: '3x10' },
+                { name: 'Feet-Elevated Row', unlock: '10 inverted rows', stage: 'intermediate', reps: '3x10' },
+                { name: 'Archer Row', unlock: '10 elevated rows', stage: 'intermediate', reps: '3x8 each' },
+                { name: 'Tuck Front Lever Row', unlock: '8 archer rows', stage: 'advanced', reps: '3x6' },
+                { name: 'Adv. Tuck FL Row', unlock: '6 tuck FL rows', stage: 'advanced', reps: '3x5' },
+                { name: 'Straddle Front Lever Row', unlock: '5 adv tuck rows', stage: 'elite', reps: '3x3' },
+                { name: 'Full Front Lever Row', unlock: '3 straddle FL rows', stage: 'elite', reps: '3x1' }
+            ]
+        },
+        vpull: {
+            name: 'VERTICAL PULL PROGRESSION',
+            exercises: [
+                { name: 'Dead Hang', unlock: 'Starting point', stage: 'foundation', reps: '3x30s' },
+                { name: 'Scapular Pulls', unlock: '30s dead hang', stage: 'foundation', reps: '3x10' },
+                { name: 'Negative Pull-Up', unlock: '10 scap pulls', stage: 'foundation', reps: '3x5' },
+                { name: 'Band-Assisted Pull-Up', unlock: '5 slow negatives', stage: 'foundation', reps: '3x8' },
+                { name: 'Pull-Up', unlock: '8 band-assisted', stage: 'intermediate', reps: '3x5' },
+                { name: 'Chest-to-Bar Pull-Up', unlock: '8 pull-ups', stage: 'intermediate', reps: '3x5' },
+                { name: 'L-Sit Pull-Up', unlock: '5 chest-to-bar', stage: 'advanced', reps: '3x5' },
+                { name: 'Archer Pull-Up', unlock: '5 L-sit pull-ups', stage: 'advanced', reps: '3x4 each' },
+                { name: 'One-Arm Pull-Up (assisted)', unlock: '4 archer pull-ups', stage: 'elite', reps: '3x3 each' },
+                { name: 'One-Arm Pull-Up', unlock: '3 assisted OAP', stage: 'elite', reps: '1' }
+            ]
+        },
+        dip: {
+            name: 'DOWNWARD PRESS PROGRESSION',
+            exercises: [
+                { name: 'Bench Dip (bent legs)', unlock: 'Starting point', stage: 'foundation', reps: '3x15' },
+                { name: 'Bench Dip (straight legs)', unlock: '15 bent-leg dips', stage: 'foundation', reps: '3x12' },
+                { name: 'Negative Dip', unlock: '12 straight-leg bench', stage: 'foundation', reps: '3x5' },
+                { name: 'Parallel Bar Dip', unlock: '5 slow negatives', stage: 'intermediate', reps: '3x8' },
+                { name: 'Ring Dip (turned out)', unlock: '10 bar dips', stage: 'intermediate', reps: '3x6' },
+                { name: 'Ring Dip (RTO)', unlock: '8 ring dips', stage: 'advanced', reps: '3x6' },
+                { name: 'Weighted Dip', unlock: '10 RTO dips', stage: 'advanced', reps: '3x5 +20%BW' },
+                { name: 'Bulgarian Dip', unlock: '+50% BW dips', stage: 'elite', reps: '3x5' },
+                { name: 'Impossible Dip', unlock: '5 Bulgarian dips', stage: 'elite', reps: '1' }
+            ]
+        },
+        ohp: {
+            name: 'OVERHEAD PRESS PROGRESSION',
+            exercises: [
+                { name: 'Pike Push-Up', unlock: 'Starting point', stage: 'foundation', reps: '3x10' },
+                { name: 'Elevated Pike Push-Up', unlock: '10 pike push-ups', stage: 'foundation', reps: '3x8' },
+                { name: 'Wall Headstand Hold', unlock: '8 elevated pike', stage: 'foundation', reps: '3x30s' },
+                { name: 'Wall Headstand Push-Up', unlock: '30s wall headstand', stage: 'intermediate', reps: '3x5' },
+                { name: 'Wall Handstand Hold', unlock: '5 headstand push-ups', stage: 'intermediate', reps: '3x30s' },
+                { name: 'Wall Handstand Push-Up (neg)', unlock: '30s wall HS', stage: 'advanced', reps: '3x3' },
+                { name: 'Wall Handstand Push-Up', unlock: '3 HS negatives', stage: 'advanced', reps: '3x3' },
+                { name: 'Freestanding HSPU (neg)', unlock: '5 wall HSPU', stage: 'elite', reps: '3x1' },
+                { name: 'Freestanding HSPU', unlock: '3 free negatives', stage: 'elite', reps: '1' }
+            ]
+        },
+        squat: {
+            name: 'KNEE-DOMINANT PROGRESSION',
+            exercises: [
+                { name: 'Assisted Squat', unlock: 'Starting point', stage: 'foundation', reps: '3x15' },
+                { name: 'Bodyweight Squat', unlock: '15 assisted squats', stage: 'foundation', reps: '3x20' },
+                { name: 'Deep Squat Hold', unlock: '20 BW squats', stage: 'foundation', reps: '3x60s' },
+                { name: 'Bulgarian Split Squat', unlock: '60s deep squat', stage: 'intermediate', reps: '3x10 each' },
+                { name: 'Skater Squat', unlock: '10 Bulgarian each', stage: 'intermediate', reps: '3x8 each' },
+                { name: 'Shrimp Squat (assisted)', unlock: '8 skater squats', stage: 'advanced', reps: '3x5 each' },
+                { name: 'Pistol Squat (assisted)', unlock: '5 assisted shrimp', stage: 'advanced', reps: '3x5 each' },
+                { name: 'Pistol Squat', unlock: '5 assisted pistol', stage: 'elite', reps: '3x3 each' },
+                { name: 'Shrimp Squat', unlock: '3 pistol squats', stage: 'elite', reps: '3x3 each' },
+                { name: 'Dragon Squat', unlock: '3 shrimp squats', stage: 'elite', reps: '1 each' }
+            ]
+        },
+        hinge: {
+            name: 'HIP-DOMINANT PROGRESSION',
+            exercises: [
+                { name: 'Glute Bridge', unlock: 'Starting point', stage: 'foundation', reps: '3x20' },
+                { name: 'Single-Leg Glute Bridge', unlock: '20 glute bridges', stage: 'foundation', reps: '3x12 each' },
+                { name: 'Hip Hinge (RDL pattern)', unlock: '12 SL bridges', stage: 'foundation', reps: '3x15' },
+                { name: 'Single-Leg RDL', unlock: '15 hip hinges', stage: 'intermediate', reps: '3x10 each' },
+                { name: 'Nordic Curl (negative)', unlock: '10 SL RDL each', stage: 'intermediate', reps: '3x5' },
+                { name: 'Nordic Curl (assisted)', unlock: '5 slow negatives', stage: 'advanced', reps: '3x5' },
+                { name: 'Nordic Curl', unlock: '5 assisted Nordics', stage: 'advanced', reps: '3x3' },
+                { name: 'Harop Curl', unlock: '5 Nordic curls', stage: 'elite', reps: '3x3' },
+                { name: 'Natural Leg Curl', unlock: '3 Harop curls', stage: 'elite', reps: '3x1' }
+            ]
+        }
+    };
+
+    let currentPattern = 'push';
+    let currentLevel = 1;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        renderTree();
+        setupListeners();
+    });
+
+    function setupListeners() {
+        document.querySelectorAll('.pattern-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentPattern = btn.dataset.pattern;
+                renderTree();
+            });
+        });
+
+        document.getElementById('level-select').addEventListener('change', (e) => {
+            currentLevel = parseInt(e.target.value);
+            renderTree();
+        });
+    }
+
+    function renderTree() {
+        const progression = PROGRESSIONS[currentPattern];
+        const tree = document.getElementById('skill-tree');
+        const nextSteps = document.getElementById('next-steps');
+
+        document.getElementById('pattern-title').textContent = progression.name;
+
+        // Map level to exercise index (roughly)
+        const currentIndex = Math.min(currentLevel * 2, progression.exercises.length - 1);
+
+        // Update stage display
+        const stages = ['FOUNDATION', 'FOUNDATION', 'INTERMEDIATE', 'INTERMEDIATE', 'ADVANCED', 'ELITE'];
+        document.getElementById('current-stage').textContent = stages[currentLevel] || 'FOUNDATION';
+
+        // Render nodes
+        tree.innerHTML = progression.exercises.map((ex, i) => {
+            let status = 'locked';
+            if (i < currentIndex) status = 'completed';
+            else if (i === currentIndex) status = 'current';
+            else if (i === currentIndex + 1) status = 'next';
+
+            return `
+                <div class="progression-node ${status}">
+                    <div class="node-dot">${i < currentIndex ? '✓' : i + 1}</div>
+                    <div class="node-content">
+                        <div class="node-name">${ex.name}</div>
+                        <div class="node-unlock">${ex.unlock} → ${ex.reps}</div>
+                    </div>
+                    <span class="node-stage ${ex.stage}">${ex.stage.toUpperCase()}</span>
+                </div>
+            `;
+        }).join('');
+
+        // Render next 3 steps
+        const upcomingSteps = progression.exercises.slice(currentIndex, currentIndex + 3);
+        const timelines = ['2-4 weeks', '4-8 weeks', '8-12 weeks'];
+
+        nextSteps.innerHTML = `
+            <h3>Your Next 3 Steps</h3>
+            ${upcomingSteps.map((step, i) => `
+                <div class="next-step-item">
+                    <div class="step-number">${i + 1}</div>
+                    <div class="step-info">
+                        <h4>${step.name}</h4>
+                        <p>Unlock: ${step.unlock} | Target: ${step.reps}</p>
+                        <div class="timeline">Estimated: ${timelines[i]}</div>
+                    </div>
+                </div>
+            `).join('')}
+        `;
+    }
+</script>
+
+</body>
+</html>

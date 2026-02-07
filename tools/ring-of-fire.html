@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RING OF FIRE | Challenge Wheel</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0a0808;
+            --ember: #ff6b35;
+            --flame: #ff9500;
+            --inferno: #ff2d2d;
+            --gold: #ffd700;
+            --text: #fff;
+            --text-dim: #666;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at bottom, #1a0a0a 0%, var(--bg) 60%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header {
+            position: absolute;
+            top: 24px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--ember), var(--flame), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(255, 107, 53, 0.5);
+            letter-spacing: 4px;
+        }
+
+        .header p {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 8px;
+        }
+
+        /* Streak Display */
+        .streak-display {
+            position: absolute;
+            top: 100px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .streak-fire {
+            font-size: 24px;
+            animation: flicker 0.5s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { transform: scale(1) rotate(-2deg); opacity: 0.9; }
+            100% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+        }
+
+        .streak-count {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--flame);
+            text-shadow: 0 0 20px var(--ember);
+        }
+
+        .streak-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Wheel Container */
+        .wheel-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            box-shadow:
+                0 0 60px rgba(255, 107, 53, 0.4),
+                inset 0 0 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .wheel.spinning {
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+        }
+
+        .wheel-segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            left: 50%;
+            top: 0;
+            transform-origin: 0% 100%;
+            clip-path: polygon(0 100%, 100% 0, 0 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            overflow: hidden;
+        }
+
+        .segment-text {
+            position: absolute;
+            top: 35%;
+            left: 10%;
+            transform: rotate(22.5deg);
+            font-size: 8px;
+            text-align: center;
+            width: 80px;
+            line-height: 1.2;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        /* Wheel Center */
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #1a1a1a 0%, #0a0a0a 100%);
+            border-radius: 50%;
+            border: 3px solid var(--ember);
+            box-shadow:
+                0 0 30px var(--ember),
+                inset 0 0 20px rgba(255, 107, 53, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+
+        .wheel-center:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow:
+                0 0 50px var(--flame),
+                inset 0 0 30px rgba(255, 149, 0, 0.5);
+        }
+
+        .wheel-center:active {
+            transform: translate(-50%, -50%) scale(0.95);
+        }
+
+        .wheel-center span {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--flame);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Pointer */
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid var(--gold);
+            filter: drop-shadow(0 0 10px var(--gold));
+            z-index: 20;
+        }
+
+        /* Result Display */
+        .result-panel {
+            position: absolute;
+            bottom: 40px;
+            background: rgba(20, 10, 10, 0.95);
+            border: 2px solid var(--ember);
+            padding: 24px 40px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s;
+            box-shadow: 0 0 40px rgba(255, 107, 53, 0.3);
+        }
+
+        .result-panel.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-tier {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 8px;
+        }
+
+        .result-tier.ember { color: var(--ember); }
+        .result-tier.flame { color: var(--flame); }
+        .result-tier.inferno { color: var(--inferno); }
+        .result-tier.supernova { color: var(--gold); }
+
+        .result-challenge {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .result-details {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-bottom: 16px;
+        }
+
+        .complete-btn {
+            background: linear-gradient(135deg, var(--ember), var(--flame));
+            border: none;
+            color: #000;
+            padding: 12px 32px;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .complete-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--flame);
+        }
+
+        /* Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--ember);
+            border-radius: 50%;
+            animation: rise 3s infinite;
+            opacity: 0;
+        }
+
+        @keyframes rise {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-100px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Tier badges */
+        .tier-legend {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            font-size: 9px;
+        }
+
+        .tier-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .tier-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .tier-dot.ember { background: var(--ember); }
+        .tier-dot.flame { background: var(--flame); }
+        .tier-dot.inferno { background: var(--inferno); }
+        .tier-dot.supernova { background: var(--gold); }
+
+        /* Audio indicator */
+        .audio-toggle {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: transparent;
+            border: 1px solid var(--text-dim);
+            color: var(--text-dim);
+            padding: 8px 12px;
+            font-family: inherit;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .audio-toggle:hover {
+            border-color: var(--flame);
+            color: var(--flame);
+        }
+
+        .audio-toggle.on {
+            border-color: var(--ember);
+            color: var(--ember);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header { top: 16px; }
+            .header h1 { font-size: 20px; letter-spacing: 2px; }
+            .header p { font-size: 9px; }
+            .header img { width: 35px; margin-bottom: 8px; }
+
+            .streak-display { top: 85px; }
+            .streak-fire { font-size: 18px; }
+            .streak-count { font-size: 24px; }
+            .streak-label { font-size: 8px; }
+
+            .wheel-container { width: 280px; height: 280px; }
+            .wheel-center { width: 70px; height: 70px; }
+            .wheel-center span { font-size: 10px; }
+            .pointer { border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 20px solid var(--gold); top: -15px; }
+            .segment-text { font-size: 6px; width: 60px; top: 30%; }
+
+            .result-panel {
+                bottom: 20px;
+                left: 10px;
+                right: 10px;
+                padding: 16px 20px;
+            }
+            .result-tier { font-size: 9px; }
+            .result-challenge { font-size: 14px; }
+            .result-details { font-size: 10px; }
+            .complete-btn { padding: 10px 24px; font-size: 10px; }
+
+            .tier-legend { bottom: auto; top: 16px; left: 16px; right: auto; font-size: 8px; }
+            .tier-item { margin-bottom: 3px; gap: 5px; }
+            .tier-dot { width: 6px; height: 6px; }
+
+            .audio-toggle { top: 16px; right: 16px; padding: 6px 10px; font-size: 9px; }
+        }
+
+        @media (max-width: 380px) {
+            .wheel-container { width: 240px; height: 240px; }
+            .wheel-center { width: 60px; height: 60px; }
+            .segment-text { font-size: 5px; width: 50px; }
+            .tier-legend { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<button class="audio-toggle" id="audioToggle">🔊 SOUND ON</button>
+
+<div class="header">
+    <img src="../planet-logo.png" alt="Saturno Movement" style="width: 50px; margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(255,107,53,0.5));">
+    <h1>RING OF FIRE</h1>
+    <p>Spin the wheel. Accept the challenge. Build your streak.</p>
+    <p style="font-size: 9px; margin-top: 8px; opacity: 0.5;">SATURNO MOVEMENT</p>
+</div>
+
+<div class="streak-display">
+    <span class="streak-fire" id="streakFire">🔥</span>
+    <div>
+        <div class="streak-count" id="streakCount">0</div>
+        <div class="streak-label">Streak</div>
+    </div>
+</div>
+
+<div class="wheel-container">
+    <div class="pointer"></div>
+    <div class="wheel" id="wheel"></div>
+    <div class="wheel-center" id="spinBtn">
+        <span>SPIN</span>
+    </div>
+</div>
+
+<div class="result-panel" id="resultPanel">
+    <div class="result-tier" id="resultTier">EMBER</div>
+    <div class="result-challenge" id="resultChallenge">10 Push-Ups</div>
+    <div class="result-details" id="resultDetails">Complete this challenge to build your streak!</div>
+    <button class="complete-btn" id="completeBtn">🔥 CHALLENGE COMPLETE</button>
+</div>
+
+<div class="tier-legend">
+    <div class="tier-item"><div class="tier-dot ember"></div> Ember - Warm Up</div>
+    <div class="tier-item"><div class="tier-dot flame"></div> Flame - Standard</div>
+    <div class="tier-item"><div class="tier-dot inferno"></div> Inferno - Intense</div>
+    <div class="tier-item"><div class="tier-dot supernova"></div> Supernova - Legendary</div>
+</div>
+
+<script>
+    const CHALLENGES = [
+        // EMBER - Easy warm-up challenges
+        { text: '10 Push-Ups', tier: 'ember', details: 'Clean form, full range of motion' },
+        { text: '30s Plank', tier: 'ember', details: 'Hold tight, breathe steady' },
+        { text: '15 Squats', tier: 'ember', details: 'Depth below parallel' },
+        { text: '20s Dead Hang', tier: 'ember', details: 'Relax shoulders, grip tight' },
+
+        // FLAME - Standard challenges
+        { text: '15 Diamond Push-Ups', tier: 'flame', details: 'Hands together, elbows tight' },
+        { text: '45s Wall Sit', tier: 'flame', details: 'Thighs parallel to ground' },
+        { text: '10 Pike Push-Ups', tier: 'flame', details: 'Hips high, head to floor' },
+        { text: '8 Pull-Ups', tier: 'flame', details: 'Full extension, chin over bar' },
+
+        // INFERNO - Intense challenges
+        { text: '20 Archer Push-Ups', tier: 'inferno', details: '10 each side, controlled' },
+        { text: '60s L-Sit Hold', tier: 'inferno', details: 'Legs straight, shoulders down' },
+        { text: '12 Pistol Squats', tier: 'inferno', details: '6 each leg, full depth' },
+        { text: '5 Muscle-Ups', tier: 'inferno', details: 'Explosive pull, smooth transition' },
+
+        // SUPERNOVA - Legendary challenges
+        { text: '30s Handstand Hold', tier: 'supernova', details: 'Freestanding, no wall' },
+        { text: '3 One-Arm Push-Ups', tier: 'supernova', details: 'Each arm, strict form' },
+        { text: '10s Front Lever', tier: 'supernova', details: 'Full body straight' },
+        { text: 'MAX Burpees 60s', tier: 'supernova', details: 'Full extension jump each rep' },
+    ];
+
+    const TIER_COLORS = {
+        ember: '#ff6b35',
+        flame: '#ff9500',
+        inferno: '#ff2d2d',
+        supernova: '#ffd700'
+    };
+
+    let streak = parseInt(localStorage.getItem('ringOfFireStreak') || '0');
+    let isSpinning = false;
+    let currentChallenge = null;
+    let soundEnabled = true;
+
+    // Audio context for sounds
+    let audioCtx = null;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    function playSound(type) {
+        if (!soundEnabled || !audioCtx) return;
+
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        if (type === 'spin') {
+            oscillator.frequency.setValueAtTime(200, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'land') {
+            oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.5);
+        } else if (type === 'complete') {
+            // Victory fanfare
+            const notes = [523, 659, 784, 1047];
+            notes.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.1);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime + i * 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.3);
+                osc.start(audioCtx.currentTime + i * 0.1);
+                osc.stop(audioCtx.currentTime + i * 0.1 + 0.3);
+            });
+        }
+    }
+
+    // Build wheel
+    function buildWheel() {
+        const wheel = document.getElementById('wheel');
+        const segmentAngle = 360 / CHALLENGES.length;
+
+        wheel.innerHTML = CHALLENGES.map((challenge, i) => {
+            const rotation = i * segmentAngle;
+            const color = TIER_COLORS[challenge.tier];
+            const darkerColor = adjustColor(color, -30);
+
+            return `
+                <div class="wheel-segment" style="
+                    transform: rotate(${rotation}deg);
+                    background: linear-gradient(135deg, ${color} 0%, ${darkerColor} 100%);
+                ">
+                    <div class="segment-text">${challenge.text}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function adjustColor(hex, amount) {
+        const num = parseInt(hex.slice(1), 16);
+        const r = Math.min(255, Math.max(0, (num >> 16) + amount));
+        const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amount));
+        const b = Math.min(255, Math.max(0, (num & 0x0000FF) + amount));
+        return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
+    }
+
+    // Spin wheel
+    function spin() {
+        if (isSpinning) return;
+
+        initAudio();
+        isSpinning = true;
+        playSound('spin');
+
+        const wheel = document.getElementById('wheel');
+        const resultPanel = document.getElementById('resultPanel');
+
+        resultPanel.classList.remove('show');
+
+        // Random result
+        const resultIndex = Math.floor(Math.random() * CHALLENGES.length);
+        currentChallenge = CHALLENGES[resultIndex];
+
+        // Calculate rotation
+        const segmentAngle = 360 / CHALLENGES.length;
+        const targetAngle = 360 - (resultIndex * segmentAngle) - (segmentAngle / 2);
+        const spins = 5 + Math.random() * 3; // 5-8 full spins
+        const totalRotation = (spins * 360) + targetAngle;
+
+        wheel.style.transform = `rotate(${totalRotation}deg)`;
+
+        // Show result after spin
+        setTimeout(() => {
+            playSound('land');
+            showResult();
+            isSpinning = false;
+        }, 4000);
+    }
+
+    function showResult() {
+        const resultPanel = document.getElementById('resultPanel');
+        const resultTier = document.getElementById('resultTier');
+        const resultChallenge = document.getElementById('resultChallenge');
+        const resultDetails = document.getElementById('resultDetails');
+
+        resultTier.textContent = currentChallenge.tier.toUpperCase();
+        resultTier.className = 'result-tier ' + currentChallenge.tier;
+        resultChallenge.textContent = currentChallenge.text;
+        resultDetails.textContent = currentChallenge.details;
+
+        resultPanel.classList.add('show');
+    }
+
+    function completeChallenge() {
+        playSound('complete');
+        streak++;
+        localStorage.setItem('ringOfFireStreak', streak);
+        updateStreakDisplay();
+
+        document.getElementById('resultPanel').classList.remove('show');
+
+        // Burst of particles
+        for (let i = 0; i < 20; i++) {
+            createParticle(true);
+        }
+    }
+
+    function updateStreakDisplay() {
+        document.getElementById('streakCount').textContent = streak;
+
+        // Fire emoji grows with streak
+        const fires = Math.min(5, Math.floor(streak / 3) + 1);
+        document.getElementById('streakFire').textContent = '🔥'.repeat(fires);
+    }
+
+    // Particles
+    function createParticle(burst = false) {
+        const container = document.getElementById('particles');
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+
+        const x = burst ? 50 + (Math.random() - 0.5) * 20 : Math.random() * 100;
+        particle.style.left = x + '%';
+        particle.style.animationDuration = (2 + Math.random() * 2) + 's';
+        particle.style.animationDelay = (Math.random() * 0.5) + 's';
+
+        const colors = ['#ff6b35', '#ff9500', '#ffd700', '#ff2d2d'];
+        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.width = (2 + Math.random() * 4) + 'px';
+        particle.style.height = particle.style.width;
+
+        container.appendChild(particle);
+
+        setTimeout(() => particle.remove(), 4000);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        buildWheel();
+        updateStreakDisplay();
+
+        document.getElementById('spinBtn').addEventListener('click', spin);
+        document.getElementById('completeBtn').addEventListener('click', completeChallenge);
+
+        document.getElementById('audioToggle').addEventListener('click', function() {
+            soundEnabled = !soundEnabled;
+            this.textContent = soundEnabled ? '🔊 SOUND ON' : '🔇 SOUND OFF';
+            this.classList.toggle('on', soundEnabled);
+            if (soundEnabled) initAudio();
+        });
+
+        // Ambient particles
+        setInterval(() => createParticle(), 500);
+    });
+</script>
+
+</body>
+</html>

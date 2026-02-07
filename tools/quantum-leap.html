@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>QUANTUM LEAP | Skill Progression</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #0a0a0a;
+            --purple: #9D4EDD;
+            --blue: #4361EE;
+            --cyan: #00D4FF;
+            --green: #00FF88;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 10px;
+            background: radial-gradient(circle at 30% 30%, var(--blue), var(--purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(67, 97, 238, 0.4);
+        }
+
+        .logo-text {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+            letter-spacing: 2px;
+        }
+
+        /* Skill Selector */
+        .skill-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .skill-selector::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .skill-selector::-webkit-scrollbar-track {
+            background: #1a1a2e;
+            border-radius: 2px;
+        }
+
+        .skill-selector::-webkit-scrollbar-thumb {
+            background: var(--purple);
+            border-radius: 2px;
+        }
+
+        .skill-btn {
+            flex-shrink: 0;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 1px solid #222;
+            background: transparent;
+            color: #666;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .skill-btn:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+
+        .skill-btn.active {
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            border-color: transparent;
+            color: #fff;
+        }
+
+        /* Progress Overview */
+        .progress-overview {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid #1a1a2e;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .overview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .skill-title {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .skill-level {
+            font-size: 10px;
+            color: var(--cyan);
+            letter-spacing: 1px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #1a1a2e;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--purple), var(--cyan));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #666;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--purple), var(--blue), #1a1a2e);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -20px;
+            top: 0;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #1a1a2e;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .timeline-item.completed .timeline-marker {
+            background: var(--green);
+            border-color: var(--green);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .timeline-item.completed .timeline-marker::after {
+            content: '';
+            width: 6px;
+            height: 3px;
+            border-left: 2px solid #000;
+            border-bottom: 2px solid #000;
+            transform: rotate(-45deg) translateY(-1px);
+        }
+
+        .timeline-item.current .timeline-marker {
+            background: var(--cyan);
+            border-color: var(--cyan);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .timeline-item.locked .timeline-marker {
+            opacity: 0.4;
+        }
+
+        .timeline-content {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid #1a1a2e;
+            border-radius: 8px;
+            padding: 12px;
+            transition: all 0.3s;
+        }
+
+        .timeline-item.current .timeline-content {
+            border-color: var(--cyan);
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .timeline-item.completed .timeline-content {
+            opacity: 0.7;
+        }
+
+        .timeline-item.locked .timeline-content {
+            opacity: 0.4;
+        }
+
+        .progression-name {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .progression-desc {
+            font-size: 10px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .progression-criteria {
+            font-size: 9px;
+            color: var(--purple);
+            letter-spacing: 1px;
+        }
+
+        .progression-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 6px;
+            border: 1px solid var(--cyan);
+            background: transparent;
+            color: var(--cyan);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .progression-btn:hover {
+            background: var(--cyan);
+            color: #000;
+        }
+
+        .progression-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .progression-btn:disabled:hover {
+            background: transparent;
+            color: var(--cyan);
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .sound-toggle:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .sound-toggle.active {
+            color: var(--purple);
+            border-color: var(--purple);
+        }
+
+        /* Stats */
+        .stats-section {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #1a1a2e;
+        }
+
+        .stats-title {
+            font-size: 10px;
+            color: #666;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid #1a1a2e;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--purple);
+        }
+
+        .stat-label {
+            font-size: 9px;
+            color: #666;
+            letter-spacing: 1px;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-text">SM</span>
+            </div>
+            <h1>Quantum Leap</h1>
+            <p>Skill Progression Tracker</p>
+        </div>
+
+        <div class="skill-selector" id="skillSelector">
+            <button class="skill-btn active" data-skill="handstand">Handstand</button>
+            <button class="skill-btn" data-skill="planche">Planche</button>
+            <button class="skill-btn" data-skill="frontlever">Front Lever</button>
+            <button class="skill-btn" data-skill="backlever">Back Lever</button>
+            <button class="skill-btn" data-skill="muscleup">Muscle Up</button>
+            <button class="skill-btn" data-skill="pistol">Pistol Squat</button>
+        </div>
+
+        <div class="progress-overview" id="progressOverview">
+            <div class="overview-header">
+                <span class="skill-title" id="skillTitle">Handstand</span>
+                <span class="skill-level" id="skillLevel">LEVEL 3 / 8</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 37.5%"></div>
+            </div>
+            <div class="progress-stats">
+                <span id="completedCount">3 progressions completed</span>
+                <span id="nextUnlock">Next: Wall Handstand</span>
+            </div>
+        </div>
+
+        <div class="timeline" id="timeline"></div>
+
+        <div class="stats-section">
+            <div class="stats-title">Your Journey</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalLeaps">12</div>
+                    <div class="stat-label">Total Leaps</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="currentStreak">5</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="skillsStarted">4</div>
+                    <div class="stat-label">Skills</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // SKILL PROGRESSIONS DATA
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const SKILLS = {
+            handstand: {
+                name: 'Handstand',
+                progressions: [
+                    { name: 'Wrist Prep', desc: 'Wrist circles, stretches, and strengthening', criteria: '5 min daily' },
+                    { name: 'Plank Hold', desc: 'Straight arm plank with hollow body', criteria: '60 seconds' },
+                    { name: 'Pike Push-ups', desc: 'Elevated pike position push-ups', criteria: '3 x 10 reps' },
+                    { name: 'Wall Handstand', desc: 'Chest-to-wall handstand hold', criteria: '60 seconds' },
+                    { name: 'Wall Walks', desc: 'Walk up and down the wall with control', criteria: '3 x 5 reps' },
+                    { name: 'Kick-up Practice', desc: 'Kick up to wall with control', criteria: '10 controlled kick-ups' },
+                    { name: 'Back-to-Wall', desc: 'Back-to-wall hold with controlled exit', criteria: '30 seconds' },
+                    { name: 'Freestanding', desc: 'Freestanding handstand hold', criteria: '10 seconds' }
+                ]
+            },
+            planche: {
+                name: 'Planche',
+                progressions: [
+                    { name: 'Planche Lean', desc: 'Forward lean from plank position', criteria: '30 seconds lean' },
+                    { name: 'Frog Stand', desc: 'Knees resting on elbows', criteria: '30 seconds' },
+                    { name: 'Tuck Planche', desc: 'Tucked position off the ground', criteria: '15 seconds' },
+                    { name: 'Advanced Tuck', desc: 'Back more horizontal, knees closer', criteria: '10 seconds' },
+                    { name: 'Straddle Planche', desc: 'Legs spread wide, body horizontal', criteria: '5 seconds' },
+                    { name: 'Half Lay Planche', desc: 'Legs at 45 degrees', criteria: '3 seconds' },
+                    { name: 'Full Planche', desc: 'Body completely horizontal, legs together', criteria: '2 seconds' }
+                ]
+            },
+            frontlever: {
+                name: 'Front Lever',
+                progressions: [
+                    { name: 'Active Hang', desc: 'Engaged shoulders, hollow body', criteria: '30 seconds' },
+                    { name: 'Tuck FL Hold', desc: 'Knees tucked to chest', criteria: '20 seconds' },
+                    { name: 'Tuck FL Rows', desc: 'Row from tuck position', criteria: '3 x 8 reps' },
+                    { name: 'Advanced Tuck', desc: 'Back more horizontal', criteria: '15 seconds' },
+                    { name: 'One Leg FL', desc: 'One leg extended', criteria: '10 seconds each' },
+                    { name: 'Straddle FL', desc: 'Legs spread wide', criteria: '8 seconds' },
+                    { name: 'Half Lay FL', desc: 'Legs at 45 degrees', criteria: '5 seconds' },
+                    { name: 'Full FL', desc: 'Body completely horizontal', criteria: '3 seconds' }
+                ]
+            },
+            backlever: {
+                name: 'Back Lever',
+                progressions: [
+                    { name: 'German Hang', desc: 'Hang inverted with straight arms', criteria: '20 seconds' },
+                    { name: 'Skin the Cat', desc: 'Pass through German hang position', criteria: '5 controlled reps' },
+                    { name: 'Tuck BL', desc: 'Knees tucked, inverted', criteria: '15 seconds' },
+                    { name: 'Advanced Tuck', desc: 'Back more horizontal', criteria: '10 seconds' },
+                    { name: 'One Leg BL', desc: 'One leg extended', criteria: '8 seconds each' },
+                    { name: 'Straddle BL', desc: 'Legs spread wide', criteria: '5 seconds' },
+                    { name: 'Full BL', desc: 'Body horizontal, legs together', criteria: '3 seconds' }
+                ]
+            },
+            muscleup: {
+                name: 'Muscle Up',
+                progressions: [
+                    { name: 'Pull-ups', desc: 'Strict pull-ups chest to bar', criteria: '3 x 10 reps' },
+                    { name: 'Dips', desc: 'Full ROM dips', criteria: '3 x 10 reps' },
+                    { name: 'High Pull-ups', desc: 'Pull to waist level', criteria: '5 reps' },
+                    { name: 'Negative MU', desc: 'Slow descent from top', criteria: '5 x 5s negatives' },
+                    { name: 'Band MU', desc: 'Band-assisted muscle up', criteria: '3 x 3 reps' },
+                    { name: 'Jumping MU', desc: 'Low bar jumping muscle up', criteria: '5 clean reps' },
+                    { name: 'Strict MU', desc: 'Clean strict muscle up', criteria: '3 consecutive' }
+                ]
+            },
+            pistol: {
+                name: 'Pistol Squat',
+                progressions: [
+                    { name: 'Deep Squat', desc: 'Full depth two-leg squat', criteria: '20 reps' },
+                    { name: 'Assisted Pistol', desc: 'Holding support for balance', criteria: '5 each leg' },
+                    { name: 'Box Pistol', desc: 'Sit to elevated surface', criteria: '8 each leg' },
+                    { name: 'Negative Pistol', desc: 'Slow descent only', criteria: '5 x 5s each' },
+                    { name: 'Rolling Pistol', desc: 'Roll back to stand up', criteria: '5 each leg' },
+                    { name: 'Counterweight', desc: 'Arms forward for balance', criteria: '3 each leg' },
+                    { name: 'Full Pistol', desc: 'Clean pistol squat', criteria: '5 each leg' }
+                ]
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // AUDIO SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'leap') {
+                // Quantum leap sound - ascending
+                for (let i = 0; i < 5; i++) {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(200 + i * 100, now + i * 0.1);
+                    osc.frequency.exponentialRampToValueAtTime(300 + i * 150, now + i * 0.1 + 0.1);
+
+                    gain.gain.setValueAtTime(0.1, now + i * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.15);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start(now + i * 0.1);
+                    osc.stop(now + i * 0.1 + 0.15);
+                }
+
+                // Bass impact
+                const bass = audioCtx.createOscillator();
+                const bassGain = audioCtx.createGain();
+                bass.type = 'sine';
+                bass.frequency.setValueAtTime(80, now + 0.5);
+                bass.frequency.exponentialRampToValueAtTime(40, now + 0.8);
+                bassGain.gain.setValueAtTime(0.2, now + 0.5);
+                bassGain.gain.exponentialRampToValueAtTime(0.01, now + 1);
+                bass.connect(bassGain);
+                bassGain.connect(audioCtx.destination);
+                bass.start(now + 0.5);
+                bass.stop(now + 1);
+
+            } else if (type === 'click') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let progress = JSON.parse(localStorage.getItem('quantum_progress') || '{}');
+        let currentSkill = 'handstand';
+
+        function getSkillProgress(skill) {
+            return progress[skill] || 0;
+        }
+
+        function setSkillProgress(skill, level) {
+            progress[skill] = level;
+            localStorage.setItem('quantum_progress', JSON.stringify(progress));
+        }
+
+        function getTotalLeaps() {
+            return Object.values(progress).reduce((a, b) => a + b, 0);
+        }
+
+        function getSkillsStarted() {
+            return Object.keys(progress).filter(k => progress[k] > 0).length;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DOM ELEMENTS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const skillSelector = document.getElementById('skillSelector');
+        const skillTitle = document.getElementById('skillTitle');
+        const skillLevel = document.getElementById('skillLevel');
+        const progressFill = document.getElementById('progressFill');
+        const completedCount = document.getElementById('completedCount');
+        const nextUnlock = document.getElementById('nextUnlock');
+        const timeline = document.getElementById('timeline');
+        const totalLeaps = document.getElementById('totalLeaps');
+        const skillsStarted = document.getElementById('skillsStarted');
+        const soundToggle = document.getElementById('soundToggle');
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // RENDER FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function renderSkill(skillKey) {
+            const skill = SKILLS[skillKey];
+            const level = getSkillProgress(skillKey);
+            const total = skill.progressions.length;
+
+            skillTitle.textContent = skill.name;
+            skillLevel.textContent = `LEVEL ${level} / ${total}`;
+
+            const percent = (level / total) * 100;
+            progressFill.style.width = percent + '%';
+
+            completedCount.textContent = `${level} progressions completed`;
+            if (level < total) {
+                nextUnlock.textContent = `Next: ${skill.progressions[level].name}`;
+            } else {
+                nextUnlock.textContent = 'MASTERED';
+            }
+
+            // Render timeline
+            timeline.innerHTML = '';
+            skill.progressions.forEach((prog, i) => {
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+
+                if (i < level) {
+                    item.classList.add('completed');
+                } else if (i === level) {
+                    item.classList.add('current');
+                } else {
+                    item.classList.add('locked');
+                }
+
+                item.innerHTML = `
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <div class="progression-name">${prog.name}</div>
+                        <div class="progression-desc">${prog.desc}</div>
+                        <div class="progression-criteria">Criteria: ${prog.criteria}</div>
+                        ${i === level ? `<button class="progression-btn" data-level="${i}">QUANTUM LEAP</button>` : ''}
+                        ${i < level ? `<button class="progression-btn" data-level="${i - 1}" style="border-color: #666; color: #666;">UNDO</button>` : ''}
+                    </div>
+                `;
+
+                timeline.appendChild(item);
+            });
+
+            // Bind leap buttons
+            document.querySelectorAll('.progression-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const targetLevel = parseInt(btn.dataset.level);
+                    const current = getSkillProgress(currentSkill);
+
+                    if (btn.textContent === 'QUANTUM LEAP') {
+                        setSkillProgress(currentSkill, current + 1);
+                        playSound('leap');
+                    } else if (btn.textContent === 'UNDO') {
+                        setSkillProgress(currentSkill, Math.max(0, targetLevel));
+                        playSound('click');
+                    }
+
+                    renderSkill(currentSkill);
+                    updateStats();
+                });
+            });
+
+            // Update skill selector
+            document.querySelectorAll('.skill-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.skill === skillKey);
+            });
+        }
+
+        function updateStats() {
+            totalLeaps.textContent = getTotalLeaps();
+            skillsStarted.textContent = getSkillsStarted();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // EVENT LISTENERS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        document.querySelectorAll('.skill-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                playSound('click');
+                currentSkill = btn.dataset.skill;
+                renderSkill(currentSkill);
+            });
+        });
+
+        soundToggle.addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            soundToggle.classList.toggle('active', soundEnabled);
+            if (soundEnabled) playSound('click');
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        renderSkill(currentSkill);
+        updateStats();
+    </script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOLAR FLARE | Power Training</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --orange: #FF6B00; --yellow: #FFD700; --red: #FF3333; --purple: #9D4EDD; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow: hidden; }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; position: relative; }
+
+        .flare-bg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; height: 400px; background: radial-gradient(circle, rgba(255, 107, 0, 0.2), transparent 70%); pointer-events: none; z-index: 0; animation: flarePulse 3s ease-in-out infinite; }
+        @keyframes flarePulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; } 50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.8; } }
+
+        .header { text-align: center; margin-bottom: 20px; position: relative; z-index: 1; }
+        .logo { width: 60px; height: 60px; margin: 0 auto 12px; background: radial-gradient(circle at 30% 30%, var(--yellow), var(--orange)); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 40px rgba(255, 107, 0, 0.6); }
+        .logo-text { font-size: 10px; font-weight: 700; letter-spacing: 1px; }
+        .header h1 { font-size: 20px; font-weight: 700; letter-spacing: 4px; background: linear-gradient(135deg, var(--yellow), var(--orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .header p { font-size: 10px; color: #666; margin-top: 4px; letter-spacing: 2px; }
+
+        .main-section { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 1; }
+
+        .power-meter { width: 100%; max-width: 300px; margin-bottom: 24px; }
+        .meter-label { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .meter-bar { height: 20px; background: #1a1a2e; border-radius: 10px; overflow: hidden; position: relative; }
+        .meter-fill { height: 100%; background: linear-gradient(90deg, var(--orange), var(--yellow), var(--red)); border-radius: 10px; transition: width 0.3s; box-shadow: 0 0 20px var(--orange); }
+        .meter-value { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 700; }
+
+        .tap-zone { width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 107, 0, 0.2), transparent); border: 4px solid var(--orange); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.1s; margin-bottom: 20px; box-shadow: 0 0 30px rgba(255, 107, 0, 0.3); }
+        .tap-zone:active { transform: scale(0.95); background: radial-gradient(circle, rgba(255, 107, 0, 0.4), transparent); box-shadow: 0 0 60px rgba(255, 107, 0, 0.6); }
+        .tap-count { font-size: 48px; font-weight: 700; color: var(--orange); }
+        .tap-label { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; }
+
+        .exercises { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+        .exercise-btn { padding: 8px 14px; border-radius: 8px; border: 1px solid #222; background: transparent; color: #666; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+        .exercise-btn:hover { border-color: var(--orange); color: var(--orange); }
+        .exercise-btn.active { background: linear-gradient(135deg, var(--orange), var(--yellow)); border-color: transparent; color: #000; }
+
+        .stats { display: flex; justify-content: center; gap: 24px; margin-bottom: 20px; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--yellow); }
+        .stat-label { font-size: 9px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+
+        .timer-row { display: flex; gap: 16px; align-items: center; justify-content: center; }
+        .timer-display { font-size: 32px; font-weight: 300; color: var(--orange); }
+        .btn { padding: 12px 24px; border-radius: 8px; border: 2px solid var(--orange); background: transparent; color: var(--orange); font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { background: var(--orange); color: #000; box-shadow: 0 0 20px rgba(255, 107, 0, 0.4); }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--orange); color: var(--orange); }
+        .sound-toggle.active { color: var(--orange); border-color: var(--orange); }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+    <div class="flare-bg"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Solar Flare</h1>
+            <p>Explosive Power Training</p>
+        </div>
+
+        <div class="main-section">
+            <div class="exercises">
+                <button class="exercise-btn active" data-ex="Clap Push-ups">CLAP PUSH</button>
+                <button class="exercise-btn" data-ex="Jump Squats">JUMP SQUAT</button>
+                <button class="exercise-btn" data-ex="Box Jumps">BOX JUMP</button>
+                <button class="exercise-btn" data-ex="Explosive Pull">EXPLOSIVE PULL</button>
+            </div>
+
+            <div class="power-meter">
+                <div class="meter-label">Power Output</div>
+                <div class="meter-bar">
+                    <div class="meter-fill" id="meterFill" style="width: 0%"></div>
+                    <span class="meter-value" id="meterValue">0%</span>
+                </div>
+            </div>
+
+            <div class="tap-zone" id="tapZone">
+                <div class="tap-count" id="tapCount">0</div>
+                <div class="tap-label">Reps</div>
+            </div>
+
+            <div class="timer-row">
+                <div class="timer-display" id="timerDisplay">0:30</div>
+                <button class="btn" id="startBtn">START</button>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="bestReps">0</div>
+                    <div class="stat-label">Best</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalFlares">0</div>
+                    <div class="stat-label">Flares</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx = null, soundEnabled = true;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+            if (type === 'tap') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(400, now + 0.05);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'complete') {
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(300 + i * 100, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.3);
+                    }, i * 100);
+                }
+            }
+        }
+
+        let state = { reps: 0, isRunning: false, timeLeft: 30, exercise: 'Clap Push-ups', bestReps: parseInt(localStorage.getItem('flare_best') || '0'), totalFlares: parseInt(localStorage.getItem('flare_total') || '0'), intervalId: null };
+
+        const tapZone = document.getElementById('tapZone');
+        const tapCount = document.getElementById('tapCount');
+        const meterFill = document.getElementById('meterFill');
+        const meterValue = document.getElementById('meterValue');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const startBtn = document.getElementById('startBtn');
+        const bestReps = document.getElementById('bestReps');
+        const totalFlares = document.getElementById('totalFlares');
+        const exerciseBtns = document.querySelectorAll('.exercise-btn');
+        const soundToggle = document.getElementById('soundToggle');
+
+        function updateDisplay() {
+            tapCount.textContent = state.reps;
+            const power = Math.min(100, (state.reps / 20) * 100);
+            meterFill.style.width = power + '%';
+            meterValue.textContent = Math.round(power) + '%';
+            const m = Math.floor(state.timeLeft / 60), s = state.timeLeft % 60;
+            timerDisplay.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+            bestReps.textContent = state.bestReps;
+            totalFlares.textContent = state.totalFlares;
+            startBtn.textContent = state.isRunning ? 'STOP' : 'START';
+        }
+
+        function addRep() {
+            if (!state.isRunning) return;
+            state.reps++;
+            playSound('tap');
+            updateDisplay();
+        }
+
+        function start() {
+            state.isRunning = true;
+            state.reps = 0;
+            state.timeLeft = 30;
+            initAudio();
+            state.intervalId = setInterval(() => {
+                state.timeLeft--;
+                if (state.timeLeft <= 0) complete();
+                updateDisplay();
+            }, 1000);
+            updateDisplay();
+        }
+
+        function stop() {
+            state.isRunning = false;
+            if (state.intervalId) { clearInterval(state.intervalId); state.intervalId = null; }
+            updateDisplay();
+        }
+
+        function complete() {
+            stop();
+            if (state.reps > state.bestReps) {
+                state.bestReps = state.reps;
+                localStorage.setItem('flare_best', state.bestReps);
+            }
+            state.totalFlares++;
+            localStorage.setItem('flare_total', state.totalFlares);
+            playSound('complete');
+            updateDisplay();
+        }
+
+        tapZone.addEventListener('click', addRep);
+        tapZone.addEventListener('touchstart', (e) => { e.preventDefault(); addRep(); });
+        startBtn.addEventListener('click', () => { if (state.isRunning) stop(); else start(); });
+        exerciseBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                exerciseBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.exercise = btn.dataset.ex;
+            });
+        });
+        soundToggle.addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            soundToggle.classList.toggle('active', soundEnabled);
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>

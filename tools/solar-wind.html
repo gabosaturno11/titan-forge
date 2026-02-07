@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOLAR WIND | Cardio Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --orange: #FF6B00; --yellow: #FFD700; --red: #FF3333; --blue: #00D4FF; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow: hidden; }
+
+        .wind-field { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .wind-particle { position: absolute; height: 2px; background: linear-gradient(90deg, transparent, var(--orange), var(--yellow), transparent); animation: windBlow 2s linear infinite; opacity: 0.3; }
+        @keyframes windBlow { 0% { transform: translateX(-100%); } 100% { transform: translateX(calc(100vw + 100%)); } }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+
+        .header { text-align: center; margin-bottom: 16px; }
+        .logo { width: 50px; height: 50px; margin: 0 auto 10px; background: linear-gradient(135deg, var(--orange), var(--yellow)); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(255, 107, 0, 0.5); }
+        .logo-text { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: #000; }
+        .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 3px; background: linear-gradient(135deg, var(--orange), var(--yellow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .header p { font-size: 9px; color: #666; margin-top: 4px; letter-spacing: 2px; }
+
+        .cardio-select { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+        .cardio-btn { padding: 8px 12px; border-radius: 6px; border: 1px solid #333; background: transparent; color: #666; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+        .cardio-btn:hover { border-color: var(--orange); color: var(--orange); }
+        .cardio-btn.active { background: linear-gradient(135deg, var(--orange), var(--yellow)); border-color: transparent; color: #000; }
+
+        .main-display { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        .wind-gauge { width: 200px; height: 200px; position: relative; margin-bottom: 20px; }
+        .gauge-bg { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #1a1a2e; position: relative; overflow: hidden; }
+        .gauge-fill { position: absolute; bottom: 0; width: 100%; background: linear-gradient(to top, var(--orange), var(--yellow)); transition: height 0.5s; }
+        .gauge-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140px; height: 140px; border-radius: 50%; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .gauge-time { font-size: 32px; font-weight: 300; color: var(--orange); }
+        .gauge-label { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; }
+
+        .intensity-display { text-align: center; margin-bottom: 20px; }
+        .intensity-label { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .intensity-value { font-size: 24px; font-weight: 700; color: var(--yellow); }
+        .intensity-bar { display: flex; gap: 4px; justify-content: center; margin-top: 8px; }
+        .intensity-block { width: 20px; height: 8px; border-radius: 2px; background: #222; transition: all 0.3s; }
+        .intensity-block.active { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
+        .intensity-block.high { background: var(--red); box-shadow: 0 0 8px var(--red); }
+
+        .stats-row { display: flex; justify-content: center; gap: 24px; margin-bottom: 20px; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 20px; font-weight: 700; color: var(--blue); }
+        .stat-label { font-size: 9px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+
+        .controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 20px; }
+        .btn { padding: 14px 28px; border-radius: 8px; border: 2px solid var(--orange); background: transparent; color: var(--orange); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { background: var(--orange); color: #000; }
+        .btn.intensity-btn { border-color: var(--yellow); color: var(--yellow); font-size: 10px; padding: 10px 16px; }
+        .btn.intensity-btn:hover { background: var(--yellow); }
+
+        .records { display: flex; justify-content: center; gap: 32px; }
+        .record { text-align: center; }
+        .record-value { font-size: 16px; font-weight: 700; color: var(--orange); }
+        .record-label { font-size: 9px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--orange); color: var(--orange); }
+        .sound-toggle.active { color: var(--orange); border-color: var(--orange); }
+    </style>
+</head>
+<body>
+    <div class="wind-field" id="windField"></div>
+
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Solar Wind</h1>
+            <p>Cardio Tracker</p>
+        </div>
+
+        <div class="cardio-select">
+            <button class="cardio-btn active" data-type="run">RUN</button>
+            <button class="cardio-btn" data-type="bike">BIKE</button>
+            <button class="cardio-btn" data-type="row">ROW</button>
+            <button class="cardio-btn" data-type="jump">JUMP ROPE</button>
+            <button class="cardio-btn" data-type="hiit">HIIT</button>
+        </div>
+
+        <div class="main-display">
+            <div class="wind-gauge">
+                <div class="gauge-bg">
+                    <div class="gauge-fill" id="gaugeFill" style="height: 0%"></div>
+                </div>
+                <div class="gauge-center">
+                    <div class="gauge-time" id="timerDisplay">0:00</div>
+                    <div class="gauge-label">Duration</div>
+                </div>
+            </div>
+
+            <div class="intensity-display">
+                <div class="intensity-label">Wind Speed</div>
+                <div class="intensity-value" id="intensityText">CALM</div>
+                <div class="intensity-bar" id="intensityBar"></div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat">
+                    <div class="stat-value" id="calories">0</div>
+                    <div class="stat-label">Est. Cal</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="intervals">0</div>
+                    <div class="stat-label">Intervals</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="startBtn">START</button>
+            <button class="btn intensity-btn" id="intensityBtn">INTENSITY +</button>
+        </div>
+
+        <div class="records">
+            <div class="record">
+                <div class="record-value" id="longestSession">0:00</div>
+                <div class="record-label">Longest</div>
+            </div>
+            <div class="record">
+                <div class="record-value" id="totalMinutes">0</div>
+                <div class="record-label">Total Min</div>
+            </div>
+            <div class="record">
+                <div class="record-value" id="totalSessions">0</div>
+                <div class="record-label">Sessions</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create wind particles
+        const windField = document.getElementById('windField');
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'wind-particle';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.width = (50 + Math.random() * 100) + 'px';
+            particle.style.animationDuration = (1 + Math.random() * 2) + 's';
+            particle.style.animationDelay = Math.random() * 2 + 's';
+            windField.appendChild(particle);
+            setTimeout(() => particle.remove(), 4000);
+        }
+        setInterval(createParticle, 200);
+
+        let audioCtx = null, soundEnabled = true;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'tick') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, now);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.05);
+            } else if (type === 'intensity') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.15);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.2);
+            } else if (type === 'complete') {
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(300 + i * 100, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.2);
+                    }, i * 100);
+                }
+            }
+        }
+
+        const intensityLevels = ['CALM', 'BREEZE', 'GUST', 'STORM', 'HURRICANE'];
+        const caloriesPerMin = { run: 12, bike: 8, row: 10, jump: 14, hiit: 15 };
+
+        let state = {
+            type: 'run',
+            elapsed: 0,
+            intensity: 0,
+            isRunning: false,
+            intervals: 0,
+            longestSession: parseInt(localStorage.getItem('solarwind_longest') || '0'),
+            totalMinutes: parseInt(localStorage.getItem('solarwind_total') || '0'),
+            totalSessions: parseInt(localStorage.getItem('solarwind_sessions') || '0'),
+            intervalId: null
+        };
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        function renderIntensityBar() {
+            const bar = document.getElementById('intensityBar');
+            bar.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const block = document.createElement('div');
+                block.className = 'intensity-block';
+                if (i <= state.intensity) {
+                    block.classList.add('active');
+                    if (state.intensity >= 3) block.classList.add('high');
+                }
+                bar.appendChild(block);
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('timerDisplay').textContent = formatTime(state.elapsed);
+            document.getElementById('intensityText').textContent = intensityLevels[state.intensity];
+
+            const targetTime = 30 * 60; // 30 min target
+            const fillPercent = Math.min(100, (state.elapsed / targetTime) * 100);
+            document.getElementById('gaugeFill').style.height = fillPercent + '%';
+
+            const calories = Math.round((state.elapsed / 60) * caloriesPerMin[state.type] * (1 + state.intensity * 0.2));
+            document.getElementById('calories').textContent = calories;
+            document.getElementById('intervals').textContent = state.intervals;
+
+            document.getElementById('longestSession').textContent = formatTime(state.longestSession);
+            document.getElementById('totalMinutes').textContent = state.totalMinutes;
+            document.getElementById('totalSessions').textContent = state.totalSessions;
+
+            document.getElementById('startBtn').textContent = state.isRunning ? 'STOP' : 'START';
+
+            renderIntensityBar();
+        }
+
+        function cycleIntensity() {
+            state.intensity = (state.intensity + 1) % 5;
+            state.intervals++;
+            playSound('intensity');
+            updateDisplay();
+        }
+
+        function start() {
+            if (state.isRunning) {
+                stop();
+                return;
+            }
+
+            state.isRunning = true;
+            initAudio();
+
+            state.intervalId = setInterval(() => {
+                state.elapsed++;
+
+                if (state.elapsed % 60 === 0) {
+                    playSound('tick');
+                }
+
+                updateDisplay();
+            }, 1000);
+
+            updateDisplay();
+        }
+
+        function stop() {
+            state.isRunning = false;
+            if (state.intervalId) { clearInterval(state.intervalId); state.intervalId = null; }
+
+            if (state.elapsed > 0) {
+                const minutes = Math.ceil(state.elapsed / 60);
+                state.totalMinutes += minutes;
+                state.totalSessions++;
+
+                if (state.elapsed > state.longestSession) {
+                    state.longestSession = state.elapsed;
+                    localStorage.setItem('solarwind_longest', state.longestSession);
+                }
+
+                localStorage.setItem('solarwind_total', state.totalMinutes);
+                localStorage.setItem('solarwind_sessions', state.totalSessions);
+
+                playSound('complete');
+            }
+
+            state.elapsed = 0;
+            state.intensity = 0;
+            state.intervals = 0;
+            updateDisplay();
+        }
+
+        document.querySelectorAll('.cardio-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.cardio-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.type = btn.dataset.type;
+            });
+        });
+
+        document.getElementById('startBtn').addEventListener('click', start);
+        document.getElementById('intensityBtn').addEventListener('click', cycleIntensity);
+
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>

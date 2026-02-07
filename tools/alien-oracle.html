@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alien Oracle | Saturno Movement</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg-deep: #030308;
+    --text-primary: #e8e6f0;
+    --text-secondary: #9896a8;
+    --text-muted: #5d5b6e;
+    --accent-purple: #8b5cf6;
+    --accent-cyan: #06b6d4;
+    --accent-green: #10b981;
+    --font-display: 'Outfit', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.stars {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--d) ease-in-out infinite;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+.header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    text-align: center;
+    padding: 15px;
+    z-index: 100;
+}
+
+.logo { height: 35px; filter: drop-shadow(0 0 10px rgba(139,92,246,0.3)); }
+
+h1 {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 4px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    text-transform: uppercase;
+}
+
+.oracle-container {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.alien-face {
+    width: 200px;
+    height: 280px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.4));
+}
+
+.alien-face:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 50px rgba(139, 92, 246, 0.6));
+}
+
+.alien-face:active {
+    transform: scale(0.98);
+}
+
+.alien-head {
+    width: 180px;
+    height: 220px;
+    background: linear-gradient(180deg, #2a2a4a 0%, #1a1a2e 50%, #0f0f1a 100%);
+    border-radius: 90px 90px 60px 60px;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow: hidden;
+}
+
+.alien-head::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    height: 60%;
+    background: linear-gradient(180deg, rgba(139, 92, 246, 0.1) 0%, transparent 100%);
+    border-radius: 80px 80px 40px 40px;
+}
+
+.eye-container {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 30px;
+}
+
+.eye {
+    width: 50px;
+    height: 70px;
+    background: linear-gradient(180deg, #000 0%, #1a1a2e 100%);
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid rgba(139, 92, 246, 0.3);
+}
+
+.eye::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 30px;
+    background: radial-gradient(ellipse, #8b5cf6, #6c3aff, #000);
+    border-radius: 50%;
+    animation: eyeGlow 3s ease-in-out infinite;
+}
+
+.eye::after {
+    content: '';
+    position: absolute;
+    top: 30%;
+    left: 30%;
+    width: 8px;
+    height: 12px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 50%;
+}
+
+@keyframes eyeGlow {
+    0%, 100% { box-shadow: 0 0 10px #8b5cf6, 0 0 20px #8b5cf6; }
+    50% { box-shadow: 0 0 20px #8b5cf6, 0 0 40px #8b5cf6, 0 0 60px #6c3aff; }
+}
+
+.alien-chin {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 60px;
+    background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
+    border-radius: 20px 20px 30px 30px;
+}
+
+.quote-bubble {
+    margin-top: 40px;
+    max-width: 400px;
+    min-height: 120px;
+    padding: 25px 30px;
+    background: rgba(20, 20, 40, 0.9);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 20px;
+    text-align: center;
+    position: relative;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+}
+
+.quote-bubble.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.quote-bubble::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid rgba(139, 92, 246, 0.3);
+}
+
+.quote-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+    margin-bottom: 15px;
+}
+
+.quote-category {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--accent-cyan);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.tap-hint {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 20px;
+    opacity: 0.7;
+}
+
+.counter {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.counter span { color: var(--accent-purple); }
+
+.sound-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 8px 15px;
+    border: 1px solid var(--text-muted);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    z-index: 100;
+}
+
+.sound-btn:hover {
+    border-color: var(--accent-purple);
+    color: var(--text-primary);
+}
+
+footer {
+    position: fixed;
+    bottom: 5px;
+    left: 0; right: 0;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.5rem;
+    color: #333;
+}
+
+@media (max-width: 768px) {
+    body { min-height: 100svh; -webkit-tap-highlight-color: transparent; }
+    .header { padding: 12px; }
+    .logo { height: 28px; }
+    h1 { font-size: 0.6rem; letter-spacing: 3px; }
+    .oracle-container { padding: 16px; min-height: 60vh; justify-content: flex-start; padding-top: 80px; }
+    .alien-face { width: 160px; height: 224px; }
+    .alien-head { width: 144px; height: 176px; border-radius: 72px 72px 48px 48px; }
+    .eye-container { top: 48px; gap: 24px; }
+    .eye { width: 40px; height: 56px; }
+    .eye::before { width: 16px; height: 24px; }
+    .alien-chin { width: 32px; height: 48px; bottom: 16px; }
+    .quote-bubble { max-width: calc(100% - 24px); margin: 24px 12px 0; padding: 20px 24px; min-height: 100px; }
+    .quote-text { font-size: 1rem; line-height: 1.5; }
+    .tap-hint { font-size: 0.65rem; margin-top: 16px; }
+    .counter { bottom: 70px; font-size: 0.65rem; }
+    .sound-btn { bottom: 16px; right: 16px; padding: 10px 16px; font-size: 0.6rem; }
+    footer { font-size: 0.45rem; }
+}
+@media (max-width: 480px) {
+    .alien-face { width: 140px; height: 196px; }
+    .alien-head { width: 126px; height: 154px; border-radius: 63px 63px 42px 42px; }
+    .eye-container { top: 40px; gap: 20px; }
+    .eye { width: 34px; height: 48px; }
+    .quote-bubble { padding: 16px 20px; }
+    .quote-text { font-size: 0.95rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<header class="header">
+    <img src="https://raw.githubusercontent.com/gabosaturno11/titan-forge/main/assets/logo-planete-azul.png"
+         alt="Saturno Movement" class="logo" onerror="this.style.display='none'">
+    <h1>Alien Oracle</h1>
+</header>
+
+<div class="oracle-container">
+    <div class="alien-face" id="alien" onclick="getWisdom()">
+        <div class="alien-head">
+            <div class="eye-container">
+                <div class="eye"></div>
+                <div class="eye"></div>
+            </div>
+        </div>
+        <div class="alien-chin"></div>
+    </div>
+
+    <div class="quote-bubble" id="quoteBubble">
+        <div class="quote-text" id="quoteText">Tap the oracle to receive cosmic wisdom...</div>
+        <div class="quote-category" id="quoteCategory">AWAITING</div>
+    </div>
+
+    <div class="tap-hint">TAP THE ORACLE</div>
+</div>
+
+<div class="counter">WISDOM RECEIVED: <span id="counter">0</span></div>
+
+<button class="sound-btn" onclick="toggleSound()">SOUND</button>
+
+<footer>SATURNO MOVEMENT</footer>
+
+<script>
+let audioCtx = null;
+let soundEnabled = true;
+let wisdomCount = 0;
+
+const wisdom = [
+    // TRAINING
+    { text: "Consistency beats intensity. Show up every day, even when motivation fades.", category: "TRAINING" },
+    { text: "Your body adapts to what you repeatedly do. Choose your movements wisely.", category: "TRAINING" },
+    { text: "Progress is not linear. Trust the process through plateaus.", category: "TRAINING" },
+    { text: "The best workout is the one you actually do.", category: "TRAINING" },
+    { text: "Strength is a skill. Practice it with intention.", category: "TRAINING" },
+    { text: "Rest is not weakness. Recovery is where growth happens.", category: "TRAINING" },
+    { text: "Master the basics before chasing the advanced.", category: "TRAINING" },
+    { text: "Your nervous system needs time to adapt. Patience is power.", category: "TRAINING" },
+    { text: "Train movements, not muscles. Your body is one integrated system.", category: "TRAINING" },
+    { text: "Every rep is a chance to refine your technique.", category: "TRAINING" },
+
+    // MINDSET
+    { text: "The obstacle is the way. Embrace the struggle.", category: "MINDSET" },
+    { text: "You are not your thoughts. You are the observer.", category: "MINDSET" },
+    { text: "Discipline is choosing between what you want now and what you want most.", category: "MINDSET" },
+    { text: "Fear is excitement without breath. Breathe into it.", category: "MINDSET" },
+    { text: "Your comfort zone is a beautiful place, but nothing grows there.", category: "MINDSET" },
+    { text: "Compare yourself only to who you were yesterday.", category: "MINDSET" },
+    { text: "The mind quits before the body. Train both.", category: "MINDSET" },
+    { text: "Failure is feedback. Adjust and continue.", category: "MINDSET" },
+    { text: "Action precedes motivation. Start before you feel ready.", category: "MINDSET" },
+    { text: "Your potential is not fixed. It expands with your belief.", category: "MINDSET" },
+
+    // MOVEMENT
+    { text: "Quality of movement determines quality of life.", category: "MOVEMENT" },
+    { text: "Mobility is freedom. Invest in your range of motion.", category: "MOVEMENT" },
+    { text: "Your body craves variety. Explore new movement patterns.", category: "MOVEMENT" },
+    { text: "Tension and relaxation are two sides of the same coin.", category: "MOVEMENT" },
+    { text: "Breath is the bridge between body and mind.", category: "MOVEMENT" },
+    { text: "Move every joint through its full range daily.", category: "MOVEMENT" },
+    { text: "Play is the highest form of movement practice.", category: "MOVEMENT" },
+    { text: "Your body remembers what your mind forgets. Move with awareness.", category: "MOVEMENT" },
+    { text: "Ground yourself. Connection to earth is connection to self.", category: "MOVEMENT" },
+    { text: "Flow states emerge when challenge meets capability.", category: "MOVEMENT" },
+
+    // LIFE
+    { text: "Energy flows where attention goes.", category: "LIFE" },
+    { text: "You become the average of your five closest habits.", category: "LIFE" },
+    { text: "Time is the only non-renewable resource. Spend it wisely.", category: "LIFE" },
+    { text: "Gratitude transforms what you have into enough.", category: "LIFE" },
+    { text: "Your environment shapes you more than willpower.", category: "LIFE" },
+    { text: "Small hinges swing big doors. Focus on the fundamentals.", category: "LIFE" },
+    { text: "The universe rewards action, not intention.", category: "LIFE" },
+    { text: "Sleep is not a luxury. It is the foundation of performance.", category: "LIFE" },
+    { text: "You cannot pour from an empty cup. Fill yourself first.", category: "LIFE" },
+    { text: "Legacy is not what you leave behind, but what you ignite in others.", category: "LIFE" },
+
+    // COSMIC
+    { text: "You are stardust having a human experience.", category: "COSMIC" },
+    { text: "The same atoms that form stars flow through your veins.", category: "COSMIC" },
+    { text: "In the cosmic scale, your problems are specks of dust.", category: "COSMIC" },
+    { text: "The universe is not outside of you. Look inside yourself.", category: "COSMIC" },
+    { text: "Time is an illusion. There is only now.", category: "COSMIC" },
+    { text: "Your consciousness is the universe experiencing itself.", category: "COSMIC" },
+    { text: "Every ending is a new beginning in disguise.", category: "COSMIC" },
+    { text: "You are not a drop in the ocean. You are the entire ocean in a drop.", category: "COSMIC" },
+    { text: "The void is not empty. It is full of potential.", category: "COSMIC" },
+    { text: "Align with the rhythm of the cosmos. Everything has its season.", category: "COSMIC" }
+];
+
+function init() {
+    createStars();
+    loadCount();
+}
+
+function createStars() {
+    const container = document.getElementById('stars');
+    for (let i = 0; i < 150; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.cssText = `
+            left: ${Math.random() * 100}%;
+            top: ${Math.random() * 100}%;
+            width: ${Math.random() * 2 + 1}px;
+            height: ${Math.random() * 2 + 1}px;
+            --d: ${Math.random() * 3 + 2}s;
+            animation-delay: ${Math.random() * 2}s;
+        `;
+        container.appendChild(star);
+    }
+}
+
+function getWisdom() {
+    const quote = wisdom[Math.floor(Math.random() * wisdom.length)];
+
+    document.getElementById('quoteText').textContent = quote.text;
+    document.getElementById('quoteCategory').textContent = quote.category;
+
+    const bubble = document.getElementById('quoteBubble');
+    bubble.classList.remove('visible');
+
+    setTimeout(() => {
+        bubble.classList.add('visible');
+    }, 100);
+
+    wisdomCount++;
+    document.getElementById('counter').textContent = wisdomCount;
+    saveCount();
+
+    if (soundEnabled) playOracleSound();
+}
+
+function saveCount() {
+    localStorage.setItem('alienOracleCount', wisdomCount);
+}
+
+function loadCount() {
+    const saved = localStorage.getItem('alienOracleCount');
+    if (saved) {
+        wisdomCount = parseInt(saved);
+        document.getElementById('counter').textContent = wisdomCount;
+    }
+}
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+}
+
+function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function playOracleSound() {
+    initAudio();
+    const now = audioCtx.currentTime;
+
+    // Alien transmission sound
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
+
+    osc1.type = 'sine';
+    osc2.type = 'triangle';
+
+    osc1.frequency.setValueAtTime(800, now);
+    osc1.frequency.exponentialRampToValueAtTime(400, now + 0.1);
+    osc1.frequency.exponentialRampToValueAtTime(600, now + 0.2);
+
+    osc2.frequency.setValueAtTime(1200, now);
+    osc2.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(1000, now);
+    filter.frequency.exponentialRampToValueAtTime(500, now + 0.3);
+    filter.Q.value = 5;
+
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+    osc1.connect(filter);
+    osc2.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + 0.4);
+    osc2.stop(now + 0.4);
+
+    // Echo blip
+    setTimeout(() => {
+        const blip = audioCtx.createOscillator();
+        const blipGain = audioCtx.createGain();
+        blip.type = 'sine';
+        blip.frequency.setValueAtTime(1200, audioCtx.currentTime);
+        blipGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        blipGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        blip.connect(blipGain);
+        blipGain.connect(audioCtx.destination);
+        blip.start(audioCtx.currentTime);
+        blip.stop(audioCtx.currentTime + 0.1);
+    }, 200);
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PULSAR | Tempo Trainer</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #0a0a0a;
+            --purple: #9D4EDD;
+            --blue: #4361EE;
+            --cyan: #00D4FF;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Pulse Waves Background */
+        .pulse-bg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .pulse-wave {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid var(--purple);
+            border-radius: 50%;
+            opacity: 0;
+        }
+
+        .pulse-wave.active {
+            animation: pulseWave 1.5s ease-out;
+        }
+
+        @keyframes pulseWave {
+            0% {
+                width: 50px;
+                height: 50px;
+                opacity: 0.8;
+            }
+            100% {
+                width: 400px;
+                height: 400px;
+                opacity: 0;
+            }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 10px;
+            background: radial-gradient(circle at 30% 30%, var(--blue), var(--purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(67, 97, 238, 0.4);
+        }
+
+        .logo-text {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+            letter-spacing: 2px;
+        }
+
+        /* Main Section */
+        .main-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Pulsar Core */
+        .pulsar-core {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin-bottom: 32px;
+        }
+
+        .pulsar-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 3px solid var(--purple);
+            border-radius: 50%;
+            opacity: 0.3;
+            transition: all 0.1s;
+        }
+
+        .pulsar-ring:nth-child(1) { width: 100%; height: 100%; }
+        .pulsar-ring:nth-child(2) { width: 80%; height: 80%; border-color: var(--blue); }
+        .pulsar-ring:nth-child(3) { width: 60%; height: 60%; }
+
+        .pulsar-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, var(--purple), var(--blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(157, 78, 221, 0.5);
+            transition: all 0.1s;
+            cursor: pointer;
+        }
+
+        .pulsar-center.pulse {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 0 60px rgba(157, 78, 221, 0.8);
+        }
+
+        .pulsar-center.pulse ~ .pulsar-ring {
+            opacity: 0.8;
+        }
+
+        .bpm-display {
+            text-align: center;
+        }
+
+        .bpm-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .bpm-label {
+            font-size: 8px;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 2px;
+        }
+
+        /* Tempo Display */
+        .tempo-display {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .tempo-format {
+            font-size: 48px;
+            font-weight: 300;
+            letter-spacing: 8px;
+            color: var(--cyan);
+        }
+
+        .tempo-labels {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 8px;
+        }
+
+        .tempo-label {
+            font-size: 9px;
+            color: #666;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            width: 40px;
+            text-align: center;
+        }
+
+        /* Phase Indicator */
+        .phase-indicator {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .phase-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #222;
+            transition: all 0.2s;
+        }
+
+        .phase-dot.active {
+            background: var(--cyan);
+            box-shadow: 0 0 15px var(--cyan);
+        }
+
+        .phase-dot:nth-child(1).active { background: var(--purple); box-shadow: 0 0 15px var(--purple); }
+        .phase-dot:nth-child(2).active { background: var(--blue); box-shadow: 0 0 15px var(--blue); }
+        .phase-dot:nth-child(3).active { background: var(--cyan); box-shadow: 0 0 15px var(--cyan); }
+        .phase-dot:nth-child(4).active { background: #FFD700; box-shadow: 0 0 15px #FFD700; }
+
+        .phase-name {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            color: var(--cyan);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .phase-count {
+            font-size: 11px;
+            color: #666;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            border: 2px solid var(--purple);
+            background: transparent;
+            color: var(--purple);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--purple);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            border-color: #333;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #333;
+            color: #fff;
+            box-shadow: none;
+        }
+
+        /* Tempo Presets */
+        .tempo-presets {
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .presets-title {
+            font-size: 10px;
+            color: #666;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .presets-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .preset-btn {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #222;
+            background: rgba(255,255,255,0.02);
+            color: #888;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+
+        .preset-btn.active {
+            border-color: var(--purple);
+            background: rgba(157, 78, 221, 0.1);
+            color: #fff;
+        }
+
+        .preset-name {
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .preset-tempo {
+            color: var(--cyan);
+            font-size: 12px;
+        }
+
+        /* Custom Tempo Editor */
+        .tempo-editor {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #1a1a2e;
+        }
+
+        .tempo-input-group {
+            text-align: center;
+        }
+
+        .tempo-input-label {
+            font-size: 8px;
+            color: #666;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .tempo-input-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tempo-input-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            background: transparent;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tempo-input-btn:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .tempo-input-value {
+            font-size: 20px;
+            font-weight: 700;
+            min-width: 30px;
+            color: var(--cyan);
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .sound-toggle:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .sound-toggle.active {
+            color: var(--purple);
+            border-color: var(--purple);
+        }
+
+        /* Rep Counter */
+        .rep-counter {
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .rep-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--purple);
+        }
+
+        .rep-label {
+            font-size: 10px;
+            color: #666;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="pulse-bg" id="pulseBg">
+        <div class="pulse-wave" id="pulseWave1"></div>
+        <div class="pulse-wave" id="pulseWave2"></div>
+        <div class="pulse-wave" id="pulseWave3"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-text">SM</span>
+            </div>
+            <h1>Pulsar</h1>
+            <p>Tempo Trainer</p>
+        </div>
+
+        <div class="main-section">
+            <div class="pulsar-core" id="pulsarCore">
+                <div class="pulsar-ring"></div>
+                <div class="pulsar-ring"></div>
+                <div class="pulsar-ring"></div>
+                <div class="pulsar-center" id="pulsarCenter">
+                    <div class="bpm-display">
+                        <div class="bpm-value" id="bpmValue">60</div>
+                        <div class="bpm-label">BPM</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tempo-display">
+                <div class="tempo-format" id="tempoFormat">3-2-3-1</div>
+                <div class="tempo-labels">
+                    <span class="tempo-label">DOWN</span>
+                    <span class="tempo-label">HOLD</span>
+                    <span class="tempo-label">UP</span>
+                    <span class="tempo-label">TOP</span>
+                </div>
+            </div>
+
+            <div class="phase-name" id="phaseName">READY</div>
+            <div class="phase-indicator">
+                <div class="phase-dot" data-phase="0"></div>
+                <div class="phase-dot" data-phase="1"></div>
+                <div class="phase-dot" data-phase="2"></div>
+                <div class="phase-dot" data-phase="3"></div>
+            </div>
+            <div class="phase-count" id="phaseCount">TAP TO START</div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" id="resetBtn">RESET</button>
+                <button class="btn" id="mainBtn">START</button>
+            </div>
+
+            <div class="rep-counter">
+                <div class="rep-value" id="repValue">0</div>
+                <div class="rep-label">REPS COMPLETED</div>
+            </div>
+
+            <div class="tempo-presets">
+                <div class="presets-title">Tempo Presets</div>
+                <div class="presets-grid">
+                    <button class="preset-btn" data-tempo="2-0-2-0">
+                        <div class="preset-name">Standard</div>
+                        <div class="preset-tempo">2-0-2-0</div>
+                    </button>
+                    <button class="preset-btn active" data-tempo="3-2-3-1">
+                        <div class="preset-name">Controlled</div>
+                        <div class="preset-tempo">3-2-3-1</div>
+                    </button>
+                    <button class="preset-btn" data-tempo="4-1-1-0">
+                        <div class="preset-name">Eccentric</div>
+                        <div class="preset-tempo">4-1-1-0</div>
+                    </button>
+                    <button class="preset-btn" data-tempo="1-0-3-1">
+                        <div class="preset-name">Concentric</div>
+                        <div class="preset-tempo">1-0-3-1</div>
+                    </button>
+                    <button class="preset-btn" data-tempo="5-2-1-0">
+                        <div class="preset-name">Negative</div>
+                        <div class="preset-tempo">5-2-1-0</div>
+                    </button>
+                    <button class="preset-btn" data-tempo="1-3-1-3">
+                        <div class="preset-name">Isometric</div>
+                        <div class="preset-tempo">1-3-1-3</div>
+                    </button>
+                </div>
+
+                <div class="tempo-editor">
+                    <div class="tempo-input-group">
+                        <div class="tempo-input-label">Down</div>
+                        <div class="tempo-input-controls">
+                            <button class="tempo-input-btn" data-phase="0" data-delta="-1">-</button>
+                            <span class="tempo-input-value" id="t0">3</span>
+                            <button class="tempo-input-btn" data-phase="0" data-delta="1">+</button>
+                        </div>
+                    </div>
+                    <div class="tempo-input-group">
+                        <div class="tempo-input-label">Hold</div>
+                        <div class="tempo-input-controls">
+                            <button class="tempo-input-btn" data-phase="1" data-delta="-1">-</button>
+                            <span class="tempo-input-value" id="t1">2</span>
+                            <button class="tempo-input-btn" data-phase="1" data-delta="1">+</button>
+                        </div>
+                    </div>
+                    <div class="tempo-input-group">
+                        <div class="tempo-input-label">Up</div>
+                        <div class="tempo-input-controls">
+                            <button class="tempo-input-btn" data-phase="2" data-delta="-1">-</button>
+                            <span class="tempo-input-value" id="t2">3</span>
+                            <button class="tempo-input-btn" data-phase="2" data-delta="1">+</button>
+                        </div>
+                    </div>
+                    <div class="tempo-input-group">
+                        <div class="tempo-input-label">Top</div>
+                        <div class="tempo-input-controls">
+                            <button class="tempo-input-btn" data-phase="3" data-delta="-1">-</button>
+                            <span class="tempo-input-value" id="t3">1</span>
+                            <button class="tempo-input-btn" data-phase="3" data-delta="1">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // AUDIO SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type, phase = 0) {
+            if (!soundEnabled) return;
+            initAudio();
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'tick') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                // Different tones for different phases
+                const freqs = [200, 300, 400, 500]; // Down, Hold, Up, Top
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freqs[phase], now);
+
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.1);
+
+            } else if (type === 'phase') {
+                // Phase transition sound
+                const osc = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'square';
+                osc2.type = 'sine';
+
+                const baseFreq = 150 + phase * 100;
+                osc.frequency.setValueAtTime(baseFreq, now);
+                osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, now + 0.1);
+                osc2.frequency.setValueAtTime(baseFreq * 2, now);
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+                osc.connect(gain);
+                osc2.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc2.start(now);
+                osc.stop(now + 0.15);
+                osc2.stop(now + 0.15);
+
+            } else if (type === 'rep') {
+                // Rep complete - bass drop
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(50, now + 0.3);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(500, now);
+                filter.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.4);
+
+            } else if (type === 'click') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const PHASE_NAMES = ['DOWN', 'HOLD', 'UP', 'TOP'];
+
+        let tempo = [3, 2, 3, 1]; // Down, Hold, Up, Top
+        let state = {
+            isRunning: false,
+            currentPhase: 0,
+            phaseCounter: 0,
+            repCount: 0,
+            intervalId: null,
+            pulseWaveIndex: 0
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DOM ELEMENTS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const pulsarCenter = document.getElementById('pulsarCenter');
+        const bpmValue = document.getElementById('bpmValue');
+        const tempoFormat = document.getElementById('tempoFormat');
+        const phaseName = document.getElementById('phaseName');
+        const phaseCount = document.getElementById('phaseCount');
+        const phaseDots = document.querySelectorAll('.phase-dot');
+        const mainBtn = document.getElementById('mainBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const repValue = document.getElementById('repValue');
+        const soundToggle = document.getElementById('soundToggle');
+        const presetBtns = document.querySelectorAll('.preset-btn');
+        const pulseWaves = [
+            document.getElementById('pulseWave1'),
+            document.getElementById('pulseWave2'),
+            document.getElementById('pulseWave3')
+        ];
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function updateTempoDisplay() {
+            tempoFormat.textContent = tempo.join('-');
+            document.getElementById('t0').textContent = tempo[0];
+            document.getElementById('t1').textContent = tempo[1];
+            document.getElementById('t2').textContent = tempo[2];
+            document.getElementById('t3').textContent = tempo[3];
+
+            // Calculate BPM (beats per total rep cycle)
+            const totalSeconds = tempo.reduce((a, b) => a + b, 0);
+            const bpm = totalSeconds > 0 ? Math.round(60 / totalSeconds) : 0;
+            bpmValue.textContent = bpm;
+        }
+
+        function updatePhaseDisplay() {
+            phaseDots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === state.currentPhase);
+            });
+
+            phaseName.textContent = PHASE_NAMES[state.currentPhase];
+
+            if (tempo[state.currentPhase] > 0) {
+                phaseCount.textContent = `${state.phaseCounter + 1} / ${tempo[state.currentPhase]}`;
+            } else {
+                phaseCount.textContent = 'SKIP';
+            }
+        }
+
+        function triggerPulse() {
+            pulsarCenter.classList.add('pulse');
+            setTimeout(() => pulsarCenter.classList.remove('pulse'), 100);
+
+            // Trigger wave
+            const wave = pulseWaves[state.pulseWaveIndex];
+            wave.classList.remove('active');
+            void wave.offsetWidth;
+            wave.classList.add('active');
+            state.pulseWaveIndex = (state.pulseWaveIndex + 1) % 3;
+        }
+
+        function tick() {
+            if (tempo[state.currentPhase] === 0) {
+                // Skip this phase
+                nextPhase();
+                return;
+            }
+
+            state.phaseCounter++;
+            triggerPulse();
+            playSound('tick', state.currentPhase);
+
+            if (state.phaseCounter >= tempo[state.currentPhase]) {
+                nextPhase();
+            }
+
+            updatePhaseDisplay();
+        }
+
+        function nextPhase() {
+            state.phaseCounter = 0;
+            state.currentPhase++;
+
+            if (state.currentPhase >= 4) {
+                // Completed one rep
+                state.currentPhase = 0;
+                state.repCount++;
+                repValue.textContent = state.repCount;
+                playSound('rep');
+            } else {
+                playSound('phase', state.currentPhase);
+            }
+
+            updatePhaseDisplay();
+        }
+
+        function start() {
+            if (state.isRunning) return;
+
+            state.isRunning = true;
+            mainBtn.textContent = 'PAUSE';
+            initAudio();
+
+            state.intervalId = setInterval(tick, 1000);
+        }
+
+        function pause() {
+            state.isRunning = false;
+            mainBtn.textContent = 'START';
+
+            if (state.intervalId) {
+                clearInterval(state.intervalId);
+                state.intervalId = null;
+            }
+        }
+
+        function reset() {
+            pause();
+            state.currentPhase = 0;
+            state.phaseCounter = 0;
+            state.repCount = 0;
+            repValue.textContent = '0';
+            phaseName.textContent = 'READY';
+            phaseCount.textContent = 'TAP TO START';
+            phaseDots.forEach(dot => dot.classList.remove('active'));
+            playSound('click');
+        }
+
+        function setTempo(newTempo) {
+            tempo = newTempo.split('-').map(Number);
+            updateTempoDisplay();
+
+            // Update active preset
+            presetBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tempo === newTempo);
+            });
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // EVENT LISTENERS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        mainBtn.addEventListener('click', () => {
+            playSound('click');
+            if (state.isRunning) {
+                pause();
+            } else {
+                start();
+            }
+        });
+
+        resetBtn.addEventListener('click', reset);
+
+        pulsarCenter.addEventListener('click', () => {
+            playSound('click');
+            if (state.isRunning) {
+                pause();
+            } else {
+                start();
+            }
+        });
+
+        presetBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                playSound('click');
+                setTempo(btn.dataset.tempo);
+            });
+        });
+
+        document.querySelectorAll('.tempo-input-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                playSound('click');
+                const phase = parseInt(btn.dataset.phase);
+                const delta = parseInt(btn.dataset.delta);
+                tempo[phase] = Math.max(0, Math.min(10, tempo[phase] + delta));
+                updateTempoDisplay();
+
+                // Clear preset selection when manually editing
+                presetBtns.forEach(b => b.classList.remove('active'));
+            });
+        });
+
+        soundToggle.addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            soundToggle.classList.toggle('active', soundEnabled);
+            if (soundEnabled) playSound('click');
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        updateTempoDisplay();
+    </script>
+</body>
+</html>

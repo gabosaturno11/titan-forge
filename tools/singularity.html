@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SINGULARITY | AMRAP Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --purple: #9D4EDD; --blue: #00D4FF; --pink: #FF006E; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow: hidden; }
+
+        .singularity-bg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; height: 400px; pointer-events: none; }
+        .singularity-core { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; background: #000; border-radius: 50%; box-shadow: 0 0 60px 30px rgba(0, 0, 0, 0.8), 0 0 100px 60px rgba(157, 78, 221, 0.3); }
+        .accretion { position: absolute; top: 50%; left: 50%; border-radius: 50%; border: 1px solid; transform: translate(-50%, -50%); animation: accrete 10s linear infinite; }
+        .accretion-1 { width: 100px; height: 100px; border-color: rgba(157, 78, 221, 0.4); animation-duration: 8s; }
+        .accretion-2 { width: 180px; height: 180px; border-color: rgba(0, 212, 255, 0.3); animation-duration: 12s; animation-direction: reverse; }
+        .accretion-3 { width: 280px; height: 280px; border-color: rgba(255, 0, 110, 0.2); animation-duration: 16s; }
+        @keyframes accrete { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+
+        .header { text-align: center; margin-bottom: 16px; }
+        .logo { width: 50px; height: 50px; margin: 0 auto 10px; background: radial-gradient(circle, #000 30%, var(--purple)); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--purple); }
+        .logo-text { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: var(--purple); }
+        .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 3px; background: linear-gradient(135deg, var(--purple), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .header p { font-size: 9px; color: #666; margin-top: 4px; letter-spacing: 2px; }
+
+        .time-select { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+        .time-btn { padding: 10px 16px; border-radius: 6px; border: 1px solid #333; background: transparent; color: #666; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .time-btn:hover { border-color: var(--purple); color: var(--purple); }
+        .time-btn.active { background: var(--purple); border-color: var(--purple); color: #000; }
+
+        .main-display { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        .timer-display { font-size: 64px; font-weight: 300; color: var(--purple); margin-bottom: 8px; text-shadow: 0 0 30px rgba(157, 78, 221, 0.5); }
+        .timer-label { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
+
+        .rounds-display { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; }
+        .round-counter { text-align: center; }
+        .round-value { font-size: 48px; font-weight: 700; color: var(--blue); }
+        .round-label { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; }
+        .round-btn { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--blue); background: transparent; color: var(--blue); font-size: 24px; cursor: pointer; transition: all 0.2s; }
+        .round-btn:hover { background: var(--blue); color: #000; }
+        .round-btn:active { transform: scale(0.95); }
+
+        .exercise-display { background: rgba(157, 78, 221, 0.05); border: 1px solid rgba(157, 78, 221, 0.2); border-radius: 12px; padding: 16px; margin-bottom: 20px; text-align: center; width: 100%; max-width: 300px; }
+        .exercise-label { font-size: 9px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .exercise-name { font-size: 16px; font-weight: 700; color: var(--purple); }
+
+        .exercises-list { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; max-width: 320px; }
+        .ex-chip { padding: 6px 10px; border-radius: 4px; border: 1px solid #333; background: transparent; color: #666; font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+        .ex-chip:hover { border-color: var(--purple); color: var(--purple); }
+        .ex-chip.active { background: var(--purple); border-color: var(--purple); color: #000; }
+
+        .controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 20px; }
+        .btn { padding: 14px 28px; border-radius: 8px; border: 2px solid var(--purple); background: transparent; color: var(--purple); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { background: var(--purple); color: #000; }
+
+        .stats { display: flex; justify-content: center; gap: 32px; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 20px; font-weight: 700; color: var(--pink); }
+        .stat-label { font-size: 9px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--purple); color: var(--purple); }
+        .sound-toggle.active { color: var(--purple); border-color: var(--purple); }
+    </style>
+</head>
+<body>
+    <div class="singularity-bg">
+        <div class="accretion accretion-1"></div>
+        <div class="accretion accretion-2"></div>
+        <div class="accretion accretion-3"></div>
+        <div class="singularity-core"></div>
+    </div>
+
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Singularity</h1>
+            <p>AMRAP Tracker</p>
+        </div>
+
+        <div class="time-select">
+            <button class="time-btn" data-time="5">5 MIN</button>
+            <button class="time-btn active" data-time="10">10 MIN</button>
+            <button class="time-btn" data-time="15">15 MIN</button>
+            <button class="time-btn" data-time="20">20 MIN</button>
+        </div>
+
+        <div class="main-display">
+            <div class="timer-display" id="timerDisplay">10:00</div>
+            <div class="timer-label">Time Remaining</div>
+
+            <div class="rounds-display">
+                <button class="round-btn" id="minusBtn">-</button>
+                <div class="round-counter">
+                    <div class="round-value" id="roundValue">0</div>
+                    <div class="round-label">Rounds</div>
+                </div>
+                <button class="round-btn" id="plusBtn">+</button>
+            </div>
+
+            <div class="exercise-display">
+                <div class="exercise-label">Current Circuit</div>
+                <div class="exercise-name" id="exerciseName">Select exercises below</div>
+            </div>
+
+            <div class="exercises-list" id="exercisesList"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="startBtn">START</button>
+            <button class="btn" id="resetBtn">RESET</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="bestRounds">0</div>
+                <div class="stat-label">Best</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="totalRounds">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx = null, soundEnabled = true;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'round') {
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(200 + i * 150, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.15);
+                    }, i * 60);
+                }
+            } else if (type === 'tick') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.05);
+            } else if (type === 'complete') {
+                for (let i = 0; i < 6; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(150 + i * 100, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.3);
+                    }, i * 100);
+                }
+            } else if (type === 'warning') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.3);
+            }
+        }
+
+        const exerciseOptions = [
+            'Push-ups', 'Squats', 'Burpees', 'Lunges', 'Pull-ups',
+            'Dips', 'Sit-ups', 'Plank', 'Jump Squat', 'Mountain Climbers'
+        ];
+
+        let state = {
+            duration: 10,
+            timeLeft: 600,
+            rounds: 0,
+            isRunning: false,
+            selectedExercises: ['Push-ups', 'Squats', 'Burpees'],
+            bestRounds: JSON.parse(localStorage.getItem('singularity_best') || '{}'),
+            totalRounds: parseInt(localStorage.getItem('singularity_total') || '0'),
+            intervalId: null
+        };
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        function renderExercises() {
+            const list = document.getElementById('exercisesList');
+            list.innerHTML = exerciseOptions.map(ex => `
+                <button class="ex-chip ${state.selectedExercises.includes(ex) ? 'active' : ''}" data-ex="${ex}">${ex}</button>
+            `).join('');
+
+            list.querySelectorAll('.ex-chip').forEach(chip => {
+                chip.addEventListener('click', () => toggleExercise(chip.dataset.ex));
+            });
+        }
+
+        function toggleExercise(ex) {
+            const idx = state.selectedExercises.indexOf(ex);
+            if (idx === -1 && state.selectedExercises.length < 5) {
+                state.selectedExercises.push(ex);
+            } else if (idx !== -1) {
+                state.selectedExercises.splice(idx, 1);
+            }
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('timerDisplay').textContent = formatTime(state.timeLeft);
+            document.getElementById('roundValue').textContent = state.rounds;
+
+            const circuitName = state.selectedExercises.length > 0
+                ? state.selectedExercises.join(' + ')
+                : 'Select exercises below';
+            document.getElementById('exerciseName').textContent = circuitName;
+
+            const bestKey = state.duration + '_' + state.selectedExercises.sort().join('_');
+            const best = state.bestRounds[bestKey] || 0;
+            document.getElementById('bestRounds').textContent = best;
+            document.getElementById('totalRounds').textContent = state.totalRounds;
+
+            document.getElementById('startBtn').textContent = state.isRunning ? 'PAUSE' : 'START';
+
+            renderExercises();
+        }
+
+        function addRound() {
+            state.rounds++;
+            state.totalRounds++;
+            localStorage.setItem('singularity_total', state.totalRounds);
+            playSound('round');
+            updateDisplay();
+        }
+
+        function removeRound() {
+            if (state.rounds > 0) {
+                state.rounds--;
+                updateDisplay();
+            }
+        }
+
+        function start() {
+            if (state.isRunning) {
+                pause();
+                return;
+            }
+
+            if (state.selectedExercises.length === 0) return;
+
+            state.isRunning = true;
+            initAudio();
+
+            state.intervalId = setInterval(() => {
+                state.timeLeft--;
+
+                if (state.timeLeft === 60) playSound('warning');
+                if (state.timeLeft === 30) playSound('warning');
+                if (state.timeLeft === 10) playSound('tick');
+                if (state.timeLeft <= 5 && state.timeLeft > 0) playSound('tick');
+
+                if (state.timeLeft <= 0) {
+                    complete();
+                    return;
+                }
+
+                updateDisplay();
+            }, 1000);
+
+            updateDisplay();
+        }
+
+        function pause() {
+            state.isRunning = false;
+            if (state.intervalId) { clearInterval(state.intervalId); state.intervalId = null; }
+            updateDisplay();
+        }
+
+        function complete() {
+            pause();
+            playSound('complete');
+
+            const bestKey = state.duration + '_' + state.selectedExercises.sort().join('_');
+            if (state.rounds > (state.bestRounds[bestKey] || 0)) {
+                state.bestRounds[bestKey] = state.rounds;
+                localStorage.setItem('singularity_best', JSON.stringify(state.bestRounds));
+            }
+
+            updateDisplay();
+        }
+
+        function reset() {
+            pause();
+            state.timeLeft = state.duration * 60;
+            state.rounds = 0;
+            updateDisplay();
+        }
+
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.duration = parseInt(btn.dataset.time);
+                state.timeLeft = state.duration * 60;
+                state.rounds = 0;
+                if (state.isRunning) pause();
+                updateDisplay();
+            });
+        });
+
+        document.getElementById('plusBtn').addEventListener('click', addRound);
+        document.getElementById('minusBtn').addEventListener('click', removeRound);
+        document.getElementById('startBtn').addEventListener('click', start);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>

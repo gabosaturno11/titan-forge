@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEBULA BREATH | Guided Breathing</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #050508;
+            --purple: #9D4EDD;
+            --blue: #4361EE;
+            --cyan: #00D4FF;
+            --pink: #F72585;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Nebula Background */
+        .nebula-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .nebula-cloud {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: nebulaFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes nebulaFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -20px) scale(1.1); }
+            50% { transform: translate(-20px, 20px) scale(0.9); }
+            75% { transform: translate(20px, 10px) scale(1.05); }
+        }
+
+        /* Stars */
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 10px;
+            background: radial-gradient(circle at 30% 30%, var(--blue), var(--purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(67, 97, 238, 0.4);
+        }
+
+        .logo-text {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+            letter-spacing: 2px;
+        }
+
+        /* Main Section */
+        .main-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Breathing Circle */
+        .breath-container {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin-bottom: 32px;
+        }
+
+        .breath-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 2px solid;
+            opacity: 0.4;
+        }
+
+        .breath-ring:nth-child(1) {
+            width: 100%;
+            height: 100%;
+            border-color: var(--purple);
+        }
+
+        .breath-ring:nth-child(2) {
+            width: 85%;
+            height: 85%;
+            border-color: var(--blue);
+        }
+
+        .breath-ring:nth-child(3) {
+            width: 70%;
+            height: 70%;
+            border-color: var(--cyan);
+        }
+
+        .breath-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, var(--purple), var(--blue), transparent);
+            border-radius: 50%;
+            box-shadow: 0 0 60px rgba(157, 78, 221, 0.5);
+            transition: transform 4s ease-in-out;
+        }
+
+        .breath-core.inhale {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .breath-core.hold {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .breath-core.exhale {
+            transform: translate(-50%, -50%) scale(0.5);
+        }
+
+        .breath-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1;
+        }
+
+        .breath-phase {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .breath-count {
+            font-size: 32px;
+            font-weight: 300;
+        }
+
+        /* Pattern Selector */
+        .patterns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .pattern-btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 1px solid #222;
+            background: transparent;
+            color: #666;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .pattern-btn:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .pattern-btn.active {
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            border-color: transparent;
+            color: #fff;
+        }
+
+        .pattern-info {
+            font-size: 10px;
+            color: #666;
+            text-align: center;
+            margin-bottom: 24px;
+            letter-spacing: 1px;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 8px;
+            border: 2px solid var(--purple);
+            background: transparent;
+            color: var(--purple);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--purple);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-top: 32px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--cyan);
+        }
+
+        .stat-label {
+            font-size: 9px;
+            color: #666;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: rgba(5, 5, 8, 0.9);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .sound-toggle:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .sound-toggle.active {
+            color: var(--purple);
+            border-color: var(--purple);
+        }
+
+        /* Ambient control */
+        .ambient-toggle {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            background: rgba(5, 5, 8, 0.9);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .ambient-toggle:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .ambient-toggle.active {
+            color: var(--cyan);
+            border-color: var(--cyan);
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+    <button class="ambient-toggle active" id="ambientToggle">AMBIENT: ON</button>
+
+    <div class="nebula-container" id="nebulaContainer"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-text">SM</span>
+            </div>
+            <h1>Nebula Breath</h1>
+            <p>Guided Breathing</p>
+        </div>
+
+        <div class="main-section">
+            <div class="breath-container">
+                <div class="breath-ring"></div>
+                <div class="breath-ring"></div>
+                <div class="breath-ring"></div>
+                <div class="breath-core" id="breathCore"></div>
+                <div class="breath-text">
+                    <div class="breath-phase" id="breathPhase">READY</div>
+                    <div class="breath-count" id="breathCount">--</div>
+                </div>
+            </div>
+
+            <div class="patterns">
+                <button class="pattern-btn active" data-pattern="box">BOX 4-4-4-4</button>
+                <button class="pattern-btn" data-pattern="calm">CALM 4-7-8</button>
+                <button class="pattern-btn" data-pattern="energy">ENERGY 6-0-2</button>
+                <button class="pattern-btn" data-pattern="wim">WIM 30-15</button>
+            </div>
+
+            <div class="pattern-info" id="patternInfo">
+                Inhale 4s / Hold 4s / Exhale 4s / Hold 4s
+            </div>
+
+            <div class="controls">
+                <button class="btn" id="mainBtn">START</button>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="cycleCount">0</div>
+                    <div class="stat-label">Cycles</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalTime">0:00</div>
+                    <div class="stat-label">Time</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // NEBULA BACKGROUND
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const nebulaContainer = document.getElementById('nebulaContainer');
+
+        // Create nebula clouds
+        const colors = ['#9D4EDD', '#4361EE', '#F72585', '#00D4FF'];
+        for (let i = 0; i < 6; i++) {
+            const cloud = document.createElement('div');
+            cloud.className = 'nebula-cloud';
+            cloud.style.width = (200 + Math.random() * 300) + 'px';
+            cloud.style.height = (200 + Math.random() * 300) + 'px';
+            cloud.style.left = (Math.random() * 100) + '%';
+            cloud.style.top = (Math.random() * 100) + '%';
+            cloud.style.background = colors[i % colors.length];
+            cloud.style.animationDelay = (Math.random() * 10) + 's';
+            nebulaContainer.appendChild(cloud);
+        }
+
+        // Create stars
+        for (let i = 0; i < 80; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = star.style.height = (Math.random() * 2 + 1) + 'px';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            nebulaContainer.appendChild(star);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // BREATHING PATTERNS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const PATTERNS = {
+            box: {
+                name: 'Box Breathing',
+                phases: [
+                    { name: 'INHALE', duration: 4, action: 'inhale' },
+                    { name: 'HOLD', duration: 4, action: 'hold' },
+                    { name: 'EXHALE', duration: 4, action: 'exhale' },
+                    { name: 'HOLD', duration: 4, action: 'hold' }
+                ],
+                description: 'Inhale 4s / Hold 4s / Exhale 4s / Hold 4s'
+            },
+            calm: {
+                name: '4-7-8 Calm',
+                phases: [
+                    { name: 'INHALE', duration: 4, action: 'inhale' },
+                    { name: 'HOLD', duration: 7, action: 'hold' },
+                    { name: 'EXHALE', duration: 8, action: 'exhale' }
+                ],
+                description: 'Inhale 4s / Hold 7s / Exhale 8s'
+            },
+            energy: {
+                name: 'Energizing',
+                phases: [
+                    { name: 'INHALE', duration: 6, action: 'inhale' },
+                    { name: 'EXHALE', duration: 2, action: 'exhale' }
+                ],
+                description: 'Inhale 6s / Exhale 2s (Power breath)'
+            },
+            wim: {
+                name: 'Wim Hof Style',
+                phases: [
+                    { name: 'BREATHE', duration: 30, action: 'inhale' },
+                    { name: 'HOLD', duration: 15, action: 'hold' }
+                ],
+                description: '30 breaths / Hold 15s'
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // AUDIO SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let audioCtx = null;
+        let soundEnabled = true;
+        let ambientEnabled = true;
+        let ambientOscs = [];
+        let ambientGain = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function startAmbient() {
+            if (!ambientEnabled || ambientOscs.length > 0) return;
+            initAudio();
+
+            ambientGain = audioCtx.createGain();
+            ambientGain.gain.setValueAtTime(0, audioCtx.currentTime);
+            ambientGain.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 2);
+            ambientGain.connect(audioCtx.destination);
+
+            // Deep drone in harmony
+            const freqs = [55, 82.41, 110, 164.81]; // A1, E2, A2, E3
+
+            freqs.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(200, audioCtx.currentTime);
+
+                osc.connect(filter);
+                filter.connect(ambientGain);
+                osc.start();
+
+                ambientOscs.push(osc);
+            });
+        }
+
+        function stopAmbient() {
+            if (ambientGain) {
+                ambientGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
+                setTimeout(() => {
+                    ambientOscs.forEach(osc => osc.stop());
+                    ambientOscs = [];
+                    ambientGain = null;
+                }, 1000);
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'inhale') {
+                // Rising tone
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(400, now + 0.5);
+
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.6);
+
+            } else if (type === 'exhale') {
+                // Falling tone
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(150, now + 0.5);
+
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.6);
+
+            } else if (type === 'hold') {
+                // Soft pulse
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, now);
+
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.2);
+
+            } else if (type === 'cycle') {
+                // Completion chime
+                const osc = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc2.type = 'sine';
+
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc2.frequency.setValueAtTime(659.25, now); // E5
+
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+
+                osc.connect(gain);
+                osc2.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc2.start(now);
+                osc.stop(now + 0.5);
+                osc2.stop(now + 0.5);
+
+            } else if (type === 'click') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let currentPattern = 'box';
+        let state = {
+            isRunning: false,
+            phaseIndex: 0,
+            phaseCount: 0,
+            cycleCount: 0,
+            totalSeconds: 0,
+            intervalId: null
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DOM ELEMENTS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const breathCore = document.getElementById('breathCore');
+        const breathPhase = document.getElementById('breathPhase');
+        const breathCount = document.getElementById('breathCount');
+        const patternInfo = document.getElementById('patternInfo');
+        const mainBtn = document.getElementById('mainBtn');
+        const cycleCountEl = document.getElementById('cycleCount');
+        const totalTimeEl = document.getElementById('totalTime');
+        const patternBtns = document.querySelectorAll('.pattern-btn');
+        const soundToggle = document.getElementById('soundToggle');
+        const ambientToggle = document.getElementById('ambientToggle');
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function setPattern(patternKey) {
+            currentPattern = patternKey;
+            patternInfo.textContent = PATTERNS[patternKey].description;
+
+            patternBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.pattern === patternKey);
+            });
+        }
+
+        function updateDisplay() {
+            cycleCountEl.textContent = state.cycleCount;
+            totalTimeEl.textContent = formatTime(state.totalSeconds);
+            mainBtn.textContent = state.isRunning ? 'STOP' : 'START';
+        }
+
+        function tick() {
+            const pattern = PATTERNS[currentPattern];
+            const phase = pattern.phases[state.phaseIndex];
+
+            state.phaseCount++;
+            state.totalSeconds++;
+
+            breathPhase.textContent = phase.name;
+            breathCount.textContent = phase.duration - state.phaseCount;
+
+            // Apply visual state
+            breathCore.className = 'breath-core ' + phase.action;
+
+            if (state.phaseCount >= phase.duration) {
+                // Move to next phase
+                state.phaseCount = 0;
+                state.phaseIndex++;
+
+                if (state.phaseIndex >= pattern.phases.length) {
+                    // Completed one cycle
+                    state.phaseIndex = 0;
+                    state.cycleCount++;
+                    playSound('cycle');
+                } else {
+                    playSound(pattern.phases[state.phaseIndex].action);
+                }
+            }
+
+            updateDisplay();
+        }
+
+        function start() {
+            if (state.isRunning) return;
+
+            state.isRunning = true;
+            initAudio();
+            startAmbient();
+
+            const pattern = PATTERNS[currentPattern];
+            playSound(pattern.phases[0].action);
+
+            state.intervalId = setInterval(tick, 1000);
+            updateDisplay();
+        }
+
+        function stop() {
+            state.isRunning = false;
+
+            if (state.intervalId) {
+                clearInterval(state.intervalId);
+                state.intervalId = null;
+            }
+
+            stopAmbient();
+
+            state.phaseIndex = 0;
+            state.phaseCount = 0;
+            breathPhase.textContent = 'READY';
+            breathCount.textContent = '--';
+            breathCore.className = 'breath-core';
+
+            updateDisplay();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // EVENT LISTENERS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        mainBtn.addEventListener('click', () => {
+            playSound('click');
+            if (state.isRunning) {
+                stop();
+            } else {
+                start();
+            }
+        });
+
+        patternBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                playSound('click');
+                setPattern(btn.dataset.pattern);
+                if (state.isRunning) {
+                    stop();
+                }
+            });
+        });
+
+        soundToggle.addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            soundToggle.classList.toggle('active', soundEnabled);
+            if (soundEnabled) playSound('click');
+        });
+
+        ambientToggle.addEventListener('click', () => {
+            initAudio();
+            ambientEnabled = !ambientEnabled;
+            ambientToggle.textContent = ambientEnabled ? 'AMBIENT: ON' : 'AMBIENT: OFF';
+            ambientToggle.classList.toggle('active', ambientEnabled);
+
+            if (ambientEnabled && state.isRunning) {
+                startAmbient();
+            } else {
+                stopAmbient();
+            }
+
+            playSound('click');
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        setPattern('box');
+        updateDisplay();
+    </script>
+</body>
+</html>

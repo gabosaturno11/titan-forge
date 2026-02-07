@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>COMET TRAIL | Streak Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --blue: #00D4FF; --purple: #9D4EDD; --cyan: #00FFD4; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+
+        .header { text-align: center; margin-bottom: 24px; }
+        .logo { width: 50px; height: 50px; margin: 0 auto 10px; background: linear-gradient(135deg, var(--cyan), var(--blue)); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .logo-text { font-size: 9px; font-weight: 700; letter-spacing: 1px; }
+        .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 3px; background: linear-gradient(135deg, var(--cyan), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .header p { font-size: 9px; color: #666; margin-top: 4px; letter-spacing: 2px; }
+
+        .streak-display { text-align: center; margin-bottom: 24px; position: relative; }
+        .comet { width: 120px; height: 120px; margin: 0 auto 16px; position: relative; }
+        .comet-head { width: 60px; height: 60px; background: radial-gradient(circle at 30% 30%, #fff, var(--cyan)); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 30px var(--cyan), 0 0 60px var(--blue); z-index: 2; display: flex; align-items: center; justify-content: center; }
+        .comet-number { font-size: 20px; font-weight: 700; color: #000; }
+        .comet-tail { position: absolute; top: 50%; left: 50%; width: 100px; height: 40px; background: linear-gradient(90deg, rgba(0, 255, 212, 0.6), rgba(0, 212, 255, 0.3), transparent); transform: translate(-100%, -50%); border-radius: 0 20px 20px 0; filter: blur(8px); animation: tailPulse 2s ease-in-out infinite; }
+        @keyframes tailPulse { 0%, 100% { opacity: 0.6; width: 100px; } 50% { opacity: 1; width: 120px; } }
+
+        .streak-label { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; }
+        .streak-text { font-size: 14px; color: var(--cyan); margin-top: 4px; }
+
+        .check-in { background: rgba(0, 255, 212, 0.05); border: 1px solid rgba(0, 255, 212, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center; }
+        .check-in-btn { width: 100%; padding: 16px; border-radius: 8px; border: 2px solid var(--cyan); background: transparent; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
+        .check-in-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 30px rgba(0, 255, 212, 0.4); }
+        .check-in-btn.checked { background: var(--cyan); color: #000; pointer-events: none; }
+        .check-in-status { font-size: 10px; color: #666; margin-top: 12px; letter-spacing: 1px; }
+
+        .habits { margin-bottom: 24px; }
+        .habits-title { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+        .habit { display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(255, 255, 255, 0.02); border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
+        .habit:hover { background: rgba(0, 255, 212, 0.05); }
+        .habit-check { width: 24px; height: 24px; border: 2px solid #333; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .habit.done .habit-check { background: var(--cyan); border-color: var(--cyan); }
+        .habit.done .habit-check::after { content: ''; width: 8px; height: 4px; border-left: 2px solid #000; border-bottom: 2px solid #000; transform: rotate(-45deg) translateY(-1px); }
+        .habit-name { flex: 1; font-size: 12px; color: #888; }
+        .habit.done .habit-name { color: var(--cyan); }
+        .habit-streak { font-size: 11px; color: #444; }
+        .habit.done .habit-streak { color: var(--purple); }
+
+        .calendar { margin-bottom: 24px; }
+        .calendar-title { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .calendar-day { aspect-ratio: 1; border-radius: 4px; background: #111; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #333; }
+        .calendar-day.done { background: linear-gradient(135deg, var(--cyan), var(--blue)); color: #000; }
+        .calendar-day.today { border: 1px solid var(--cyan); }
+        .calendar-day.future { background: transparent; border: 1px dashed #222; }
+
+        .stats { display: flex; justify-content: space-around; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--cyan); }
+        .stat-label { font-size: 9px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--cyan); color: var(--cyan); }
+        .sound-toggle.active { color: var(--cyan); border-color: var(--cyan); }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Comet Trail</h1>
+            <p>Streak Tracker</p>
+        </div>
+
+        <div class="streak-display">
+            <div class="comet">
+                <div class="comet-tail"></div>
+                <div class="comet-head">
+                    <span class="comet-number" id="streakNum">0</span>
+                </div>
+            </div>
+            <div class="streak-label">Current Streak</div>
+            <div class="streak-text" id="streakText">Start your journey</div>
+        </div>
+
+        <div class="check-in">
+            <button class="check-in-btn" id="checkInBtn">CHECK IN TODAY</button>
+            <div class="check-in-status" id="checkInStatus"></div>
+        </div>
+
+        <div class="habits">
+            <div class="habits-title">Daily Habits</div>
+            <div id="habitsList"></div>
+        </div>
+
+        <div class="calendar">
+            <div class="calendar-title">Last 28 Days</div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="longestStreak">0</div>
+                <div class="stat-label">Longest</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="totalDays">0</div>
+                <div class="stat-label">Total Days</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx = null, soundEnabled = true;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'check') {
+                [0, 0.08, 0.16].forEach((delay, i) => {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(400 + i * 200, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.2);
+                    }, delay * 1000);
+                });
+            } else if (type === 'habit') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(500, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.15);
+            } else if (type === 'milestone') {
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(200 + i * 100, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.3);
+                    }, i * 100);
+                }
+            }
+        }
+
+        const defaultHabits = [
+            { id: 'train', name: 'Training Session', streak: 0 },
+            { id: 'stretch', name: 'Mobility/Stretch', streak: 0 },
+            { id: 'sleep', name: '7+ Hours Sleep', streak: 0 },
+            { id: 'water', name: 'Hydration Goal', streak: 0 }
+        ];
+
+        function loadState() {
+            const saved = localStorage.getItem('comet_state');
+            if (saved) return JSON.parse(saved);
+            return {
+                streak: 0,
+                longestStreak: 0,
+                totalDays: 0,
+                lastCheckIn: null,
+                checkedDays: [],
+                habits: defaultHabits,
+                todayHabits: []
+            };
+        }
+
+        function saveState() {
+            localStorage.setItem('comet_state', JSON.stringify(state));
+        }
+
+        let state = loadState();
+
+        function getDateStr(date = new Date()) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function isToday(dateStr) {
+            return dateStr === getDateStr();
+        }
+
+        function isYesterday(dateStr) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            return dateStr === getDateStr(yesterday);
+        }
+
+        function checkStreak() {
+            if (!state.lastCheckIn) return;
+            if (!isToday(state.lastCheckIn) && !isYesterday(state.lastCheckIn)) {
+                state.streak = 0;
+            }
+        }
+
+        function getStreakText(streak) {
+            if (streak === 0) return 'Start your journey';
+            if (streak < 7) return 'Building momentum';
+            if (streak < 14) return 'Comet gaining speed';
+            if (streak < 30) return 'Blazing trail';
+            if (streak < 60) return 'Unstoppable force';
+            return 'Legendary streak';
+        }
+
+        function updateDisplay() {
+            checkStreak();
+            document.getElementById('streakNum').textContent = state.streak;
+            document.getElementById('streakText').textContent = getStreakText(state.streak);
+            document.getElementById('longestStreak').textContent = state.longestStreak;
+            document.getElementById('totalDays').textContent = state.totalDays;
+
+            const checkInBtn = document.getElementById('checkInBtn');
+            const today = getDateStr();
+            if (state.checkedDays.includes(today)) {
+                checkInBtn.classList.add('checked');
+                checkInBtn.textContent = 'CHECKED IN';
+                document.getElementById('checkInStatus').textContent = 'Great work today!';
+            } else {
+                checkInBtn.classList.remove('checked');
+                checkInBtn.textContent = 'CHECK IN TODAY';
+                document.getElementById('checkInStatus').textContent = '';
+            }
+
+            renderHabits();
+            renderCalendar();
+            saveState();
+        }
+
+        function checkIn() {
+            const today = getDateStr();
+            if (state.checkedDays.includes(today)) return;
+
+            initAudio();
+            state.checkedDays.push(today);
+
+            if (state.lastCheckIn && isYesterday(state.lastCheckIn)) {
+                state.streak++;
+            } else if (!state.lastCheckIn || !isToday(state.lastCheckIn)) {
+                state.streak = 1;
+            }
+
+            state.lastCheckIn = today;
+            state.totalDays++;
+
+            if (state.streak > state.longestStreak) {
+                state.longestStreak = state.streak;
+                playSound('milestone');
+            } else {
+                playSound('check');
+            }
+
+            state.todayHabits = [];
+            updateDisplay();
+        }
+
+        function renderHabits() {
+            const list = document.getElementById('habitsList');
+            list.innerHTML = '';
+            const today = getDateStr();
+
+            state.habits.forEach(habit => {
+                const isDone = state.todayHabits.includes(habit.id);
+                const div = document.createElement('div');
+                div.className = 'habit' + (isDone ? ' done' : '');
+                div.innerHTML = `
+                    <div class="habit-check"></div>
+                    <div class="habit-name">${habit.name}</div>
+                    <div class="habit-streak">${habit.streak} days</div>
+                `;
+                div.addEventListener('click', () => toggleHabit(habit.id));
+                list.appendChild(div);
+            });
+        }
+
+        function toggleHabit(id) {
+            const idx = state.todayHabits.indexOf(id);
+            if (idx === -1) {
+                state.todayHabits.push(id);
+                const habit = state.habits.find(h => h.id === id);
+                if (habit) habit.streak++;
+                playSound('habit');
+            } else {
+                state.todayHabits.splice(idx, 1);
+                const habit = state.habits.find(h => h.id === id);
+                if (habit && habit.streak > 0) habit.streak--;
+            }
+            updateDisplay();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            grid.innerHTML = '';
+            const today = new Date();
+
+            for (let i = 27; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = getDateStr(date);
+                const day = document.createElement('div');
+                day.className = 'calendar-day';
+                day.textContent = date.getDate();
+
+                if (state.checkedDays.includes(dateStr)) {
+                    day.classList.add('done');
+                }
+                if (i === 0) {
+                    day.classList.add('today');
+                }
+
+                grid.appendChild(day);
+            }
+        }
+
+        document.getElementById('checkInBtn').addEventListener('click', checkIn);
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BIG BANG | Ultimate Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --blue: #00D4FF; --purple: #9D4EDD; --pink: #FF006E; --orange: #FF6B00; --green: #00FF88; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; }
+
+        .explosion-bg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; pointer-events: none; z-index: 0; }
+        .explosion-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); opacity: 0; }
+        .ring-1 { width: 100px; height: 100px; border: 3px solid var(--blue); animation: explode 3s ease-out infinite; }
+        .ring-2 { width: 200px; height: 200px; border: 2px solid var(--purple); animation: explode 3s ease-out infinite 0.3s; }
+        .ring-3 { width: 300px; height: 300px; border: 2px solid var(--pink); animation: explode 3s ease-out infinite 0.6s; }
+        .ring-4 { width: 400px; height: 400px; border: 1px solid var(--orange); animation: explode 3s ease-out infinite 0.9s; }
+        @keyframes explode { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; } }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; position: relative; z-index: 1; }
+
+        .header { text-align: center; margin-bottom: 20px; }
+        .logo { width: 60px; height: 60px; margin: 0 auto 10px; background: radial-gradient(circle at 30% 30%, #fff, var(--purple), var(--pink)); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 40px rgba(157, 78, 221, 0.6); }
+        .logo-text { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: #000; }
+        .header h1 { font-size: 20px; font-weight: 700; letter-spacing: 4px; background: linear-gradient(135deg, var(--blue), var(--purple), var(--pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .header p { font-size: 9px; color: #666; margin-top: 4px; letter-spacing: 2px; }
+
+        .config-section { background: rgba(157, 78, 221, 0.05); border: 1px solid rgba(157, 78, 221, 0.2); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .config-title { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+        .config-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .config-btn { flex: 1; min-width: 70px; padding: 10px 8px; border-radius: 6px; border: 1px solid #333; background: transparent; color: #666; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; text-align: center; }
+        .config-btn:hover { border-color: var(--purple); color: var(--purple); }
+        .config-btn.active { background: linear-gradient(135deg, var(--blue), var(--purple)); border-color: transparent; color: #000; }
+
+        .generate-section { text-align: center; margin-bottom: 20px; }
+        .generate-btn { width: 140px; height: 140px; border-radius: 50%; border: 3px solid var(--purple); background: radial-gradient(circle, rgba(157, 78, 221, 0.2), transparent); color: var(--purple); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
+        .generate-btn:hover { background: radial-gradient(circle, rgba(157, 78, 221, 0.4), transparent); box-shadow: 0 0 40px rgba(157, 78, 221, 0.4); transform: scale(1.05); }
+        .generate-btn:active { transform: scale(0.95); }
+
+        .workout-output { background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 12px; padding: 16px; margin-bottom: 16px; display: none; }
+        .workout-output.visible { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .workout-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .workout-name { font-size: 14px; font-weight: 700; color: var(--blue); letter-spacing: 1px; }
+        .workout-meta { font-size: 10px; color: #666; }
+
+        .workout-phase { margin-bottom: 16px; }
+        .phase-title { font-size: 10px; color: var(--purple); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid rgba(157, 78, 221, 0.2); }
+        .exercise-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .exercise-row:last-child { border-bottom: none; }
+        .ex-name { font-size: 11px; color: #888; }
+        .ex-detail { font-size: 10px; color: var(--blue); }
+
+        .action-row { display: flex; gap: 12px; justify-content: center; }
+        .btn { padding: 12px 24px; border-radius: 8px; border: 2px solid var(--blue); background: transparent; color: var(--blue); font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { background: var(--blue); color: #000; }
+        .btn.save-btn { border-color: var(--green); color: var(--green); }
+        .btn.save-btn:hover { background: var(--green); }
+
+        .stats { display: flex; justify-content: center; gap: 24px; margin-top: 20px; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 20px; font-weight: 700; color: var(--purple); }
+        .stat-label { font-size: 9px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--purple); color: var(--purple); }
+        .sound-toggle.active { color: var(--purple); border-color: var(--purple); }
+    </style>
+</head>
+<body>
+    <div class="explosion-bg">
+        <div class="explosion-ring ring-1"></div>
+        <div class="explosion-ring ring-2"></div>
+        <div class="explosion-ring ring-3"></div>
+        <div class="explosion-ring ring-4"></div>
+    </div>
+
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Big Bang</h1>
+            <p>Ultimate Workout Generator</p>
+        </div>
+
+        <div class="config-section">
+            <div class="config-title">Focus</div>
+            <div class="config-row" id="focusRow">
+                <button class="config-btn active" data-focus="full">FULL BODY</button>
+                <button class="config-btn" data-focus="upper">UPPER</button>
+                <button class="config-btn" data-focus="lower">LOWER</button>
+                <button class="config-btn" data-focus="push">PUSH</button>
+                <button class="config-btn" data-focus="pull">PULL</button>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <div class="config-title">Duration</div>
+            <div class="config-row" id="durationRow">
+                <button class="config-btn" data-duration="15">15 MIN</button>
+                <button class="config-btn active" data-duration="30">30 MIN</button>
+                <button class="config-btn" data-duration="45">45 MIN</button>
+                <button class="config-btn" data-duration="60">60 MIN</button>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <div class="config-title">Intensity</div>
+            <div class="config-row" id="intensityRow">
+                <button class="config-btn" data-intensity="light">LIGHT</button>
+                <button class="config-btn active" data-intensity="moderate">MODERATE</button>
+                <button class="config-btn" data-intensity="intense">INTENSE</button>
+                <button class="config-btn" data-intensity="brutal">BRUTAL</button>
+            </div>
+        </div>
+
+        <div class="generate-section">
+            <button class="generate-btn" id="generateBtn">CREATE<br>UNIVERSE</button>
+        </div>
+
+        <div class="workout-output" id="workoutOutput">
+            <div class="workout-header">
+                <span class="workout-name" id="workoutName">Generated Workout</span>
+                <span class="workout-meta" id="workoutMeta">30 min | Moderate</span>
+            </div>
+            <div id="workoutContent"></div>
+            <div class="action-row">
+                <button class="btn" id="startWorkoutBtn">START</button>
+                <button class="btn save-btn" id="saveBtn">SAVE</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="universesCreated">0</div>
+                <div class="stat-label">Universes</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="workoutsCompleted">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx = null, soundEnabled = true;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'generate') {
+                // Deep rumble
+                const rumble = audioCtx.createOscillator(), rumbleGain = audioCtx.createGain();
+                rumble.type = 'sawtooth';
+                rumble.frequency.setValueAtTime(40, now);
+                rumble.frequency.exponentialRampToValueAtTime(100, now + 0.5);
+                rumbleGain.gain.setValueAtTime(0.3, now);
+                rumbleGain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+                rumble.connect(rumbleGain); rumbleGain.connect(audioCtx.destination);
+                rumble.start(now); rumble.stop(now + 0.8);
+
+                // Rising tone
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(200 + i * 100, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.2);
+                    }, i * 80);
+                }
+
+                // Final explosion
+                setTimeout(() => {
+                    const noise = audioCtx.createBufferSource();
+                    const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.5, audioCtx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < data.length; i++) {
+                        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * 0.1));
+                    }
+                    noise.buffer = buffer;
+                    const noiseGain = audioCtx.createGain();
+                    const filter = audioCtx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(2000, audioCtx.currentTime);
+                    noiseGain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
+                    noise.start();
+                }, 700);
+            } else if (type === 'select') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(500, now);
+                osc.frequency.exponentialRampToValueAtTime(700, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.1);
+            }
+        }
+
+        const exercises = {
+            warmup: ['Jumping Jacks', 'Arm Circles', 'Leg Swings', 'High Knees', 'Torso Twists', 'Hip Circles'],
+            push: ['Push-ups', 'Diamond Push-ups', 'Wide Push-ups', 'Pike Push-ups', 'Decline Push-ups', 'Dips', 'Pseudo Planche Push-ups'],
+            pull: ['Pull-ups', 'Chin-ups', 'Australian Rows', 'Archer Pull-ups', 'Negative Pull-ups', 'Towel Rows'],
+            legs: ['Squats', 'Lunges', 'Jump Squats', 'Bulgarian Split Squat', 'Pistol Squat Prog', 'Calf Raises', 'Glute Bridge'],
+            core: ['Plank', 'Hollow Body', 'L-Sit', 'Dragon Flags', 'Leg Raises', 'Dead Bug', 'Bicycle Crunches'],
+            cardio: ['Burpees', 'Mountain Climbers', 'High Knees', 'Jump Lunges', 'Tuck Jumps', 'Sprint in Place'],
+            cooldown: ['Forward Fold', 'Child\'s Pose', 'Cat-Cow', 'Pigeon', 'Spinal Twist', 'Deep Breathing']
+        };
+
+        const workoutNames = [
+            'Cosmic Crusher', 'Nebula Blaster', 'Galactic Force', 'Stellar Storm', 'Quantum Power',
+            'Solar Surge', 'Void Walker', 'Dark Energy', 'Supernova', 'Event Horizon',
+            'Pulsar Protocol', 'Gravity Wave', 'Asteroid Strike', 'Comet Cascade', 'Orbital Assault'
+        ];
+
+        let config = {
+            focus: 'full',
+            duration: 30,
+            intensity: 'moderate'
+        };
+
+        let stats = {
+            universesCreated: parseInt(localStorage.getItem('bigbang_created') || '0'),
+            workoutsCompleted: parseInt(localStorage.getItem('bigbang_completed') || '0')
+        };
+
+        function getReps(intensity) {
+            const reps = { light: [8, 10], moderate: [10, 15], intense: [15, 20], brutal: [20, 30] };
+            const range = reps[intensity];
+            return Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
+        }
+
+        function getSets(intensity) {
+            const sets = { light: 2, moderate: 3, intense: 4, brutal: 5 };
+            return sets[intensity];
+        }
+
+        function getHoldTime(intensity) {
+            const times = { light: 20, moderate: 30, intense: 45, brutal: 60 };
+            return times[intensity];
+        }
+
+        function shuffle(arr) {
+            const shuffled = [...arr];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function generateWorkout() {
+            playSound('generate');
+            initAudio();
+
+            const workout = { name: workoutNames[Math.floor(Math.random() * workoutNames.length)], phases: [] };
+
+            // Warmup (always)
+            const warmupExs = shuffle(exercises.warmup).slice(0, 3);
+            workout.phases.push({
+                name: 'Warmup',
+                exercises: warmupExs.map(e => ({ name: e, detail: '30 sec' }))
+            });
+
+            // Main workout based on focus
+            let mainExs = [];
+            const numExercises = config.duration <= 15 ? 4 : config.duration <= 30 ? 6 : config.duration <= 45 ? 8 : 10;
+            const sets = getSets(config.intensity);
+
+            if (config.focus === 'full') {
+                mainExs = [
+                    ...shuffle(exercises.push).slice(0, 2),
+                    ...shuffle(exercises.pull).slice(0, 2),
+                    ...shuffle(exercises.legs).slice(0, 2),
+                    ...shuffle(exercises.core).slice(0, 2)
+                ].slice(0, numExercises);
+            } else if (config.focus === 'upper') {
+                mainExs = [
+                    ...shuffle(exercises.push).slice(0, 3),
+                    ...shuffle(exercises.pull).slice(0, 3),
+                    ...shuffle(exercises.core).slice(0, 2)
+                ].slice(0, numExercises);
+            } else if (config.focus === 'lower') {
+                mainExs = [
+                    ...shuffle(exercises.legs).slice(0, 5),
+                    ...shuffle(exercises.core).slice(0, 3)
+                ].slice(0, numExercises);
+            } else if (config.focus === 'push') {
+                mainExs = [
+                    ...shuffle(exercises.push).slice(0, 5),
+                    ...shuffle(exercises.core).slice(0, 2)
+                ].slice(0, numExercises);
+            } else if (config.focus === 'pull') {
+                mainExs = [
+                    ...shuffle(exercises.pull).slice(0, 5),
+                    ...shuffle(exercises.core).slice(0, 2)
+                ].slice(0, numExercises);
+            }
+
+            workout.phases.push({
+                name: 'Main Circuit',
+                exercises: mainExs.map(e => {
+                    const isHold = ['Plank', 'L-Sit', 'Hollow Body'].includes(e);
+                    return {
+                        name: e,
+                        detail: isHold ? `${sets}x ${getHoldTime(config.intensity)}s` : `${sets}x${getReps(config.intensity)}`
+                    };
+                })
+            });
+
+            // Cardio finisher for intense/brutal
+            if (config.intensity === 'intense' || config.intensity === 'brutal') {
+                const cardioExs = shuffle(exercises.cardio).slice(0, 3);
+                workout.phases.push({
+                    name: 'Finisher',
+                    exercises: cardioExs.map(e => ({ name: e, detail: '45 sec' }))
+                });
+            }
+
+            // Cooldown
+            const cooldownExs = shuffle(exercises.cooldown).slice(0, 3);
+            workout.phases.push({
+                name: 'Cooldown',
+                exercises: cooldownExs.map(e => ({ name: e, detail: '45 sec' }))
+            });
+
+            displayWorkout(workout);
+
+            stats.universesCreated++;
+            localStorage.setItem('bigbang_created', stats.universesCreated);
+            updateStats();
+        }
+
+        function displayWorkout(workout) {
+            document.getElementById('workoutName').textContent = workout.name;
+            document.getElementById('workoutMeta').textContent = `${config.duration} min | ${config.intensity}`;
+
+            const content = document.getElementById('workoutContent');
+            content.innerHTML = workout.phases.map(phase => `
+                <div class="workout-phase">
+                    <div class="phase-title">${phase.name}</div>
+                    ${phase.exercises.map(ex => `
+                        <div class="exercise-row">
+                            <span class="ex-name">${ex.name}</span>
+                            <span class="ex-detail">${ex.detail}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+
+            document.getElementById('workoutOutput').classList.add('visible');
+        }
+
+        function updateStats() {
+            document.getElementById('universesCreated').textContent = stats.universesCreated;
+            document.getElementById('workoutsCompleted').textContent = stats.workoutsCompleted;
+        }
+
+        // Config button handlers
+        document.querySelectorAll('#focusRow .config-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#focusRow .config-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                config.focus = btn.dataset.focus;
+                playSound('select');
+            });
+        });
+
+        document.querySelectorAll('#durationRow .config-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#durationRow .config-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                config.duration = parseInt(btn.dataset.duration);
+                playSound('select');
+            });
+        });
+
+        document.querySelectorAll('#intensityRow .config-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#intensityRow .config-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                config.intensity = btn.dataset.intensity;
+                playSound('select');
+            });
+        });
+
+        document.getElementById('generateBtn').addEventListener('click', generateWorkout);
+
+        document.getElementById('startWorkoutBtn').addEventListener('click', () => {
+            alert('Workout started! Track your progress.');
+            stats.workoutsCompleted++;
+            localStorage.setItem('bigbang_completed', stats.workoutsCompleted);
+            updateStats();
+        });
+
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            alert('Workout saved to your collection!');
+        });
+
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
+        });
+
+        updateStats();
+    </script>
+</body>
+</html>

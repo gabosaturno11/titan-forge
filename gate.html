@@ -2,153 +2,398 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SATURNO VAULT — ACCESS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SATURNO VAULT — ENTER</title>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg-primary: #050505;
-      --bg-secondary: #080808;
-      --border: #27272a;
-      --border-hover: #ffffff;
+      --bg-deep: #030308;
+      --purple-glow: #8b5cf6;
+      --blue-glow: #3b82f6;
+      --cyan-accent: #06b6d4;
       --text-primary: #ffffff;
       --text-secondary: #a1a1aa;
       --text-muted: #52525b;
-      --accent-amber: #f59e0b;
     }
 
     body {
       font-family: 'JetBrains Mono', monospace;
-      background: var(--bg-primary);
+      background: var(--bg-deep);
       color: var(--text-primary);
       min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Animated star field */
+    .stars {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle var(--duration, 3s) ease-in-out infinite;
+      opacity: 0;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.5); }
+    }
+
+    /* Cosmic nebula gradients */
+    .nebula {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.4;
+      pointer-events: none;
+      z-index: 1;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .nebula-1 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--purple-glow), transparent);
+      top: -20%;
+      left: -10%;
+      animation-delay: 0s;
+    }
+
+    .nebula-2 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--blue-glow), transparent);
+      bottom: -15%;
+      right: -10%;
+      animation-delay: -10s;
+    }
+
+    .nebula-3 {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, var(--cyan-accent), transparent);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.2;
+      animation-delay: -5s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(20px, -20px) scale(1.05); }
+      50% { transform: translate(-10px, 10px) scale(0.95); }
+      75% { transform: translate(-20px, -10px) scale(1.02); }
+    }
+
+    /* Warp lines rushing past */
+    .warp-container {
+      position: fixed;
+      inset: 0;
+      perspective: 500px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .warp-line {
+      position: absolute;
+      width: 2px;
+      height: 100px;
+      background: linear-gradient(to bottom, transparent, rgba(139, 92, 246, 0.8), transparent);
+      animation: warp 3s linear infinite;
+      opacity: 0;
+    }
+
+    @keyframes warp {
+      0% { transform: translateZ(-500px) translateY(-100%); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateZ(200px) translateY(100vh); opacity: 0; }
+    }
+
+    /* Main gate container */
+    .gate-container {
+      position: relative;
+      z-index: 10;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      text-align: center;
       padding: 24px;
     }
 
-    .gate-card {
-      border-left: 2px solid var(--border);
-      padding: 32px 40px;
-      max-width: 420px;
-      width: 100%;
-      background: var(--bg-secondary);
-      transition: border-color 0.2s;
+    /* Logo */
+    .logo {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 24px;
+      filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.6));
+      animation: logoPulse 4s ease-in-out infinite;
     }
 
-    .gate-card:hover {
-      border-left-color: var(--border-hover);
+    @keyframes logoPulse {
+      0%, 100% { filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.6)); transform: scale(1); }
+      50% { filter: drop-shadow(0 0 50px rgba(59, 130, 246, 0.8)); transform: scale(1.05); }
+    }
+
+    /* Gate card */
+    .gate-card {
+      background: rgba(5, 5, 10, 0.8);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      padding: 40px 48px;
+      max-width: 420px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gate-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--purple-glow), var(--blue-glow), transparent);
     }
 
     .gate-label {
       font-size: 9px;
       text-transform: uppercase;
-      letter-spacing: 0.2em;
-      color: var(--text-muted);
+      letter-spacing: 0.3em;
+      color: var(--purple-glow);
       margin-bottom: 16px;
     }
 
     .gate-title {
-      font-size: 24px;
+      font-size: 28px;
       font-weight: 800;
       font-style: italic;
       letter-spacing: -0.02em;
       margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--text-primary), var(--purple-glow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .gate-desc {
       font-size: 12px;
       color: var(--text-secondary);
-      margin-bottom: 24px;
-      line-height: 1.5;
+      margin-bottom: 32px;
+      line-height: 1.6;
     }
 
     .gate-form input {
       width: 100%;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      padding: 14px 18px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      padding: 16px 20px;
       color: var(--text-primary);
       font-family: 'JetBrains Mono', monospace;
       font-size: 14px;
       margin-bottom: 16px;
       outline: none;
-      transition: border-color 0.2s;
+      transition: all 0.3s;
+      text-align: center;
+      letter-spacing: 0.2em;
+    }
+
+    .gate-form input::placeholder {
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
     }
 
     .gate-form input:focus {
-      border-color: var(--border-hover);
+      border-color: var(--purple-glow);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
     }
 
     .gate-form button {
       width: 100%;
-      background: var(--text-primary);
-      color: var(--bg-primary);
+      background: linear-gradient(135deg, var(--purple-glow), var(--blue-glow));
+      color: var(--text-primary);
       border: none;
-      padding: 14px;
+      padding: 16px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.15em;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
     }
 
-    .gate-form button:hover {
-      background: var(--text-secondary);
+    .gate-form button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--blue-glow), var(--cyan-accent));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .gate-form button:hover::before {
+      opacity: 1;
+    }
+
+    .gate-form button span {
+      position: relative;
+      z-index: 1;
     }
 
     .gate-error {
       font-size: 11px;
       color: #ef4444;
-      margin-top: 12px;
+      margin-top: 16px;
       display: none;
+      text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
     }
 
     .gate-error.show {
       display: block;
     }
+
+    /* Footer hint */
+    .gate-footer {
+      margin-top: 32px;
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+    }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+      .logo { width: 80px; height: 80px; }
+      .gate-card { padding: 32px 24px; }
+      .gate-title { font-size: 22px; }
+      .nebula-1, .nebula-2 { width: 300px; height: 300px; }
+    }
   </style>
 </head>
 <body>
-  <div class="gate-card">
-    <p class="gate-label">01 / VAULT ACCESS</p>
-    <h1 class="gate-title">SATURNO VAULT</h1>
-    <p class="gate-desc">Enter your access code to continue.</p>
-    <form class="gate-form" id="gateForm">
-      <input type="password" id="gatePassword" placeholder="PASSWORD" autocomplete="off" autofocus>
-      <button type="submit">ENTER</button>
-    </form>
-    <div class="gate-error" id="gateError">Invalid password.</div>
+  <!-- Stars -->
+  <div class="stars" id="stars"></div>
+
+  <!-- Nebula gradients -->
+  <div class="nebula nebula-1"></div>
+  <div class="nebula nebula-2"></div>
+  <div class="nebula nebula-3"></div>
+
+  <!-- Warp speed lines -->
+  <div class="warp-container" id="warpContainer"></div>
+
+  <!-- Gate -->
+  <div class="gate-container">
+    <img src="planet-logo.png" alt="Saturno" class="logo">
+
+    <div class="gate-card">
+      <p class="gate-label">Entering the Vault</p>
+      <h1 class="gate-title">SATURNO VAULT</h1>
+      <p class="gate-desc">Your access code unlocks the movement universe.</p>
+
+      <form class="gate-form" id="gateForm">
+        <input type="password" id="gatePassword" placeholder="ACCESS CODE" autocomplete="off" autofocus>
+        <button type="submit"><span>INITIATE ENTRY</span></button>
+      </form>
+
+      <div class="gate-error" id="gateError">Access denied. Invalid code.</div>
+    </div>
+
+    <p class="gate-footer">Saturno Movement</p>
   </div>
 
   <script>
+    // Create stars
+    const starsContainer = document.getElementById('stars');
+    for (let i = 0; i < 150; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.setProperty('--duration', (2 + Math.random() * 4) + 's');
+      star.style.animationDelay = Math.random() * 3 + 's';
+      star.style.width = (1 + Math.random() * 2) + 'px';
+      star.style.height = star.style.width;
+      starsContainer.appendChild(star);
+    }
+
+    // Create warp lines
+    const warpContainer = document.getElementById('warpContainer');
+    for (let i = 0; i < 20; i++) {
+      const line = document.createElement('div');
+      line.className = 'warp-line';
+      line.style.left = Math.random() * 100 + '%';
+      line.style.animationDelay = Math.random() * 3 + 's';
+      line.style.animationDuration = (2 + Math.random() * 2) + 's';
+      warpContainer.appendChild(line);
+    }
+
+    // Form submission
     document.getElementById('gateForm').onsubmit = async (e) => {
       e.preventDefault();
       const input = document.getElementById('gatePassword');
       const err = document.getElementById('gateError');
+      const btn = document.querySelector('.gate-form button');
+
       err.classList.remove('show');
+      btn.innerHTML = '<span>VERIFYING...</span>';
 
-      const res = await fetch('/api/verify', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: input.value }),
-      });
+      try {
+        const res = await fetch('/api/verify', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: input.value }),
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (data.ok) {
-        window.location.replace('/bonus.html');
-      } else {
-        err.classList.add('show');
-        input.value = '';
-        input.focus();
+        if (data.ok) {
+          btn.innerHTML = '<span>ACCESS GRANTED</span>';
+          btn.style.background = 'linear-gradient(135deg, #22c55e, #06b6d4)';
+
+          // Brief delay for visual feedback
+          setTimeout(() => {
+            window.location.replace('/bonus.html');
+          }, 500);
+        } else {
+          err.classList.add('show');
+          btn.innerHTML = '<span>INITIATE ENTRY</span>';
+          input.value = '';
+          input.focus();
+        }
+      } catch (error) {
+        // Fallback for non-Vercel (GitHub Pages) - client-side check
+        if (input.value === 'saturno2025') {
+          localStorage.setItem('vault_auth', 'granted');
+          btn.innerHTML = '<span>ACCESS GRANTED</span>';
+          btn.style.background = 'linear-gradient(135deg, #22c55e, #06b6d4)';
+          setTimeout(() => {
+            window.location.replace('/bonus.html');
+          }, 500);
+        } else {
+          err.classList.add('show');
+          btn.innerHTML = '<span>INITIATE ENTRY</span>';
+          input.value = '';
+          input.focus();
+        }
       }
     };
   </script>

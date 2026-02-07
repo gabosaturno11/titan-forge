@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ASTEROID BELT | Circuit Training</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --blue: #00D4FF; --purple: #9D4EDD; --orange: #FF6B00; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+
+        .header { text-align: center; margin-bottom: 16px; }
+        .logo { width: 50px; height: 50px; margin: 0 auto 10px; background: linear-gradient(135deg, var(--blue), var(--purple)); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .logo-text { font-size: 9px; font-weight: 700; letter-spacing: 1px; }
+        .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 3px; background: linear-gradient(135deg, var(--blue), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .header p { font-size: 9px; color: #666; margin-top: 4px; letter-spacing: 2px; }
+
+        .orbit-container { position: relative; width: 280px; height: 280px; margin: 0 auto 20px; }
+        .sun { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: radial-gradient(circle at 30% 30%, #FFD700, var(--orange)); border-radius: 50%; box-shadow: 0 0 40px rgba(255, 107, 0, 0.6); display: flex; align-items: center; justify-content: center; flex-direction: column; z-index: 10; }
+        .sun-label { font-size: 8px; color: #000; font-weight: 700; letter-spacing: 1px; }
+        .sun-round { font-size: 18px; color: #000; font-weight: 700; }
+
+        .orbit { position: absolute; top: 50%; left: 50%; border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 50%; transform: translate(-50%, -50%); }
+        .orbit-1 { width: 140px; height: 140px; }
+        .orbit-2 { width: 200px; height: 200px; }
+        .orbit-3 { width: 260px; height: 260px; }
+
+        .asteroid { position: absolute; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; font-size: 10px; font-weight: 700; background: #1a1a2e; border: 2px solid #333; }
+        .asteroid:hover { transform: scale(1.1); }
+        .asteroid.active { border-color: var(--blue); box-shadow: 0 0 20px rgba(0, 212, 255, 0.4); background: rgba(0, 212, 255, 0.1); }
+        .asteroid.done { border-color: var(--purple); background: var(--purple); color: #000; }
+
+        .current-exercise { background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center; min-height: 100px; }
+        .current-label { font-size: 9px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .current-name { font-size: 20px; font-weight: 700; color: var(--blue); margin-bottom: 8px; }
+        .current-reps { font-size: 14px; color: #888; }
+
+        .timer-display { font-size: 48px; font-weight: 300; text-align: center; color: var(--purple); margin-bottom: 16px; }
+
+        .controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; }
+        .btn { padding: 12px 24px; border-radius: 8px; border: 2px solid var(--blue); background: transparent; color: var(--blue); font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { background: var(--blue); color: #000; }
+        .btn.done-btn { border-color: var(--purple); color: var(--purple); }
+        .btn.done-btn:hover { background: var(--purple); color: #000; }
+
+        .circuit-select { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+        .circuit-btn { padding: 8px 12px; border-radius: 6px; border: 1px solid #333; background: transparent; color: #666; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+        .circuit-btn:hover { border-color: var(--blue); color: var(--blue); }
+        .circuit-btn.active { background: linear-gradient(135deg, var(--blue), var(--purple)); border-color: transparent; color: #000; }
+
+        .stats { display: flex; justify-content: center; gap: 32px; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--blue); }
+        .stat-label { font-size: 9px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--blue); color: var(--blue); }
+        .sound-toggle.active { color: var(--blue); border-color: var(--blue); }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Asteroid Belt</h1>
+            <p>Circuit Training Orbit</p>
+        </div>
+
+        <div class="circuit-select" id="circuitSelect">
+            <button class="circuit-btn active" data-circuit="upper">UPPER</button>
+            <button class="circuit-btn" data-circuit="lower">LOWER</button>
+            <button class="circuit-btn" data-circuit="core">CORE</button>
+            <button class="circuit-btn" data-circuit="full">FULL BODY</button>
+        </div>
+
+        <div class="orbit-container" id="orbitContainer">
+            <div class="orbit orbit-1"></div>
+            <div class="orbit orbit-2"></div>
+            <div class="orbit orbit-3"></div>
+            <div class="sun">
+                <div class="sun-label">ROUND</div>
+                <div class="sun-round" id="roundNum">1</div>
+            </div>
+        </div>
+
+        <div class="current-exercise">
+            <div class="current-label">Current Exercise</div>
+            <div class="current-name" id="currentName">Select to Start</div>
+            <div class="current-reps" id="currentReps"></div>
+        </div>
+
+        <div class="timer-display" id="timerDisplay">0:00</div>
+
+        <div class="controls">
+            <button class="btn" id="startBtn">START</button>
+            <button class="btn done-btn" id="doneBtn">DONE</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="totalRounds">0</div>
+                <div class="stat-label">Total Rounds</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="totalTime">0:00</div>
+                <div class="stat-label">Total Time</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx = null, soundEnabled = true;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'select') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(900, now + 0.1);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.15);
+            } else if (type === 'complete') {
+                [0, 0.1, 0.2].forEach((delay, i) => {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(200 + i * 150, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.2);
+                    }, delay * 1000);
+                });
+            } else if (type === 'round') {
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(300 + i * 100, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.15);
+                    }, i * 80);
+                }
+            }
+        }
+
+        const circuits = {
+            upper: [
+                { name: 'Push-ups', reps: '10 reps' },
+                { name: 'Dips', reps: '8 reps' },
+                { name: 'Pike Push-ups', reps: '8 reps' },
+                { name: 'Diamond Push-ups', reps: '8 reps' },
+                { name: 'Pull-ups', reps: '5 reps' },
+                { name: 'Chin-ups', reps: '5 reps' }
+            ],
+            lower: [
+                { name: 'Squats', reps: '15 reps' },
+                { name: 'Lunges', reps: '10 each' },
+                { name: 'Jump Squats', reps: '10 reps' },
+                { name: 'Calf Raises', reps: '20 reps' },
+                { name: 'Step-ups', reps: '10 each' },
+                { name: 'Glute Bridge', reps: '15 reps' }
+            ],
+            core: [
+                { name: 'Plank', reps: '30 sec' },
+                { name: 'Crunches', reps: '20 reps' },
+                { name: 'Leg Raises', reps: '12 reps' },
+                { name: 'Mountain Climbers', reps: '20 reps' },
+                { name: 'Russian Twists', reps: '20 reps' },
+                { name: 'Dead Bug', reps: '10 each' }
+            ],
+            full: [
+                { name: 'Burpees', reps: '8 reps' },
+                { name: 'Push-ups', reps: '10 reps' },
+                { name: 'Squats', reps: '15 reps' },
+                { name: 'Plank', reps: '30 sec' },
+                { name: 'Lunges', reps: '10 each' },
+                { name: 'Pull-ups', reps: '5 reps' }
+            ]
+        };
+
+        let state = {
+            circuit: 'upper',
+            currentIdx: 0,
+            round: 1,
+            isRunning: false,
+            elapsed: 0,
+            totalElapsed: 0,
+            completed: [],
+            totalRounds: parseInt(localStorage.getItem('asteroid_rounds') || '0'),
+            intervalId: null
+        };
+
+        const orbitContainer = document.getElementById('orbitContainer');
+        const currentName = document.getElementById('currentName');
+        const currentReps = document.getElementById('currentReps');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const roundNum = document.getElementById('roundNum');
+        const startBtn = document.getElementById('startBtn');
+        const doneBtn = document.getElementById('doneBtn');
+        const totalRoundsEl = document.getElementById('totalRounds');
+        const totalTimeEl = document.getElementById('totalTime');
+        const soundToggle = document.getElementById('soundToggle');
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        function createAsteroids() {
+            document.querySelectorAll('.asteroid').forEach(a => a.remove());
+            const exercises = circuits[state.circuit];
+            const radius = 110;
+
+            exercises.forEach((ex, i) => {
+                const angle = (i / exercises.length) * Math.PI * 2 - Math.PI / 2;
+                const x = 140 + Math.cos(angle) * radius;
+                const y = 140 + Math.sin(angle) * radius;
+
+                const asteroid = document.createElement('div');
+                asteroid.className = 'asteroid';
+                asteroid.textContent = i + 1;
+                asteroid.style.left = (x - 20) + 'px';
+                asteroid.style.top = (y - 20) + 'px';
+                asteroid.dataset.idx = i;
+
+                if (state.completed.includes(i)) asteroid.classList.add('done');
+                if (i === state.currentIdx) asteroid.classList.add('active');
+
+                asteroid.addEventListener('click', () => selectExercise(i));
+                orbitContainer.appendChild(asteroid);
+            });
+        }
+
+        function selectExercise(idx) {
+            state.currentIdx = idx;
+            playSound('select');
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            const exercises = circuits[state.circuit];
+            const current = exercises[state.currentIdx];
+
+            currentName.textContent = current.name;
+            currentReps.textContent = current.reps;
+            timerDisplay.textContent = formatTime(state.elapsed);
+            roundNum.textContent = state.round;
+            totalRoundsEl.textContent = state.totalRounds;
+            totalTimeEl.textContent = formatTime(state.totalElapsed);
+            startBtn.textContent = state.isRunning ? 'PAUSE' : 'START';
+
+            document.querySelectorAll('.asteroid').forEach((a, i) => {
+                a.classList.remove('active');
+                if (state.completed.includes(i)) a.classList.add('done');
+                if (i === state.currentIdx) a.classList.add('active');
+            });
+        }
+
+        function completeExercise() {
+            if (!state.completed.includes(state.currentIdx)) {
+                state.completed.push(state.currentIdx);
+                playSound('complete');
+            }
+
+            const exercises = circuits[state.circuit];
+            if (state.completed.length === exercises.length) {
+                state.round++;
+                state.totalRounds++;
+                localStorage.setItem('asteroid_rounds', state.totalRounds);
+                state.completed = [];
+                state.currentIdx = 0;
+                playSound('round');
+            } else {
+                let next = (state.currentIdx + 1) % exercises.length;
+                while (state.completed.includes(next)) {
+                    next = (next + 1) % exercises.length;
+                }
+                state.currentIdx = next;
+            }
+
+            createAsteroids();
+            updateDisplay();
+        }
+
+        function toggleTimer() {
+            if (state.isRunning) {
+                state.isRunning = false;
+                if (state.intervalId) { clearInterval(state.intervalId); state.intervalId = null; }
+            } else {
+                state.isRunning = true;
+                initAudio();
+                state.intervalId = setInterval(() => {
+                    state.elapsed++;
+                    state.totalElapsed++;
+                    updateDisplay();
+                }, 1000);
+            }
+            updateDisplay();
+        }
+
+        document.querySelectorAll('.circuit-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.circuit-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.circuit = btn.dataset.circuit;
+                state.currentIdx = 0;
+                state.completed = [];
+                state.round = 1;
+                state.elapsed = 0;
+                createAsteroids();
+                updateDisplay();
+            });
+        });
+
+        startBtn.addEventListener('click', toggleTimer);
+        doneBtn.addEventListener('click', completeExercise);
+
+        soundToggle.addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            soundToggle.classList.toggle('active', soundEnabled);
+        });
+
+        createAsteroids();
+        updateDisplay();
+    </script>
+</body>
+</html>

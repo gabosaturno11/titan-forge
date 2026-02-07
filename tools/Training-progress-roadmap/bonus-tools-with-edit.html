@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SATURNO — Bonus Vault Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #000000;
+    --bg-mid: #0a0a0a;
+    --bg-card: #111111;
+    --bg-hover: #1a1a1a;
+    --border: #222222;
+    --border-hover: #333333;
+    --text-primary: #ffffff;
+    --text-secondary: #888888;
+    --text-muted: #555555;
+    --accent: #6c3aff;
+    --accent-dim: #6c3aff80;
+    --accent-subtle: #6c3aff20;
+    --success: #00ff00;
+    --warning: #ffff00;
+    --danger: #ff0000;
+    --font-display: 'JetBrains Mono', monospace;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ═══ EDIT MODE ═══ */
+  .edit-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0.3;
+  }
+
+  .edit-dot:hover {
+    background: var(--accent);
+    opacity: 1;
+    transform: scale(1.5);
+  }
+
+  .edit-dot.active {
+    background: var(--accent);
+    opacity: 1;
+    box-shadow: 0 0 0 2px var(--accent-subtle);
+  }
+
+  .editable {
+    outline: none;
+    border-bottom: 1px solid transparent;
+    transition: border-bottom 0.2s ease;
+  }
+
+  .editable:hover {
+    border-bottom-color: var(--border-hover);
+  }
+
+  .editable:focus {
+    border-bottom-color: var(--accent);
+  }
+
+  .edit-mode .editable {
+    cursor: text;
+  }
+
+  .edit-mode .editable::after {
+    content: ' ✎';
+    font-size: 10px;
+    color: var(--accent);
+    opacity: 0.6;
+  }
+
+  /* ═══ MINIMAL BACKGROUND ═══ */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-mid) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ═══ HEADER ═══ */
+  .header {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 48px 24px 32px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #0a0a0f 0%, #111118 100%);
+  }
+
+  .header-badge {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .header h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 400;
+    letter-spacing: -1px;
+    color: var(--text-primary);
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0px;
+  }
+
+  /* ═══ TOOL NAVIGATION ═══ */
+  .tool-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 16px 16px;
+    background: var(--bg-deep);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    flex-wrap: wrap;
+  }
+
+  .tool-tab {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    padding: 12px 0;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    margin: 0 24px;
+  }
+
+  .tool-tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--accent);
+    transition: width 0.2s ease;
+  }
+
+  .tool-tab:hover {
+    color: var(--text-primary);
+  }
+
+  .tool-tab:hover::after {
+    width: 100%;
+  }
+
+  .tool-tab.active {
+    color: var(--accent);
+  }
+
+  .tool-tab.active::after {
+    width: 100%;
+  }
+
+  /* ═══ TOOL PANELS ═══ */
+  .tool-panel {
+    display: none;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+    position: relative;
+    z-index: 5;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .tool-panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  .panel-subtitle {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  /* ═══ MINIMAL SECTIONS ═══ */
+  .section {
+    border-top: 1px solid var(--border);
+    padding: 32px 0;
+    margin-bottom: 16px;
+  }
+
+  .section:hover {
+    border-top-color: var(--border-hover);
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  /* ═══ TOOL 1: WORKOUT TIMER ═══ */
+  .timer-display {
+    text-align: center;
+    padding: 40px 0;
+  }
+
+  .timer-time {
+    font-family: var(--font-mono);
+    font-size: clamp(4rem, 15vw, 8rem);
+    font-weight: 700;
+    letter-spacing: -2px;
+    color: var(--text-primary);
+    line-height: 1;
+    transition: color 0.3s ease;
+  }
+
+  .timer-time.rest { color: var(--success); }
+  .timer-time.work { color: var(--accent); }
+  .timer-time.warning { color: var(--warning); animation: pulse 0.5s infinite; }
+  .timer-time.done { color: var(--success); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .timer-phase {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 16px;
+  }
+
+  .timer-round {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent-purple);
+    margin-top: 8px;
+  }
+
+  .timer-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    margin-top: 24px;
+    overflow: hidden;
+  }
+
+  .timer-progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s linear;
+    width: 0%;
+  }
+
+  .timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+
+  .timer-presets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .preset-btn {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 16px 0;
+    border: none;
+    border-bottom: 1px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+  }
+
+  .preset-btn:hover { 
+    color: var(--text-primary);
+    border-bottom-color: var(--border-hover);
+  }
+  
+  .preset-btn.selected { 
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .preset-name { display: block; font-weight: 600; margin-bottom: 4px; color: var(--text-primary); }
+  .preset-detail { font-size: 10px; color: var(--text-muted); }
+
+  /* ═══ BUTTONS ═══ */
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    padding: 12px 24px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+  }
+
+  .btn-primary {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-primary:hover { 
+    background: var(--accent);
+    color: var(--bg-deep);
+  }
+
+  .btn-secondary:hover { 
+    border-color: var(--accent); 
+    color: var(--text-primary); 
+  }
+
+  .btn-danger {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+
+  .btn-danger:hover { 
+    background: var(--danger);
+    color: var(--bg-deep);
+  }
+
+  .btn:disabled { 
+    opacity: 0.3; 
+    cursor: not-allowed; 
+  }
+
+  /* ═══ SETTINGS GRID ═══ */
+  .settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .setting-item {
+    text-align: center;
+    background: var(--bg-mid);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 12px;
+  }
+
+  .setting-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .setting-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .setting-value button {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .setting-value button:hover { border-color: var(--accent-purple); }
+
+  .setting-value span {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 700;
+    min-width: 40px;
+  }
+
+  /* ═══ TOOL 2: SKILL TREE ═══ */
+  .skill-track {
+    margin-bottom: 24px;
+  }
+
+  .track-header {
+    margin-bottom: 16px;
+  }
+
+  .track-name {
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: -0.3px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .track-level-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .skill-nodes {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .skill-node {
+    flex-shrink: 0;
+    width: 140px;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    padding: 12px 8px;
+    transition: all 0.3s ease;
+  }
+
+  .skill-node:hover { 
+    background: var(--bg-hover); 
+  }
+
+  .skill-node::after {
+    content: '';
+    position: absolute;
+    top: 28px;
+    right: -1px;
+    width: calc(100% - 60px);
+    height: 1px;
+    background: var(--border);
+  }
+
+  .skill-node:last-child::after { display: none; }
+
+  .skill-node.completed::after { background: var(--success); }
+
+  .node-indicator {
+    width: 24px;
+    height: 24px;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skill-node.completed .node-indicator {
+    border-bottom-color: var(--success);
+    color: var(--success);
+  }
+
+  .skill-node.current .node-indicator {
+    border-bottom-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .skill-node.locked .node-indicator {
+    opacity: 0.4;
+  }
+
+  .node-name {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+  }
+
+  .skill-node.locked .node-name { color: var(--text-muted); }
+
+  .node-desc {
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* ═══ TOOL 3: ASSESSMENT ═══ */
+  .assessment-question {
+    animation: fadeIn 0.5s ease;
+  }
+
+  .question-number {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent-purple);
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .question-text {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    line-height: 1.4;
+  }
+
+  .answer-options {
+    display: grid;
+    gap: 10px;
+  }
+
+  .answer-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: left;
+    font-family: var(--font-display);
+    font-size: 15px;
+  }
+
+  .answer-btn:hover {
+    border-color: var(--accent-purple);
+    background: var(--bg-hover);
+    transform: translateX(4px);
+  }
+
+  .answer-btn.selected {
+    border-color: var(--accent-violet);
+    background: #6c3aff15;
+  }
+
+  .answer-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background: var(--bg-mid);
+    flex-shrink: 0;
+  }
+
+  .progress-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+
+  .progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s ease;
+  }
+
+  .progress-dot.active { background: var(--accent-purple); box-shadow: 0 0 8px #8b5cf660; }
+  .progress-dot.done { background: var(--accent-green); }
+
+  /* ═══ RESULTS ═══ */
+  .result-card {
+    background: linear-gradient(135deg, #6c3aff10, #d946ef10);
+    border: 1px solid var(--accent-violet);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    text-align: center;
+    animation: fadeIn 0.6s ease;
+  }
+
+  .result-level {
+    font-size: 3rem;
+    margin-bottom: 8px;
+  }
+
+  .result-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .result-desc {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 0 auto 24px;
+  }
+
+  .rec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    text-align: left;
+    margin-top: 20px;
+  }
+
+  .rec-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+
+  .rec-item h4 {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .rec-item p {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ═══ TOOL 4: TRAINING LOG ═══ */
+  .log-date {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent-purple);
+    margin-bottom: 16px;
+  }
+
+  .exercise-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--bg-mid);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .exercise-row:hover { border-color: var(--border-glow); }
+
+  .exercise-name {
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .exercise-cat {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .sets-container {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .set-pill {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .set-pill:hover { border-color: var(--accent-purple); }
+  .set-pill.logged { border-color: var(--accent-green); color: var(--accent-green); background: #10b98110; }
+
+  .add-set-btn {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    border: 1px dashed var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .add-set-btn:hover { border-color: var(--accent-purple); color: var(--text-primary); }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 16px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .stat-num {
+    font-family: var(--font-mono);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent-purple);
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ═══ FOOTER ═══ */
+  .footer {
+    text-align: center;
+    padding: 40px 20px;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 5;
+  }
+
+  .footer-logo {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-primary);
+  }
+
+  .footer p {
+    color: var(--text-muted);
+    font-size: 11px;
+    margin-top: 8px;
+    font-family: var(--font-mono);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ═══ RESPONSIVE ═══ */
+  @media (max-width: 600px) {
+    .tool-tab { padding: 8px 14px; font-size: 11px; }
+    .timer-time { font-size: 4rem; }
+    .settings-grid { grid-template-columns: 1fr 1fr; }
+    .timer-presets { grid-template-columns: 1fr 1fr; }
+    .card { padding: 18px; }
+    .btn { padding: 12px 20px; font-size: 12px; }
+  }
+
+  /* ═══ AUDIO BEEP (visual only, uses Web Audio) ═══ */
+  .screen-flash {
+    position: fixed;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 999;
+    transition: opacity 0.15s ease;
+  }
+
+  .screen-flash.active {
+    opacity: 0.08;
+  }
+</style>
+</head>
+<body>
+
+<div class="screen-flash" id="screenFlash"></div>
+
+<!-- ═══ HEADER ═══ -->
+<header class="header">
+  <div style="position: absolute; top: 16px; right: 16px;">
+    <div class="edit-dot" onclick="toggleEditMode()" title="Edit Mode"></div>
+  </div>
+  <div class="header-badge">SATURNO BONUS VAULT</div>
+  <h1>Interactive Tools</h1>
+  <p>Training • Progress • Evolution</p>
+</header>
+
+<!-- ═══ NAVIGATION ═══ -->
+<nav class="tool-nav">
+  <button class="tool-tab active" onclick="switchTool('timer')">Timer</button>
+  <button class="tool-tab" onclick="switchTool('skills')">Skills</button>
+  <button class="tool-tab" onclick="switchTool('assess')">Assessment</button>
+  <button class="tool-tab" onclick="switchTool('log')">Log</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TOOL 1: WORKOUT TIMER                      -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="tool-panel active" id="panel-timer">
+  <h2 class="panel-title">Workout Timer</h2>
+  <p class="panel-subtitle">EMOM, Tabata, intervals, or custom</p>
+
+  <div class="section">
+    <span class="section-label">Presets</span>
+    <div class="timer-presets">
+      <button class="preset-btn selected" onclick="selectPreset('tabata')">
+        <span class="preset-name">Tabata</span>
+        <span class="preset-detail">20s work / 10s rest × 8</span>
+      </button>
+      <button class="preset-btn" onclick="selectPreset('emom')">
+        <span class="preset-name">EMOM</span>
+        <span class="preset-detail">60s intervals × 10</span>
+      </button>
+      <button class="preset-btn" onclick="selectPreset('skill')">
+        <span class="preset-name">Skill Work</span>
+        <span class="preset-detail">45s work / 90s rest × 5</span>
+      </button>
+      <button class="preset-btn" onclick="selectPreset('endurance')">
+        <span class="preset-name">Endurance</span>
+        <span class="preset-detail">60s work / 30s rest × 12</span>
+      </button>
+      <button class="preset-btn" onclick="selectPreset('custom')">
+        <span class="preset-name">Custom</span>
+        <span class="preset-detail">Set your own</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-label">Settings</span>
+    <div class="settings-grid">
+      <div class="setting-item">
+        <div class="setting-label">Work (s)</div>
+        <div class="setting-value">
+          <button onclick="adjustSetting('work', -5)">−</button>
+          <span id="setting-work">20</span>
+          <button onclick="adjustSetting('work', 5)">+</button>
+        </div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-label">Rest (s)</div>
+        <div class="setting-value">
+          <button onclick="adjustSetting('rest', -5)">−</button>
+          <span id="setting-rest">10</span>
+          <button onclick="adjustSetting('rest', 5)">+</button>
+        </div>
+      </div>
+      <div class="setting-item">
+        <div class="setting-label">Rounds</div>
+        <div class="setting-value">
+          <button onclick="adjustSetting('rounds', -1)">−</button>
+          <span id="setting-rounds">8</span>
+          <button onclick="adjustSetting('rounds', 1)">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <span class="section-label">Custom Audio</span>
+    <div style="margin-bottom: 12px;">
+      <input type="file" id="audioUpload" accept="audio/*" style="display: none;" onchange="handleAudioUpload(event)">
+      <button class="btn btn-secondary" onclick="document.getElementById('audioUpload').click()">Upload Completion Sound</button>
+      <button class="btn btn-secondary" onclick="testCustomAudio()" id="testAudioBtn" disabled>Test Audio</button>
+    </div>
+    <div id="audioStatus" style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);"></div>
+  </div>
+
+  <div class="section">
+    <div class="timer-display">
+      <div class="timer-time" id="timerDisplay">00:20</div>
+      <div class="timer-phase" id="timerPhase">READY</div>
+      <div class="timer-round" id="timerRound"></div>
+      <div class="timer-progress-bar">
+        <div class="timer-progress-fill" id="timerProgress"></div>
+      </div>
+    </div>
+    <div class="timer-controls">
+      <button class="btn btn-primary" id="btnStart" onclick="startTimer()">Start</button>
+      <button class="btn btn-secondary" id="btnPause" onclick="pauseTimer()" disabled>Pause</button>
+      <button class="btn btn-danger" id="btnReset" onclick="resetTimer()">Reset</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TOOL 2: SKILL PROGRESSION TREE             -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="tool-panel" id="panel-skills">
+  <h2 class="panel-title">Skill Progression Tree</h2>
+  <p class="panel-subtitle">Tap any skill to mark progress. Your journey is unique.</p>
+
+  <div id="skillTreeContainer"></div>
+
+  <div class="card" style="margin-top: 24px; text-align: center;">
+    <div class="card-label">Progress Summary</div>
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-num" id="skillsCompleted">0</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="skillsInProgress">0</div>
+        <div class="stat-label">In Progress</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="skillsLocked">0</div>
+        <div class="stat-label">Locked</div>
+      </div>
+    </div>
+    <button class="btn btn-secondary" onclick="resetSkillTree()">↺ Reset All Progress</button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TOOL 3: MOVEMENT ASSESSMENT                -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="tool-panel" id="panel-assess">
+  <h2 class="panel-title">Movement Assessment</h2>
+  <p class="panel-subtitle">Discover your level and get a personalized training path.</p>
+
+  <div id="assessmentContainer"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TOOL 4: TRAINING LOG                       -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="tool-panel" id="panel-log">
+  <h2 class="panel-title">Training Log</h2>
+  <p class="panel-subtitle">Track your sets. See your volume. Watch yourself grow.</p>
+
+  <div class="stats-bar" id="logStats">
+    <div class="stat-item">
+      <div class="stat-num" id="totalSets">0</div>
+      <div class="stat-label">Sets Today</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="totalReps">0</div>
+      <div class="stat-label">Total Reps</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="totalExercises">0</div>
+      <div class="stat-label">Exercises</div>
+    </div>
+  </div>
+
+  <div class="log-date" id="logDate"></div>
+  <div id="logContainer"></div>
+
+  <div style="text-align: center; margin-top: 20px;">
+    <button class="btn btn-primary" onclick="addExercise()">+ Add Exercise</button>
+    <button class="btn btn-gold" onclick="exportLog()" style="margin-left: 8px;">↓ Export Log</button>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer">
+  <div class="footer-logo">SATURNO MOVEMENT</div>
+  <p>Bonus Vault Tools</p>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════
+// EDIT MODE
+// ═══════════════════════════════════════════
+let editMode = false;
+let editData = JSON.parse(localStorage.getItem('saturno_edit_data') || '{}');
+
+function toggleEditMode() {
+  const password = prompt('Enter password to enable edit mode:');
+  if (password !== 'saturno2026') {
+    if (password) alert('Incorrect password');
+    return;
+  }
+  
+  editMode = !editMode;
+  const dot = document.querySelector('.edit-dot');
+  const body = document.body;
+  
+  if (editMode) {
+    dot.classList.add('active');
+    body.classList.add('edit-mode');
+    makeElementsEditable();
+    beep(800, 0.1, 0.2);
+  } else {
+    dot.classList.remove('active');
+    body.classList.remove('edit-mode');
+    removeEditability();
+    saveEditData();
+    beep(600, 0.1, 0.2);
+  }
+}
+
+function makeElementsEditable() {
+  // Skill names
+  document.querySelectorAll('.node-name, .track-name').forEach(el => {
+    el.contentEditable = true;
+    el.classList.add('editable');
+    el.addEventListener('blur', saveEditData);
+  });
+  
+  // Exercise names in log
+  document.querySelectorAll('.exercise-name').forEach(el => {
+    el.contentEditable = true;
+    el.classList.add('editable');
+    el.addEventListener('blur', saveEditData);
+  });
+  
+  // Panel titles and descriptions
+  document.querySelectorAll('.panel-title, .panel-subtitle').forEach(el => {
+    el.contentEditable = true;
+    el.classList.add('editable');
+    el.addEventListener('blur', saveEditData);
+  });
+  
+  // Header elements
+  document.querySelectorAll('.header h1, .header p').forEach(el => {
+    el.contentEditable = true;
+    el.classList.add('editable');
+    el.addEventListener('blur', saveEditData);
+  });
+}
+
+function removeEditability() {
+  document.querySelectorAll('.editable').forEach(el => {
+    el.contentEditable = false;
+    el.classList.remove('editable');
+    el.removeEventListener('blur', saveEditData);
+  });
+}
+
+function saveEditData() {
+  if (!editMode) return;
+  
+  // Save all editable content
+  const data = {};
+  document.querySelectorAll('[contenteditable="true"]').forEach((el, i) => {
+    data['element_' + i] = {
+      content: el.textContent,
+      class: el.className,
+      tag: el.tagName
+    };
+  });
+  
+  editData = data;
+  localStorage.setItem('saturno_edit_data', JSON.stringify(editData));
+  beep(900, 0.05, 0.1); // Quick save beep
+}
+
+function loadEditData() {
+  // This would restore previous edits - implement if needed
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function switchTool(tool) {
+  document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tool-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + tool).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+// AUDIO ENGINE (Web Audio API + Custom Sounds)
+// ═══════════════════════════════════════════
+let audioCtx;
+let customAudio = {};
+
+// Initialize custom audio files
+function initCustomAudio() {
+  // Load your Early_rise.wav file
+  customAudio.earlyRise = new Audio('./Early_rise.wav');
+  customAudio.earlyRise.preload = 'auto';
+  customAudio.earlyRise.volume = 0.7;
+  
+  // Set audio status when loaded
+  customAudio.earlyRise.addEventListener('loadeddata', () => {
+    const status = document.getElementById('audioStatus');
+    if (status) {
+      status.textContent = 'Loaded: Early_rise.wav (custom completion sound)';
+      document.getElementById('testAudioBtn').disabled = false;
+    }
+  });
+  
+  // You can add more custom audio files here
+  // customAudio.success = new Audio('./success.wav');
+  // customAudio.warning = new Audio('./warning.wav');
+}
+
+function initAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  initCustomAudio();
+}
+
+function beep(freq = 800, duration = 0.15, volume = 0.3) {
+  initAudio();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.frequency.value = freq;
+  osc.type = 'sine';
+  gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
+}
+
+function playCustomSound(soundName) {
+  if (customAudio[soundName]) {
+    customAudio[soundName].currentTime = 0;
+    customAudio[soundName].volume = 0.5;
+    customAudio[soundName].play().catch(e => console.log('Audio play failed:', e));
+  }
+}
+
+function flash() {
+  const el = document.getElementById('screenFlash');
+  el.classList.add('active');
+  setTimeout(() => el.classList.remove('active'), 150);
+}
+
+function handleAudioUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const url = URL.createObjectURL(file);
+  customAudio.earlyRise.src = url;
+  customAudio.earlyRise.load();
+  
+  document.getElementById('testAudioBtn').disabled = false;
+  document.getElementById('audioStatus').textContent = `Loaded: ${file.name} (${(file.size / 1024).toFixed(1)}kb)`;
+  
+  beep(700, 0.1, 0.2);
+}
+
+function testCustomAudio() {
+  playCustomSound('earlyRise');
+}
+
+// ═══════════════════════════════════════════
+// TOOL 1: WORKOUT TIMER
+// ═══════════════════════════════════════════
+let timerState = {
+  work: 20, rest: 10, rounds: 8,
+  currentTime: 20, currentRound: 1,
+  phase: 'ready', // ready, work, rest, done
+  interval: null, running: false, totalPhaseTime: 20
+};
+
+const presets = {
+  tabata:    { work: 20, rest: 10, rounds: 8 },
+  emom:      { work: 60, rest: 0,  rounds: 10 },
+  skill:     { work: 45, rest: 90, rounds: 5 },
+  endurance: { work: 60, rest: 30, rounds: 12 },
+  custom:    { work: 30, rest: 30, rounds: 6 }
+};
+
+function selectPreset(name) {
+  if (timerState.running) return;
+  const p = presets[name];
+  timerState.work = p.work;
+  timerState.rest = p.rest;
+  timerState.rounds = p.rounds;
+  document.getElementById('setting-work').textContent = p.work;
+  document.getElementById('setting-rest').textContent = p.rest;
+  document.getElementById('setting-rounds').textContent = p.rounds;
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('selected'));
+  event.target.closest('.preset-btn').classList.add('selected');
+  resetTimer();
+}
+
+function adjustSetting(key, delta) {
+  if (timerState.running) return;
+  timerState[key] = Math.max(key === 'rounds' ? 1 : 0, timerState[key] + delta);
+  document.getElementById('setting-' + key).textContent = timerState[key];
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('selected'));
+  resetTimer();
+}
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+function updateTimerDisplay() {
+  const display = document.getElementById('timerDisplay');
+  const phase = document.getElementById('timerPhase');
+  const round = document.getElementById('timerRound');
+  const progress = document.getElementById('timerProgress');
+
+  display.textContent = formatTime(timerState.currentTime);
+  display.className = 'timer-time';
+
+  if (timerState.phase === 'work') {
+    display.classList.add(timerState.currentTime <= 3 ? 'warning' : 'work');
+    phase.textContent = '🔥 WORK';
+  } else if (timerState.phase === 'rest') {
+    display.classList.add(timerState.currentTime <= 3 ? 'warning' : 'rest');
+    phase.textContent = '💨 REST';
+  } else if (timerState.phase === 'done') {
+    display.classList.add('done');
+    phase.textContent = '🏆 COMPLETE';
+  } else {
+    phase.textContent = 'READY';
+  }
+
+  if (timerState.phase !== 'ready' && timerState.phase !== 'done') {
+    round.textContent = 'Round ' + timerState.currentRound + ' / ' + timerState.rounds;
+  } else if (timerState.phase === 'done') {
+    round.textContent = 'All ' + timerState.rounds + ' rounds done!';
+  } else {
+    round.textContent = '';
+  }
+
+  // Progress
+  const elapsed = timerState.totalPhaseTime - timerState.currentTime;
+  const pct = timerState.totalPhaseTime > 0 ? (elapsed / timerState.totalPhaseTime) * 100 : 0;
+  progress.style.width = pct + '%';
+}
+
+function startTimer() {
+  initAudio();
+  if (timerState.phase === 'ready' || timerState.phase === 'done') {
+    timerState.currentRound = 1;
+    timerState.phase = 'work';
+    timerState.currentTime = timerState.work;
+    timerState.totalPhaseTime = timerState.work;
+    beep(600, 0.3, 0.4);
+  }
+  timerState.running = true;
+  document.getElementById('btnStart').disabled = true;
+  document.getElementById('btnPause').disabled = false;
+
+  timerState.interval = setInterval(() => {
+    timerState.currentTime--;
+
+    if (timerState.currentTime <= 3 && timerState.currentTime > 0) {
+      beep(500, 0.1, 0.2);
+    }
+
+    if (timerState.currentTime <= 0) {
+      flash();
+      if (timerState.phase === 'work') {
+        if (timerState.rest > 0) {
+          beep(400, 0.4, 0.4);
+          timerState.phase = 'rest';
+          timerState.currentTime = timerState.rest;
+          timerState.totalPhaseTime = timerState.rest;
+        } else {
+          // No rest (EMOM style)
+          timerState.currentRound++;
+          if (timerState.currentRound > timerState.rounds) {
+            finishTimer();
+            return;
+          }
+          beep(800, 0.2, 0.4);
+          timerState.currentTime = timerState.work;
+          timerState.totalPhaseTime = timerState.work;
+        }
+      } else if (timerState.phase === 'rest') {
+        timerState.currentRound++;
+        if (timerState.currentRound > timerState.rounds) {
+          finishTimer();
+          return;
+        }
+        beep(800, 0.2, 0.4);
+        timerState.phase = 'work';
+        timerState.currentTime = timerState.work;
+        timerState.totalPhaseTime = timerState.work;
+      }
+    }
+
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function finishTimer() {
+  clearInterval(timerState.interval);
+  timerState.running = false;
+  timerState.phase = 'done';
+  timerState.currentTime = 0;
+  
+  // Play custom completion sound or fallback to beeps
+  if (customAudio.earlyRise && customAudio.earlyRise.src) {
+    playCustomSound('earlyRise');
+  } else {
+    beep(1000, 0.5, 0.5);
+    setTimeout(() => beep(1200, 0.5, 0.5), 200);
+    setTimeout(() => beep(1500, 0.8, 0.5), 400);
+  }
+  
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnPause').disabled = true;
+  updateTimerDisplay();
+}
+
+function pauseTimer() {
+  clearInterval(timerState.interval);
+  timerState.running = false;
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnPause').disabled = true;
+}
+
+function resetTimer() {
+  clearInterval(timerState.interval);
+  timerState.running = false;
+  timerState.phase = 'ready';
+  timerState.currentTime = timerState.work;
+  timerState.currentRound = 1;
+  timerState.totalPhaseTime = timerState.work;
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnPause').disabled = true;
+  updateTimerDisplay();
+}
+
+// ═══════════════════════════════════════════
+// TOOL 2: SKILL TREE
+// ═══════════════════════════════════════════
+const skillTracks = [
+  {
+    name: 'Push', color: '#ef4444',
+    skills: [
+      { name: 'Wall Push-Up', desc: 'Foundation' },
+      { name: 'Knee Push-Up', desc: 'Build strength' },
+      { name: 'Push-Up', desc: 'Standard form' },
+      { name: 'Diamond Push-Up', desc: 'Tricep focus' },
+      { name: 'Archer Push-Up', desc: 'Unilateral' },
+      { name: 'One-Arm Push-Up', desc: 'Elite level' }
+    ]
+  },
+  {
+    name: 'Pull', color: '#06b6d4',
+    skills: [
+      { name: 'Dead Hang', desc: 'Grip foundation' },
+      { name: 'Scap Pulls', desc: 'Activation' },
+      { name: 'Negative Pull-Up', desc: 'Eccentric' },
+      { name: 'Pull-Up', desc: 'Standard' },
+      { name: 'L-Sit Pull-Up', desc: 'Core integration' },
+      { name: 'Muscle-Up', desc: 'Elite transition' }
+    ]
+  },
+  {
+    name: 'Legs', color: '#10b981',
+    skills: [
+      { name: 'Bodyweight Squat', desc: 'Base pattern' },
+      { name: 'Split Squat', desc: 'Balance' },
+      { name: 'Bulgarian Split', desc: 'Deep unilateral' },
+      { name: 'Pistol Negative', desc: 'Eccentric single' },
+      { name: 'Pistol Squat', desc: 'Full ROM' },
+      { name: 'Shrimp Squat', desc: 'Elite balance' }
+    ]
+  },
+  {
+    name: 'Handstand', color: '#8b5cf6',
+    skills: [
+      { name: 'Wrist Prep', desc: 'Mobility first' },
+      { name: 'Wall Hold', desc: 'Build time' },
+      { name: 'Chest-to-Wall', desc: 'Alignment' },
+      { name: 'Kick-Up', desc: 'Entry skill' },
+      { name: 'Freestanding', desc: '30s holds' },
+      { name: 'Handstand Walk', desc: 'Dynamic balance' }
+    ]
+  },
+  {
+    name: 'Core', color: '#f59e0b',
+    skills: [
+      { name: 'Hollow Hold', desc: 'Foundation' },
+      { name: 'Hanging Knee Raise', desc: 'Compression' },
+      { name: 'Hanging Leg Raise', desc: 'Full range' },
+      { name: 'Toes to Bar', desc: 'Power and flex' },
+      { name: 'L-Sit', desc: 'Isometric' },
+      { name: 'V-Sit', desc: 'Elite hold' }
+    ]
+  }
+];
+
+// Load saved progress
+let skillProgress = JSON.parse(localStorage.getItem('saturno_skills') || '{}');
+
+function renderSkillTree() {
+  const container = document.getElementById('skillTreeContainer');
+  container.innerHTML = '';
+
+  skillTracks.forEach((track, ti) => {
+    const div = document.createElement('div');
+    div.className = 'skill-track card';
+    
+    let html = `
+      <div class="track-header">
+        <div class="track-name">${track.name}</div>
+        <div class="track-level-label">${getTrackProgress(ti)} / ${track.skills.length} skills</div>
+      </div>
+      <div class="skill-nodes">
+    `;
+
+    track.skills.forEach((skill, si) => {
+      const key = ti + '-' + si;
+      const status = skillProgress[key] || 'locked';
+      const prevKey = ti + '-' + (si - 1);
+      const prevStatus = si === 0 ? 'completed' : (skillProgress[prevKey] || 'locked');
+      
+      // Auto-unlock first skill and skills after completed ones
+      let effectiveStatus = status;
+      if (si === 0 && status === 'locked') effectiveStatus = 'current';
+      if (prevStatus === 'completed' && status === 'locked') effectiveStatus = 'current';
+
+      html += `
+        <div class="skill-node ${effectiveStatus}" onclick="toggleSkill(${ti}, ${si})" title="${skill.name}: ${skill.desc}">
+          <div class="node-indicator">${si + 1}</div>
+          <div class="node-name">${skill.name}</div>
+          <div class="node-desc">${skill.desc}</div>
+        </div>
+      `;
+    });
+
+    html += '</div>';
+    div.innerHTML = html;
+    container.appendChild(div);
+  });
+
+  updateSkillStats();
+}
+
+function getTrackProgress(ti) {
+  let count = 0;
+  skillTracks[ti].skills.forEach((_, si) => {
+    if (skillProgress[ti + '-' + si] === 'completed') count++;
+  });
+  return count;
+}
+
+function toggleSkill(ti, si) {
+  const key = ti + '-' + si;
+  const current = skillProgress[key] || 'locked';
+  
+  // Cycle: locked/current → completed → current
+  if (current === 'completed') {
+    skillProgress[key] = 'current';
+  } else {
+    skillProgress[key] = 'completed';
+    beep(900, 0.15, 0.2);
+  }
+  
+  localStorage.setItem('saturno_skills', JSON.stringify(skillProgress));
+  renderSkillTree();
+}
+
+function updateSkillStats() {
+  let completed = 0, inProgress = 0, locked = 0;
+  skillTracks.forEach((track, ti) => {
+    track.skills.forEach((_, si) => {
+      const s = skillProgress[ti + '-' + si] || 'locked';
+      if (s === 'completed') completed++;
+      else if (s === 'current') inProgress++;
+      else locked++;
+    });
+  });
+  // First skill in each track auto-unlocks
+  document.getElementById('skillsCompleted').textContent = completed;
+  document.getElementById('skillsInProgress').textContent = inProgress;
+  document.getElementById('skillsLocked').textContent = locked;
+}
+
+function resetSkillTree() {
+  if (confirm('Reset all skill progress? This cannot be undone.')) {
+    skillProgress = {};
+    localStorage.removeItem('saturno_skills');
+    renderSkillTree();
+  }
+}
+
+// ═══════════════════════════════════════════
+// TOOL 3: MOVEMENT ASSESSMENT
+// ═══════════════════════════════════════════
+const assessQuestions = [
+  {
+    q: "How long can you hold a dead hang?",
+    answers: [
+      { text: "Less than 15 seconds", score: 1 },
+      { text: "15–30 seconds", score: 2 },
+      { text: "30–60 seconds", score: 3 },
+      { text: "60+ seconds", score: 4 }
+    ]
+  },
+  {
+    q: "What's your max push-up set?",
+    answers: [
+      { text: "0–5 push-ups", score: 1 },
+      { text: "5–15 push-ups", score: 2 },
+      { text: "15–30 push-ups", score: 3 },
+      { text: "30+ push-ups", score: 4 }
+    ]
+  },
+  {
+    q: "Can you do a pull-up?",
+    answers: [
+      { text: "Not yet", score: 1 },
+      { text: "1–3 pull-ups", score: 2 },
+      { text: "4–10 pull-ups", score: 3 },
+      { text: "10+ or weighted", score: 4 }
+    ]
+  },
+  {
+    q: "How's your handstand?",
+    answers: [
+      { text: "Never tried or scared of it", score: 1 },
+      { text: "Can do wall-assisted holds", score: 2 },
+      { text: "Working on freestanding (5-15s)", score: 3 },
+      { text: "Solid 30s+ freestanding", score: 4 }
+    ]
+  },
+  {
+    q: "How consistent is your training?",
+    answers: [
+      { text: "Just starting out", score: 1 },
+      { text: "1–2 times per week", score: 2 },
+      { text: "3–4 times per week", score: 3 },
+      { text: "5+ times, structured program", score: 4 }
+    ]
+  },
+  {
+    q: "What's your L-sit like?",
+    answers: [
+      { text: "Can't lift off yet", score: 1 },
+      { text: "Tuck L-sit (knees bent)", score: 2 },
+      { text: "One leg extended", score: 3 },
+      { text: "Full L-sit 10s+", score: 4 }
+    ]
+  }
+];
+
+const assessLevels = [
+  {
+    min: 6, max: 10, title: "Foundation Builder",
+    desc: "You're at the beginning of an incredible journey. Focus on building base strength, joint preparation, and movement quality. The fundamentals are everything.",
+    recs: [
+      { title: "Start Here", desc: "Wall push-ups, dead hangs, bodyweight squats. Master form before adding reps." },
+      { title: "Mobility", desc: "Daily wrist prep, shoulder circles, hip openers. 10 min every morning." },
+      { title: "Consistency", desc: "3x per week minimum. Short sessions (20-30 min) are better than skipping." }
+    ]
+  },
+  {
+    min: 11, max: 16, title: "Rising Athlete",
+    desc: "You've got the basics down. Now it's time to push into progressions, build skill work habits, and start targeting specific goals.",
+    recs: [
+      { title: "Progressions", desc: "Move from standard to archer push-ups. Work negative pull-ups for 5×5." },
+      { title: "Skill Blocks", desc: "Add 15 min handstand practice. Wall holds → chest-to-wall → kick-ups." },
+      { title: "Structure", desc: "Push/Pull/Legs split or Upper/Lower. Track your sets and reps." }
+    ]
+  },
+  {
+    min: 17, max: 20, title: "Advanced Practitioner",
+    desc: "You're strong, consistent, and skilled. Time for high-level progressions, skill combinations, and periodized training.",
+    recs: [
+      { title: "Elite Skills", desc: "Muscle-up training, freestanding handstand, pistol squats, front lever progressions." },
+      { title: "Periodization", desc: "Alternate strength and skill blocks. Deload every 4th week." },
+      { title: "Create", desc: "Design your own flows. Combine skills. Express yourself through movement." }
+    ]
+  },
+  {
+    min: 21, max: 24, title: "Movement Master",
+    desc: "You're operating at an elite level. Focus on mastery, creativity, and sharing your knowledge with others.",
+    recs: [
+      { title: "Mastery", desc: "One-arm skills, planche, front/back lever, handstand press. Refine endlessly." },
+      { title: "Flow State", desc: "Create seamless transitions. Movement is art now." },
+      { title: "Teach", desc: "Your experience is valuable. Consider coaching, content, or community building." }
+    ]
+  }
+];
+
+let assessState = { current: 0, scores: [], started: false };
+
+function renderAssessment() {
+  const container = document.getElementById('assessmentContainer');
+  
+  if (!assessState.started) {
+    container.innerHTML = `
+      <div class="section" style="text-align: center; padding: 48px 0;">
+        <h3 style="font-size: 1.4rem; margin-bottom: 12px;">Discover Your Movement Level</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 32px; max-width: 400px; margin-left: auto; margin-right: auto;">
+          Answer 6 quick questions and get a personalized assessment of your calisthenics level with tailored recommendations.
+        </p>
+        <button class="btn btn-primary" onclick="startAssessment()">Begin Assessment</button>
+      </div>
+    `;
+    return;
+  }
+
+  if (assessState.current >= assessQuestions.length) {
+    showResults();
+    return;
+  }
+
+  const q = assessQuestions[assessState.current];
+  container.innerHTML = `
+    <div class="progress-dots">
+      ${assessQuestions.map((_, i) => `
+        <div class="progress-dot ${i < assessState.current ? 'done' : ''} ${i === assessState.current ? 'active' : ''}"></div>
+      `).join('')}
+    </div>
+    <div class="section assessment-question">
+      <div class="question-number">QUESTION ${assessState.current + 1} OF ${assessQuestions.length}</div>
+      <div class="question-text">${q.q}</div>
+      <div class="answer-options">
+        ${q.answers.map((a, i) => `
+          <button class="answer-btn" onclick="selectAnswer(${i}, ${a.score})">
+            <span>${a.text}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function startAssessment() {
+  assessState = { current: 0, scores: [], started: true };
+  renderAssessment();
+}
+
+function selectAnswer(index, score) {
+  beep(700, 0.1, 0.15);
+  assessState.scores.push(score);
+  assessState.current++;
+  renderAssessment();
+}
+
+function showResults() {
+  const total = assessState.scores.reduce((a, b) => a + b, 0);
+  const level = assessLevels.find(l => total >= l.min && total <= l.max) || assessLevels[0];
+  
+  const container = document.getElementById('assessmentContainer');
+  container.innerHTML = `
+    <div class="result-card">
+      <div class="result-title">${level.title}</div>
+      <div style="font-family: var(--font-mono); font-size: 13px; color: var(--accent); margin-bottom: 16px;">
+        Score: ${total} / ${assessQuestions.length * 4}
+      </div>
+      <div class="result-desc">${level.desc}</div>
+      <div class="rec-grid">
+        ${level.recs.map(r => `
+          <div class="rec-item">
+            <h4>${r.title}</h4>
+            <p>${r.desc}</p>
+          </div>
+        `).join('')}
+      </div>
+      <div style="margin-top: 28px;">
+        <button class="btn btn-primary" onclick="startAssessment()">Retake</button>
+      </div>
+    </div>
+  `;
+
+  // Triple beep for results
+  beep(600, 0.15, 0.3);
+  setTimeout(() => beep(800, 0.15, 0.3), 150);
+  setTimeout(() => beep(1000, 0.3, 0.3), 300);
+}
+
+// ═══════════════════════════════════════════
+// TOOL 4: TRAINING LOG
+// ═══════════════════════════════════════════
+const exerciseLibrary = [
+  { name: 'Push-Ups', cat: 'push' },
+  { name: 'Diamond Push-Ups', cat: 'push' },
+  { name: 'Archer Push-Ups', cat: 'push' },
+  { name: 'Dips', cat: 'push' },
+  { name: 'Pike Push-Ups', cat: 'push' },
+  { name: 'Pull-Ups', cat: 'pull' },
+  { name: 'Chin-Ups', cat: 'pull' },
+  { name: 'Australian Rows', cat: 'pull' },
+  { name: 'Bodyweight Squats', cat: 'legs' },
+  { name: 'Pistol Squats', cat: 'legs' },
+  { name: 'Bulgarian Split Squats', cat: 'legs' },
+  { name: 'Lunges', cat: 'legs' },
+  { name: 'Handstand Hold', cat: 'skill' },
+  { name: 'L-Sit Hold', cat: 'skill' },
+  { name: 'Hollow Body Hold', cat: 'core' },
+  { name: 'Hanging Leg Raises', cat: 'core' },
+  { name: 'Toes to Bar', cat: 'core' },
+  { name: 'Plank', cat: 'core' }
+];
+
+let trainingLog = JSON.parse(localStorage.getItem('saturno_log_' + new Date().toDateString()) || '[]');
+
+function renderLog() {
+  const container = document.getElementById('logContainer');
+  const today = new Date();
+  document.getElementById('logDate').textContent = today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+  if (trainingLog.length === 0) {
+    container.innerHTML = `
+      <div class="card" style="text-align: center; padding: 40px; color: var(--text-muted);">
+        <div style="font-size: 3rem; margin-bottom: 12px;">📝</div>
+        <p>No exercises logged today. Tap "Add Exercise" to start.</p>
+      </div>
+    `;
+  } else {
+    container.innerHTML = trainingLog.map((ex, ei) => `
+      <div class="exercise-row">
+        <div>
+          <div class="exercise-name">${ex.name}</div>
+          <div class="exercise-cat">${ex.cat}</div>
+          <div class="sets-container">
+            ${ex.sets.map((set, si) => `
+              <span class="set-pill logged" onclick="editSet(${ei}, ${si})">${set}r</span>
+            `).join('')}
+            <button class="add-set-btn" onclick="addSet(${ei})">+ set</button>
+          </div>
+        </div>
+        <button class="btn btn-danger" style="padding: 8px 12px; font-size: 11px;" onclick="removeExercise(${ei})">✕</button>
+      </div>
+    `).join('');
+  }
+
+  updateLogStats();
+}
+
+function addExercise() {
+  const name = prompt('Exercise name?\n\nSuggestions: ' + exerciseLibrary.slice(0, 8).map(e => e.name).join(', '));
+  if (!name) return;
+  const match = exerciseLibrary.find(e => e.name.toLowerCase().includes(name.toLowerCase()));
+  trainingLog.push({
+    name: match ? match.name : name,
+    cat: match ? match.cat : 'other',
+    sets: []
+  });
+  saveLog();
+  renderLog();
+  // Immediately prompt for first set
+  addSet(trainingLog.length - 1);
+}
+
+function addSet(ei) {
+  const reps = prompt('How many reps?');
+  if (!reps || isNaN(reps)) return;
+  trainingLog[ei].sets.push(parseInt(reps));
+  beep(600, 0.1, 0.2);
+  saveLog();
+  renderLog();
+}
+
+function editSet(ei, si) {
+  const newReps = prompt('Edit reps (current: ' + trainingLog[ei].sets[si] + ').\nEnter 0 to delete this set.');
+  if (newReps === null) return;
+  if (parseInt(newReps) === 0) {
+    trainingLog[ei].sets.splice(si, 1);
+  } else if (!isNaN(newReps)) {
+    trainingLog[ei].sets[si] = parseInt(newReps);
+  }
+  saveLog();
+  renderLog();
+}
+
+function removeExercise(ei) {
+  if (confirm('Remove ' + trainingLog[ei].name + '?')) {
+    trainingLog.splice(ei, 1);
+    saveLog();
+    renderLog();
+  }
+}
+
+function saveLog() {
+  localStorage.setItem('saturno_log_' + new Date().toDateString(), JSON.stringify(trainingLog));
+}
+
+function updateLogStats() {
+  let totalSets = 0, totalReps = 0;
+  trainingLog.forEach(ex => {
+    totalSets += ex.sets.length;
+    totalReps += ex.sets.reduce((a, b) => a + b, 0);
+  });
+  document.getElementById('totalSets').textContent = totalSets;
+  document.getElementById('totalReps').textContent = totalReps;
+  document.getElementById('totalExercises').textContent = trainingLog.length;
+}
+
+function exportLog() {
+  const date = new Date().toLocaleDateString();
+  let text = '═══ SATURNO TRAINING LOG ═══\n';
+  text += 'Date: ' + date + '\n\n';
+  trainingLog.forEach(ex => {
+    text += ex.name + ' [' + ex.cat.toUpperCase() + ']\n';
+    ex.sets.forEach((s, i) => text += '  Set ' + (i + 1) + ': ' + s + ' reps\n');
+    text += '\n';
+  });
+  let totalReps = 0;
+  trainingLog.forEach(ex => totalReps += ex.sets.reduce((a, b) => a + b, 0));
+  text += '─────────────────\n';
+  text += 'Total Exercises: ' + trainingLog.length + '\n';
+  text += 'Total Sets: ' + trainingLog.reduce((a, e) => a + e.sets.length, 0) + '\n';
+  text += 'Total Reps: ' + totalReps + '\n';
+  text += '\n— Saturno Movement —\n';
+
+  const blob = new Blob([text], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'saturno-log-' + new Date().toISOString().split('T')[0] + '.txt';
+  a.click();
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+updateTimerDisplay();
+renderSkillTree();
+renderAssessment();
+renderLog();
+initAudio(); // Initialize audio system with custom sounds
+// loadEditData(); // Uncomment to restore previous edits
+</script>
+</body>
+</html>

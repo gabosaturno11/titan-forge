@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EVENT HORIZON | Focus Timer</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #000000;
+            --purple: #9D4EDD;
+            --blue: #4361EE;
+            --deep: #1a0a2e;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Event Horizon Visual */
+        .horizon-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vmin;
+            height: 100vmin;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .singularity {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #000 50%, var(--deep) 80%, transparent);
+            border-radius: 50%;
+            box-shadow:
+                0 0 100px 50px rgba(0,0,0,0.8),
+                0 0 200px 100px rgba(26,10,46,0.5);
+        }
+
+        .accretion-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 2px solid;
+            opacity: 0;
+            animation: accrete 6s linear infinite;
+        }
+
+        @keyframes accrete {
+            0% {
+                width: 400px;
+                height: 400px;
+                opacity: 0.6;
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            100% {
+                width: 60px;
+                height: 60px;
+                opacity: 0;
+                transform: translate(-50%, -50%) rotate(720deg);
+            }
+        }
+
+        .photon-sphere {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            border: 2px solid rgba(157, 78, 221, 0.3);
+            border-radius: 50%;
+            animation: photonPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes photonPulse {
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 10px;
+            background: radial-gradient(circle at 30% 30%, var(--purple), var(--deep));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
+        }
+
+        .logo-text {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .header h1 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 10px;
+            color: #444;
+            margin-top: 4px;
+            letter-spacing: 2px;
+        }
+
+        /* Timer Section */
+        .timer-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timer-display {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .timer-time {
+            font-size: 56px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-shadow: 0 0 30px rgba(157, 78, 221, 0.5);
+        }
+
+        .timer-label {
+            font-size: 10px;
+            color: #666;
+            letter-spacing: 3px;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+
+        /* Progress Ring */
+        .progress-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin-bottom: 32px;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-bg {
+            fill: none;
+            stroke: #1a1a2e;
+            stroke-width: 4;
+        }
+
+        .progress-ring-fill {
+            fill: none;
+            stroke: var(--purple);
+            stroke-width: 4;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear;
+            filter: drop-shadow(0 0 10px var(--purple));
+        }
+
+        /* Duration Selector */
+        .duration-selector {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .duration-btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 1px solid #222;
+            background: transparent;
+            color: #666;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .duration-btn:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .duration-btn.active {
+            background: var(--purple);
+            border-color: var(--purple);
+            color: #fff;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 8px;
+            border: 2px solid var(--purple);
+            background: transparent;
+            color: var(--purple);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--purple);
+            color: #fff;
+            box-shadow: 0 0 30px rgba(157, 78, 221, 0.5);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-top: 32px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--purple);
+        }
+
+        .stat-label {
+            font-size: 9px;
+            color: #666;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .sound-toggle:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .sound-toggle.active {
+            color: var(--purple);
+            border-color: var(--purple);
+        }
+
+        /* Mantra */
+        .mantra {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 11px;
+            color: #444;
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">AMBIENT: ON</button>
+
+    <div class="horizon-container" id="horizonContainer">
+        <div class="singularity"></div>
+        <div class="photon-sphere"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-text">SM</span>
+            </div>
+            <h1>Event Horizon</h1>
+            <p>Focus Timer</p>
+        </div>
+
+        <div class="timer-section">
+            <div class="timer-display">
+                <div class="timer-time" id="timerTime">25:00</div>
+                <div class="timer-label" id="timerLabel">Ready to focus</div>
+            </div>
+
+            <div class="progress-container">
+                <svg class="progress-ring" width="200" height="200">
+                    <circle class="progress-ring-bg" cx="100" cy="100" r="90"/>
+                    <circle class="progress-ring-fill" id="progressRing" cx="100" cy="100" r="90"
+                            stroke-dasharray="565.48" stroke-dashoffset="0"/>
+                </svg>
+            </div>
+
+            <div class="duration-selector">
+                <button class="duration-btn" data-minutes="5">5 MIN</button>
+                <button class="duration-btn" data-minutes="15">15 MIN</button>
+                <button class="duration-btn active" data-minutes="25">25 MIN</button>
+                <button class="duration-btn" data-minutes="45">45 MIN</button>
+            </div>
+
+            <div class="controls">
+                <button class="btn" id="mainBtn">ENTER</button>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="sessionsToday">0</div>
+                    <div class="stat-label">Today</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalMinutes">0</div>
+                    <div class="stat-label">Total Min</div>
+                </div>
+            </div>
+
+            <div class="mantra">"Where focus goes, energy flows."</div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // ACCRETION RINGS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const horizonContainer = document.getElementById('horizonContainer');
+
+        function createAccretionRing() {
+            const ring = document.createElement('div');
+            ring.className = 'accretion-ring';
+            ring.style.borderColor = Math.random() > 0.5 ? 'rgba(157, 78, 221, 0.4)' : 'rgba(67, 97, 238, 0.3)';
+            ring.style.animationDelay = Math.random() * 2 + 's';
+            ring.style.animationDuration = (4 + Math.random() * 3) + 's';
+            horizonContainer.appendChild(ring);
+
+            setTimeout(() => ring.remove(), 7000);
+        }
+
+        // Create rings periodically
+        setInterval(createAccretionRing, 500);
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // AUDIO SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let audioCtx = null;
+        let ambientEnabled = true;
+        let ambientOscs = [];
+        let ambientGain = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function startAmbient() {
+            if (!ambientEnabled || ambientOscs.length > 0) return;
+            initAudio();
+
+            ambientGain = audioCtx.createGain();
+            ambientGain.gain.setValueAtTime(0, audioCtx.currentTime);
+            ambientGain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 3);
+            ambientGain.connect(audioCtx.destination);
+
+            // Deep space drone
+            const freqs = [30, 45, 60, 90];
+
+            freqs.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                // Slow modulation
+                const lfo = audioCtx.createOscillator();
+                const lfoGain = audioCtx.createGain();
+                lfo.type = 'sine';
+                lfo.frequency.setValueAtTime(0.05 + i * 0.01, audioCtx.currentTime);
+                lfoGain.gain.setValueAtTime(freq * 0.02, audioCtx.currentTime);
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc.frequency);
+                lfo.start();
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(150, audioCtx.currentTime);
+
+                osc.connect(filter);
+                filter.connect(ambientGain);
+                osc.start();
+
+                ambientOscs.push(osc, lfo);
+            });
+        }
+
+        function stopAmbient() {
+            if (ambientGain) {
+                ambientGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2);
+                setTimeout(() => {
+                    ambientOscs.forEach(osc => osc.stop());
+                    ambientOscs = [];
+                    ambientGain = null;
+                }, 2000);
+            }
+        }
+
+        function playSound(type) {
+            if (!ambientEnabled) return;
+            initAudio();
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'start') {
+                // Descending tone - entering
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(50, now + 1);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1000, now);
+                filter.frequency.exponentialRampToValueAtTime(100, now + 1);
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 1.2);
+
+            } else if (type === 'complete') {
+                // Ascending - emergence
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(100 + i * 100, audioCtx.currentTime);
+                        osc.frequency.exponentialRampToValueAtTime(200 + i * 150, audioCtx.currentTime + 0.3);
+
+                        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+
+                        osc.start(audioCtx.currentTime);
+                        osc.stop(audioCtx.currentTime + 0.4);
+                    }, i * 150);
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let state = {
+            duration: 25 * 60,
+            timeLeft: 25 * 60,
+            isRunning: false,
+            intervalId: null,
+            sessionsToday: parseInt(localStorage.getItem('horizon_sessions_' + new Date().toDateString()) || '0'),
+            totalMinutes: parseInt(localStorage.getItem('horizon_total') || '0')
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DOM ELEMENTS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const timerTime = document.getElementById('timerTime');
+        const timerLabel = document.getElementById('timerLabel');
+        const progressRing = document.getElementById('progressRing');
+        const mainBtn = document.getElementById('mainBtn');
+        const sessionsToday = document.getElementById('sessionsToday');
+        const totalMinutes = document.getElementById('totalMinutes');
+        const durationBtns = document.querySelectorAll('.duration-btn');
+        const soundToggle = document.getElementById('soundToggle');
+
+        const circumference = 2 * Math.PI * 90;
+        progressRing.style.strokeDasharray = circumference;
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function updateDisplay() {
+            timerTime.textContent = formatTime(state.timeLeft);
+
+            const progress = state.timeLeft / state.duration;
+            const offset = circumference * progress;
+            progressRing.style.strokeDashoffset = circumference - offset;
+
+            sessionsToday.textContent = state.sessionsToday;
+            totalMinutes.textContent = state.totalMinutes;
+
+            if (state.isRunning) {
+                mainBtn.textContent = 'EXIT';
+                timerLabel.textContent = 'Deep focus active';
+            } else {
+                mainBtn.textContent = 'ENTER';
+                timerLabel.textContent = 'Ready to focus';
+            }
+        }
+
+        function setDuration(minutes) {
+            if (state.isRunning) return;
+
+            state.duration = minutes * 60;
+            state.timeLeft = minutes * 60;
+
+            durationBtns.forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.minutes) === minutes);
+            });
+
+            updateDisplay();
+        }
+
+        function start() {
+            if (state.isRunning) return;
+
+            state.isRunning = true;
+            playSound('start');
+            startAmbient();
+
+            state.intervalId = setInterval(() => {
+                state.timeLeft--;
+
+                if (state.timeLeft <= 0) {
+                    complete();
+                }
+
+                updateDisplay();
+            }, 1000);
+
+            updateDisplay();
+        }
+
+        function stop() {
+            state.isRunning = false;
+
+            if (state.intervalId) {
+                clearInterval(state.intervalId);
+                state.intervalId = null;
+            }
+
+            stopAmbient();
+            state.timeLeft = state.duration;
+            updateDisplay();
+        }
+
+        function complete() {
+            state.isRunning = false;
+
+            if (state.intervalId) {
+                clearInterval(state.intervalId);
+                state.intervalId = null;
+            }
+
+            state.sessionsToday++;
+            state.totalMinutes += Math.floor(state.duration / 60);
+
+            localStorage.setItem('horizon_sessions_' + new Date().toDateString(), state.sessionsToday);
+            localStorage.setItem('horizon_total', state.totalMinutes);
+
+            playSound('complete');
+            stopAmbient();
+
+            state.timeLeft = state.duration;
+            updateDisplay();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // EVENT LISTENERS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        mainBtn.addEventListener('click', () => {
+            if (state.isRunning) {
+                stop();
+            } else {
+                start();
+            }
+        });
+
+        durationBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                setDuration(parseInt(btn.dataset.minutes));
+            });
+        });
+
+        soundToggle.addEventListener('click', () => {
+            initAudio();
+            ambientEnabled = !ambientEnabled;
+            soundToggle.textContent = ambientEnabled ? 'AMBIENT: ON' : 'AMBIENT: OFF';
+            soundToggle.classList.toggle('active', ambientEnabled);
+
+            if (!ambientEnabled) {
+                stopAmbient();
+            } else if (state.isRunning) {
+                startAmbient();
+            }
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        updateDisplay();
+    </script>
+</body>
+</html>

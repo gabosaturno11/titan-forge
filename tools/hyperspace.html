@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HYPERSPACE | Speed Training</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --blue: #00D4FF; --purple: #9D4EDD; --green: #00FF88; --red: #FF3333; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow: hidden; }
+
+        .hyperspace-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; perspective: 500px; }
+        .star-line { position: absolute; width: 2px; height: 50px; background: linear-gradient(to bottom, transparent, var(--blue), transparent); animation: hyperJump 1s linear infinite; opacity: 0; }
+        @keyframes hyperJump { 0% { transform: translateZ(-500px) scale(0.1); opacity: 0; } 50% { opacity: 0.8; } 100% { transform: translateZ(500px) scale(2); opacity: 0; } }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+
+        .header { text-align: center; margin-bottom: 16px; }
+        .logo { width: 50px; height: 50px; margin: 0 auto 10px; background: linear-gradient(135deg, var(--blue), var(--purple)); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .logo-text { font-size: 9px; font-weight: 700; letter-spacing: 1px; }
+        .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 3px; background: linear-gradient(135deg, var(--blue), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .header p { font-size: 9px; color: #666; margin-top: 4px; letter-spacing: 2px; }
+
+        .mode-select { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+        .mode-btn { padding: 10px 16px; border-radius: 6px; border: 1px solid #333; background: transparent; color: #666; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+        .mode-btn:hover { border-color: var(--blue); color: var(--blue); }
+        .mode-btn.active { background: linear-gradient(135deg, var(--blue), var(--purple)); border-color: transparent; color: #000; }
+
+        .reaction-zone { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        .target-area { width: 200px; height: 200px; border-radius: 50%; border: 3px solid #222; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; cursor: pointer; transition: all 0.1s; position: relative; }
+        .target-area.waiting { border-color: var(--red); background: rgba(255, 51, 51, 0.1); }
+        .target-area.ready { border-color: var(--green); background: rgba(0, 255, 136, 0.2); box-shadow: 0 0 40px rgba(0, 255, 136, 0.4); animation: pulse 0.3s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+        .target-area.hit { background: var(--green); border-color: var(--green); }
+        .target-area.miss { background: var(--red); border-color: var(--red); }
+
+        .target-text { font-size: 14px; font-weight: 700; color: #666; letter-spacing: 2px; text-transform: uppercase; text-align: center; }
+        .target-area.waiting .target-text { color: var(--red); }
+        .target-area.ready .target-text { color: var(--green); font-size: 20px; }
+
+        .reaction-time { font-size: 48px; font-weight: 300; color: var(--blue); margin-bottom: 8px; }
+        .reaction-label { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
+
+        .results { display: flex; gap: 24px; justify-content: center; margin-bottom: 24px; }
+        .result { text-align: center; }
+        .result-value { font-size: 20px; font-weight: 700; color: var(--purple); }
+        .result-label { font-size: 9px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+
+        .controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; }
+        .btn { padding: 14px 28px; border-radius: 8px; border: 2px solid var(--blue); background: transparent; color: var(--blue); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { background: var(--blue); color: #000; }
+
+        .records { display: flex; justify-content: center; gap: 32px; }
+        .record { text-align: center; }
+        .record-value { font-size: 18px; font-weight: 700; color: var(--green); }
+        .record-label { font-size: 9px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--blue); color: var(--blue); }
+        .sound-toggle.active { color: var(--blue); border-color: var(--blue); }
+    </style>
+</head>
+<body>
+    <div class="hyperspace-bg" id="hyperspaceBg"></div>
+
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Hyperspace</h1>
+            <p>Speed Training</p>
+        </div>
+
+        <div class="mode-select">
+            <button class="mode-btn active" data-mode="single">SINGLE</button>
+            <button class="mode-btn" data-mode="series">SERIES 5</button>
+            <button class="mode-btn" data-mode="endurance">ENDURANCE</button>
+        </div>
+
+        <div class="reaction-zone">
+            <div class="target-area" id="targetArea">
+                <span class="target-text" id="targetText">TAP TO START</span>
+            </div>
+
+            <div class="reaction-time" id="reactionTime">---</div>
+            <div class="reaction-label">Reaction Time (ms)</div>
+
+            <div class="results">
+                <div class="result">
+                    <div class="result-value" id="avgTime">---</div>
+                    <div class="result-label">Average</div>
+                </div>
+                <div class="result">
+                    <div class="result-value" id="attempts">0</div>
+                    <div class="result-label">Attempts</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="resetBtn">RESET</button>
+        </div>
+
+        <div class="records">
+            <div class="record">
+                <div class="record-value" id="bestTime">---</div>
+                <div class="record-label">Best Ever</div>
+            </div>
+            <div class="record">
+                <div class="record-value" id="totalTests">0</div>
+                <div class="record-label">Total Tests</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create hyperspace effect
+        const hyperBg = document.getElementById('hyperspaceBg');
+        for (let i = 0; i < 50; i++) {
+            const line = document.createElement('div');
+            line.className = 'star-line';
+            line.style.left = Math.random() * 100 + '%';
+            line.style.top = Math.random() * 100 + '%';
+            line.style.animationDelay = Math.random() * 2 + 's';
+            line.style.animationDuration = (0.5 + Math.random()) + 's';
+            hyperBg.appendChild(line);
+        }
+
+        let audioCtx = null, soundEnabled = true;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'ready') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.15);
+            } else if (type === 'hit') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.15);
+            } else if (type === 'miss') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.25);
+            } else if (type === 'record') {
+                for (let i = 0; i < 4; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(500 + i * 150, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.15);
+                    }, i * 80);
+                }
+            }
+        }
+
+        let state = {
+            mode: 'single',
+            phase: 'idle', // idle, waiting, ready, result
+            startTime: 0,
+            times: [],
+            attempts: 0,
+            seriesCount: 0,
+            bestTime: parseInt(localStorage.getItem('hyperspace_best') || '9999'),
+            totalTests: parseInt(localStorage.getItem('hyperspace_total') || '0'),
+            timeoutId: null
+        };
+
+        const targetArea = document.getElementById('targetArea');
+        const targetText = document.getElementById('targetText');
+
+        function updateDisplay() {
+            const avg = state.times.length > 0
+                ? Math.round(state.times.reduce((a, b) => a + b, 0) / state.times.length)
+                : '---';
+
+            document.getElementById('avgTime').textContent = avg;
+            document.getElementById('attempts').textContent = state.attempts;
+            document.getElementById('bestTime').textContent = state.bestTime < 9999 ? state.bestTime + 'ms' : '---';
+            document.getElementById('totalTests').textContent = state.totalTests;
+        }
+
+        function startTest() {
+            if (state.phase !== 'idle') return;
+
+            state.phase = 'waiting';
+            targetArea.className = 'target-area waiting';
+            targetText.textContent = 'WAIT...';
+            initAudio();
+
+            // Random delay between 1-4 seconds
+            const delay = 1000 + Math.random() * 3000;
+            state.timeoutId = setTimeout(() => {
+                state.phase = 'ready';
+                state.startTime = performance.now();
+                targetArea.className = 'target-area ready';
+                targetText.textContent = 'GO!';
+                playSound('ready');
+            }, delay);
+        }
+
+        function handleTap() {
+            if (state.phase === 'idle') {
+                startTest();
+            } else if (state.phase === 'waiting') {
+                // Too early!
+                clearTimeout(state.timeoutId);
+                state.phase = 'idle';
+                targetArea.className = 'target-area miss';
+                targetText.textContent = 'TOO EARLY!';
+                document.getElementById('reactionTime').textContent = 'FAIL';
+                playSound('miss');
+
+                setTimeout(() => {
+                    targetArea.className = 'target-area';
+                    targetText.textContent = 'TAP TO START';
+                    if (state.mode === 'series' && state.seriesCount < 5) {
+                        startTest();
+                    } else if (state.mode === 'endurance') {
+                        startTest();
+                    }
+                }, 1000);
+            } else if (state.phase === 'ready') {
+                const reactionTime = Math.round(performance.now() - state.startTime);
+                state.times.push(reactionTime);
+                state.attempts++;
+                state.totalTests++;
+                localStorage.setItem('hyperspace_total', state.totalTests);
+
+                targetArea.className = 'target-area hit';
+                targetText.textContent = reactionTime + 'ms';
+                document.getElementById('reactionTime').textContent = reactionTime;
+
+                let newRecord = false;
+                if (reactionTime < state.bestTime) {
+                    state.bestTime = reactionTime;
+                    localStorage.setItem('hyperspace_best', state.bestTime);
+                    newRecord = true;
+                    playSound('record');
+                } else {
+                    playSound('hit');
+                }
+
+                state.phase = 'idle';
+                updateDisplay();
+
+                setTimeout(() => {
+                    targetArea.className = 'target-area';
+
+                    if (state.mode === 'series') {
+                        state.seriesCount++;
+                        if (state.seriesCount < 5) {
+                            targetText.textContent = `${state.seriesCount}/5 - TAP`;
+                            startTest();
+                        } else {
+                            targetText.textContent = 'SERIES COMPLETE';
+                            state.seriesCount = 0;
+                        }
+                    } else if (state.mode === 'endurance') {
+                        targetText.textContent = 'CONTINUE...';
+                        startTest();
+                    } else {
+                        targetText.textContent = newRecord ? 'NEW RECORD!' : 'TAP TO START';
+                    }
+                }, 800);
+            }
+        }
+
+        function reset() {
+            if (state.timeoutId) clearTimeout(state.timeoutId);
+            state.phase = 'idle';
+            state.times = [];
+            state.attempts = 0;
+            state.seriesCount = 0;
+            targetArea.className = 'target-area';
+            targetText.textContent = 'TAP TO START';
+            document.getElementById('reactionTime').textContent = '---';
+            updateDisplay();
+        }
+
+        targetArea.addEventListener('click', handleTap);
+        targetArea.addEventListener('touchstart', (e) => { e.preventDefault(); handleTap(); });
+
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.mode = btn.dataset.mode;
+                reset();
+            });
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', reset);
+
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>

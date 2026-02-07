@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>METEOR SHOWER | Rep Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #0a0a0a;
+            --purple: #9D4EDD;
+            --blue: #4361EE;
+            --cyan: #00D4FF;
+            --orange: #FF6B00;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Meteor Animation Container */
+        .meteor-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .meteor {
+            position: absolute;
+            width: 4px;
+            height: 80px;
+            background: linear-gradient(180deg, var(--orange), var(--cyan), transparent);
+            border-radius: 2px;
+            animation: fall linear forwards;
+            opacity: 0;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) rotate(25deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(calc(100vh + 100px)) rotate(25deg);
+                opacity: 0;
+            }
+        }
+
+        /* Stars background */
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 10px;
+            background: radial-gradient(circle at 30% 30%, var(--orange), var(--purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(255, 107, 0, 0.4);
+        }
+
+        .logo-text {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--orange), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+            letter-spacing: 2px;
+        }
+
+        /* Main Display */
+        .main-display {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tap-zone {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.1), transparent);
+            border: 3px solid var(--purple);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.1s;
+            margin-bottom: 24px;
+            box-shadow: 0 0 30px rgba(157, 78, 221, 0.2);
+        }
+
+        .tap-zone:active {
+            transform: scale(0.95);
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.3), transparent);
+            box-shadow: 0 0 50px rgba(157, 78, 221, 0.5);
+        }
+
+        .rep-count {
+            font-size: 64px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .rep-label {
+            font-size: 12px;
+            color: #666;
+            letter-spacing: 2px;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+
+        /* Exercise Selector */
+        .exercise-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .exercise-btn {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid #222;
+            background: transparent;
+            color: #666;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .exercise-btn:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .exercise-btn.active {
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            border-color: transparent;
+            color: #fff;
+        }
+
+        /* Stats */
+        .session-stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 20px;
+        }
+
+        .session-stat {
+            text-align: center;
+        }
+
+        .session-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--cyan);
+        }
+
+        .session-stat-label {
+            font-size: 9px;
+            color: #666;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Set Tracker */
+        .set-tracker {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .set-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #1a1a2e;
+            border: 2px solid #333;
+            transition: all 0.3s;
+        }
+
+        .set-dot.current {
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px var(--cyan);
+        }
+
+        .set-dot.completed {
+            background: var(--purple);
+            border-color: var(--purple);
+            box-shadow: 0 0 10px var(--purple);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: 2px solid var(--purple);
+            background: transparent;
+            color: var(--purple);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--purple);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
+        }
+
+        .btn-secondary {
+            border-color: #333;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #333;
+            color: #fff;
+            box-shadow: none;
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .sound-toggle:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .sound-toggle.active {
+            color: var(--purple);
+            border-color: var(--purple);
+        }
+
+        /* History */
+        .history {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #1a1a2e;
+        }
+
+        .history-title {
+            font-size: 10px;
+            color: #666;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #1a1a2e;
+            font-size: 11px;
+        }
+
+        .history-exercise {
+            color: var(--purple);
+        }
+
+        .history-reps {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="meteor-container" id="meteorContainer"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-text">SM</span>
+            </div>
+            <h1>Meteor Shower</h1>
+            <p>Rep Tracker</p>
+        </div>
+
+        <div class="main-display">
+            <div class="exercise-selector">
+                <button class="exercise-btn active" data-exercise="Push-ups">PUSH-UPS</button>
+                <button class="exercise-btn" data-exercise="Pull-ups">PULL-UPS</button>
+                <button class="exercise-btn" data-exercise="Squats">SQUATS</button>
+                <button class="exercise-btn" data-exercise="Dips">DIPS</button>
+                <button class="exercise-btn" data-exercise="Rows">ROWS</button>
+            </div>
+
+            <div class="tap-zone" id="tapZone">
+                <div class="rep-count" id="repCount">0</div>
+                <div class="rep-label">TAP FOR REP</div>
+            </div>
+
+            <div class="set-tracker" id="setTracker">
+                <div class="set-dot current"></div>
+                <div class="set-dot"></div>
+                <div class="set-dot"></div>
+                <div class="set-dot"></div>
+                <div class="set-dot"></div>
+            </div>
+
+            <div class="session-stats">
+                <div class="session-stat">
+                    <div class="session-stat-value" id="totalReps">0</div>
+                    <div class="session-stat-label">Total Reps</div>
+                </div>
+                <div class="session-stat">
+                    <div class="session-stat-value" id="setCount">1</div>
+                    <div class="session-stat-label">Set</div>
+                </div>
+                <div class="session-stat">
+                    <div class="session-stat-value" id="meteorCount">0</div>
+                    <div class="session-stat-label">Meteors</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" id="resetBtn">RESET</button>
+                <button class="btn" id="nextSetBtn">NEXT SET</button>
+            </div>
+
+            <div class="history" id="history">
+                <div class="history-title">Session Log</div>
+                <div id="historyList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // METEOR & STARS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const meteorContainer = document.getElementById('meteorContainer');
+
+        // Create stars
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = star.style.height = (Math.random() * 2 + 1) + 'px';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            meteorContainer.appendChild(star);
+        }
+
+        function createMeteor() {
+            const meteor = document.createElement('div');
+            meteor.className = 'meteor';
+            meteor.style.left = (Math.random() * 100) + '%';
+            meteor.style.animationDuration = (0.5 + Math.random() * 0.5) + 's';
+
+            // Random colors
+            const colors = ['#FF6B00', '#9D4EDD', '#00D4FF', '#4361EE'];
+            const color1 = colors[Math.floor(Math.random() * colors.length)];
+            const color2 = colors[Math.floor(Math.random() * colors.length)];
+            meteor.style.background = `linear-gradient(180deg, ${color1}, ${color2}, transparent)`;
+
+            meteorContainer.appendChild(meteor);
+
+            setTimeout(() => meteor.remove(), 1000);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // AUDIO SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function makeDistortion(amount) {
+            const dist = audioCtx.createWaveShaper();
+            const k = amount;
+            const samples = 44100;
+            const curve = new Float32Array(samples);
+            for (let i = 0; i < samples; i++) {
+                const x = (i * 2) / samples - 1;
+                curve[i] = ((3 + k) * x * 20 * (Math.PI / 180)) / (Math.PI + k * Math.abs(x));
+            }
+            dist.curve = curve;
+            return dist;
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'rep') {
+                // Meteor impact
+                const osc = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+                const dist = makeDistortion(20);
+
+                osc.type = 'sawtooth';
+                osc2.type = 'square';
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1500, now);
+                filter.frequency.exponentialRampToValueAtTime(100, now + 0.15);
+
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(60, now + 0.15);
+
+                osc2.frequency.setValueAtTime(100, now);
+                osc2.frequency.exponentialRampToValueAtTime(30, now + 0.1);
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+                osc.connect(dist);
+                osc2.connect(dist);
+                dist.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc2.start(now);
+                osc.stop(now + 0.2);
+                osc2.stop(now + 0.2);
+
+            } else if (type === 'set') {
+                // Set complete - ascending
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(400 + i * 200, audioCtx.currentTime);
+
+                        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+
+                        osc.start(audioCtx.currentTime);
+                        osc.stop(audioCtx.currentTime + 0.2);
+                    }, i * 100);
+                }
+
+            } else if (type === 'click') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let state = {
+            exercise: 'Push-ups',
+            currentReps: 0,
+            currentSet: 1,
+            totalReps: 0,
+            totalMeteors: parseInt(localStorage.getItem('meteor_count') || '0'),
+            history: []
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DOM ELEMENTS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const tapZone = document.getElementById('tapZone');
+        const repCount = document.getElementById('repCount');
+        const totalReps = document.getElementById('totalReps');
+        const setCount = document.getElementById('setCount');
+        const meteorCount = document.getElementById('meteorCount');
+        const setTracker = document.getElementById('setTracker');
+        const resetBtn = document.getElementById('resetBtn');
+        const nextSetBtn = document.getElementById('nextSetBtn');
+        const historyList = document.getElementById('historyList');
+        const exerciseBtns = document.querySelectorAll('.exercise-btn');
+        const soundToggle = document.getElementById('soundToggle');
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function addRep() {
+            state.currentReps++;
+            state.totalReps++;
+            state.totalMeteors++;
+            localStorage.setItem('meteor_count', state.totalMeteors);
+
+            // Create meteors (1-3 per rep)
+            const meteorNum = Math.floor(Math.random() * 3) + 1;
+            for (let i = 0; i < meteorNum; i++) {
+                setTimeout(() => createMeteor(), i * 50);
+            }
+
+            playSound('rep');
+            updateDisplay();
+        }
+
+        function nextSet() {
+            if (state.currentReps > 0) {
+                state.history.unshift({
+                    exercise: state.exercise,
+                    set: state.currentSet,
+                    reps: state.currentReps
+                });
+            }
+
+            state.currentReps = 0;
+            state.currentSet++;
+
+            if (state.currentSet > 5) {
+                state.currentSet = 1;
+            }
+
+            playSound('set');
+            updateDisplay();
+            renderHistory();
+        }
+
+        function resetSession() {
+            state.currentReps = 0;
+            state.currentSet = 1;
+            state.totalReps = 0;
+            state.history = [];
+            playSound('click');
+            updateDisplay();
+            renderHistory();
+        }
+
+        function setExercise(exercise) {
+            state.exercise = exercise;
+            exerciseBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.exercise === exercise);
+            });
+        }
+
+        function updateDisplay() {
+            repCount.textContent = state.currentReps;
+            totalReps.textContent = state.totalReps;
+            setCount.textContent = state.currentSet;
+            meteorCount.textContent = state.totalMeteors;
+
+            // Update set dots
+            const dots = setTracker.querySelectorAll('.set-dot');
+            dots.forEach((dot, i) => {
+                dot.className = 'set-dot';
+                if (i + 1 === state.currentSet) {
+                    dot.classList.add('current');
+                } else if (i + 1 < state.currentSet) {
+                    dot.classList.add('completed');
+                }
+            });
+        }
+
+        function renderHistory() {
+            historyList.innerHTML = '';
+            state.history.slice(0, 5).forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <span class="history-exercise">${item.exercise} Set ${item.set}</span>
+                    <span class="history-reps">${item.reps} reps</span>
+                `;
+                historyList.appendChild(div);
+            });
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // EVENT LISTENERS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        tapZone.addEventListener('click', () => {
+            initAudio();
+            addRep();
+        });
+
+        // Touch support for mobile
+        tapZone.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            initAudio();
+            addRep();
+        });
+
+        nextSetBtn.addEventListener('click', nextSet);
+        resetBtn.addEventListener('click', resetSession);
+
+        exerciseBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                playSound('click');
+                setExercise(btn.dataset.exercise);
+            });
+        });
+
+        soundToggle.addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            soundToggle.classList.toggle('active', soundEnabled);
+            if (soundEnabled) playSound('click');
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        updateDisplay();
+    </script>
+</body>
+</html>

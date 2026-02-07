@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AURORA | Recovery Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --green: #00FF88; --cyan: #00D4FF; --purple: #9D4EDD; --pink: #FF006E; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; }
+
+        .aurora-bg { position: fixed; top: 0; left: 0; width: 100%; height: 50%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .aurora-wave { position: absolute; width: 200%; height: 100px; left: -50%; opacity: 0.3; filter: blur(30px); animation: auroraWave 8s ease-in-out infinite; }
+        .wave-1 { top: 10%; background: linear-gradient(90deg, transparent, var(--green), var(--cyan), transparent); animation-delay: 0s; }
+        .wave-2 { top: 25%; background: linear-gradient(90deg, transparent, var(--cyan), var(--purple), transparent); animation-delay: -2s; }
+        .wave-3 { top: 40%; background: linear-gradient(90deg, transparent, var(--purple), var(--pink), transparent); animation-delay: -4s; }
+        @keyframes auroraWave { 0%, 100% { transform: translateX(-10%) scaleY(1); opacity: 0.3; } 50% { transform: translateX(10%) scaleY(1.5); opacity: 0.5; } }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; position: relative; z-index: 1; }
+
+        .header { text-align: center; margin-bottom: 24px; }
+        .logo { width: 50px; height: 50px; margin: 0 auto 10px; background: linear-gradient(135deg, var(--green), var(--cyan)); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .logo-text { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: #000; }
+        .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 3px; background: linear-gradient(135deg, var(--green), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .header p { font-size: 9px; color: #666; margin-top: 4px; letter-spacing: 2px; }
+
+        .recovery-modes { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
+        .mode-btn { padding: 10px 16px; border-radius: 8px; border: 1px solid #333; background: transparent; color: #666; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+        .mode-btn:hover { border-color: var(--green); color: var(--green); }
+        .mode-btn.active { background: linear-gradient(135deg, var(--green), var(--cyan)); border-color: transparent; color: #000; }
+
+        .timer-section { text-align: center; margin-bottom: 24px; }
+        .timer-circle { width: 180px; height: 180px; margin: 0 auto; position: relative; }
+        .timer-ring { fill: none; stroke: #1a1a2e; stroke-width: 8; }
+        .timer-progress { fill: none; stroke: url(#auroraGradient); stroke-width: 8; stroke-linecap: round; transform: rotate(-90deg); transform-origin: center; transition: stroke-dashoffset 1s linear; }
+        .timer-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        .timer-time { font-size: 36px; font-weight: 300; color: var(--green); }
+        .timer-label { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+        .current-stretch { background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: center; }
+        .stretch-name { font-size: 18px; font-weight: 700; color: var(--green); margin-bottom: 8px; }
+        .stretch-instruction { font-size: 11px; color: #888; line-height: 1.6; margin-bottom: 12px; }
+        .stretch-tip { font-size: 10px; color: #666; font-style: italic; }
+
+        .progress-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+        .progress-dot { width: 10px; height: 10px; border-radius: 50%; background: #222; transition: all 0.3s; }
+        .progress-dot.done { background: var(--green); box-shadow: 0 0 10px var(--green); }
+        .progress-dot.current { background: var(--cyan); box-shadow: 0 0 15px var(--cyan); transform: scale(1.3); }
+
+        .controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 20px; }
+        .btn { padding: 12px 24px; border-radius: 8px; border: 2px solid var(--green); background: transparent; color: var(--green); font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { background: var(--green); color: #000; }
+        .btn.skip-btn { border-color: var(--cyan); color: var(--cyan); }
+        .btn.skip-btn:hover { background: var(--cyan); }
+
+        .breath-guide { background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 12px; padding: 16px; text-align: center; }
+        .breath-label { font-size: 9px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .breath-text { font-size: 14px; color: var(--cyan); font-weight: 600; }
+        .breath-circle { width: 60px; height: 60px; margin: 12px auto 0; border-radius: 50%; background: rgba(0, 212, 255, 0.1); border: 2px solid var(--cyan); animation: breathe 8s ease-in-out infinite; }
+        @keyframes breathe { 0%, 100% { transform: scale(0.8); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 1; } }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--green); color: var(--green); }
+        .sound-toggle.active { color: var(--green); border-color: var(--green); }
+    </style>
+</head>
+<body>
+    <div class="aurora-bg">
+        <div class="aurora-wave wave-1"></div>
+        <div class="aurora-wave wave-2"></div>
+        <div class="aurora-wave wave-3"></div>
+    </div>
+
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Aurora</h1>
+            <p>Recovery Guide</p>
+        </div>
+
+        <div class="recovery-modes">
+            <button class="mode-btn active" data-mode="quick">QUICK 5</button>
+            <button class="mode-btn" data-mode="full">FULL 15</button>
+            <button class="mode-btn" data-mode="deep">DEEP 25</button>
+        </div>
+
+        <div class="timer-section">
+            <div class="timer-circle">
+                <svg width="180" height="180">
+                    <defs>
+                        <linearGradient id="auroraGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#00FF88"/>
+                            <stop offset="50%" stop-color="#00D4FF"/>
+                            <stop offset="100%" stop-color="#9D4EDD"/>
+                        </linearGradient>
+                    </defs>
+                    <circle class="timer-ring" cx="90" cy="90" r="80"/>
+                    <circle class="timer-progress" id="timerProgress" cx="90" cy="90" r="80" stroke-dasharray="502" stroke-dashoffset="0"/>
+                </svg>
+                <div class="timer-content">
+                    <div class="timer-time" id="timerDisplay">0:30</div>
+                    <div class="timer-label" id="timerLabel">Hold</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="progress-dots" id="progressDots"></div>
+
+        <div class="current-stretch">
+            <div class="stretch-name" id="stretchName">Forward Fold</div>
+            <div class="stretch-instruction" id="stretchInstruction">Stand with feet hip-width apart. Hinge at hips and let arms hang heavy toward the floor.</div>
+            <div class="stretch-tip" id="stretchTip">Breathe deeply and let gravity do the work</div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="startBtn">START</button>
+            <button class="btn skip-btn" id="skipBtn">SKIP</button>
+        </div>
+
+        <div class="breath-guide">
+            <div class="breath-label">Breathing Guide</div>
+            <div class="breath-text" id="breathText">Inhale deeply...</div>
+            <div class="breath-circle"></div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx = null, soundEnabled = true, droneOsc = null, droneGain = null;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function startDrone() {
+            if (!soundEnabled || droneOsc) return;
+            initAudio();
+            droneOsc = audioCtx.createOscillator();
+            droneGain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(200, audioCtx.currentTime);
+            droneOsc.type = 'sine';
+            droneOsc.frequency.setValueAtTime(80, audioCtx.currentTime);
+            droneGain.gain.setValueAtTime(0, audioCtx.currentTime);
+            droneGain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 2);
+            droneOsc.connect(filter);
+            filter.connect(droneGain);
+            droneGain.connect(audioCtx.destination);
+            droneOsc.start();
+        }
+
+        function stopDrone() {
+            if (droneOsc && droneGain) {
+                droneGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
+                setTimeout(() => {
+                    if (droneOsc) { droneOsc.stop(); droneOsc = null; droneGain = null; }
+                }, 1000);
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'transition') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.3);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.4);
+            } else if (type === 'complete') {
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(300 + i * 100, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.5);
+                    }, i * 150);
+                }
+            }
+        }
+
+        const routines = {
+            quick: [
+                { name: 'Forward Fold', instruction: 'Stand tall, hinge at hips, let arms hang toward floor. Relax neck.', tip: 'Let gravity stretch your spine', time: 30 },
+                { name: 'Cat-Cow', instruction: 'On all fours, alternate between arching and rounding your spine.', tip: 'Move slowly with your breath', time: 30 },
+                { name: 'Child\'s Pose', instruction: 'Kneel, sit back on heels, extend arms forward on the floor.', tip: 'Breathe into your lower back', time: 45 },
+                { name: 'Supine Twist', instruction: 'Lie on back, bring knees to chest, drop both knees to one side.', tip: 'Keep both shoulders on the ground', time: 45 },
+                { name: 'Corpse Pose', instruction: 'Lie flat on your back, arms at sides, palms up. Completely relax.', tip: 'Scan your body and release all tension', time: 60 }
+            ],
+            full: [
+                { name: 'Neck Rolls', instruction: 'Gently roll head in circles, 5 each direction.', tip: 'Move slowly through any tight spots', time: 30 },
+                { name: 'Shoulder Shrugs', instruction: 'Raise shoulders to ears, hold, then release with an exhale.', tip: 'Feel the release with each drop', time: 30 },
+                { name: 'Standing Side Stretch', instruction: 'Reach one arm overhead and lean to the opposite side.', tip: 'Keep hips squared forward', time: 45 },
+                { name: 'Forward Fold', instruction: 'Hinge at hips, let upper body hang heavy toward the floor.', tip: 'Bend knees if needed', time: 45 },
+                { name: 'Low Lunge', instruction: 'Step one foot forward into lunge, back knee down. Sink hips.', tip: 'Press hips forward gently', time: 45 },
+                { name: 'Pigeon Pose', instruction: 'From lunge, bring front shin parallel to mat. Fold forward.', tip: 'Place a block under hip if needed', time: 60 },
+                { name: 'Seated Forward Fold', instruction: 'Sit with legs extended. Hinge at hips reaching toward toes.', tip: 'Lead with your chest, not head', time: 45 },
+                { name: 'Supine Twist', instruction: 'Lie down, knees to chest, drop knees to one side.', tip: 'Gaze opposite to knees', time: 45 },
+                { name: 'Happy Baby', instruction: 'On back, grab outside of feet, pull knees toward armpits.', tip: 'Rock side to side gently', time: 45 },
+                { name: 'Corpse Pose', instruction: 'Full body relaxation. Scan and release all tension.', tip: 'Stay present with your breath', time: 120 }
+            ],
+            deep: [
+                { name: 'Neck Release', instruction: 'Tilt ear toward shoulder, hold. Use hand for gentle pressure.', tip: 'Never force the stretch', time: 45 },
+                { name: 'Thread the Needle', instruction: 'On all fours, reach one arm under body, lower shoulder to mat.', tip: 'Breathe into the twist', time: 60 },
+                { name: 'Puppy Pose', instruction: 'From all fours, walk hands forward, chest toward floor.', tip: 'Keep hips over knees', time: 60 },
+                { name: 'Standing Forward Fold', instruction: 'Deep fold, grab opposite elbows, sway gently.', tip: 'Release head completely', time: 60 },
+                { name: 'Lizard Pose', instruction: 'Low lunge with both hands inside front foot.', tip: 'Stay high on hands or drop to forearms', time: 90 },
+                { name: 'Half Split', instruction: 'From lunge, straighten front leg, fold over it.', tip: 'Flex front foot to protect knee', time: 60 },
+                { name: 'Pigeon', instruction: 'Deep pigeon pose, stay upright or fold forward.', tip: 'Use props for support', time: 120 },
+                { name: 'Frog Pose', instruction: 'Wide knees, ankles behind knees, lower to forearms.', tip: 'Go slowly, this is intense', time: 90 },
+                { name: 'Seated Wide Leg Fold', instruction: 'Legs wide, fold forward from hips.', tip: 'Walk hands forward gradually', time: 60 },
+                { name: 'Supine Figure Four', instruction: 'On back, cross ankle over knee, pull thigh toward chest.', tip: 'Flex the crossed foot', time: 60 },
+                { name: 'Reclined Twist', instruction: 'Deep twist, extend opposite arm, gaze at it.', tip: 'Ground the shoulder', time: 90 },
+                { name: 'Legs Up Wall', instruction: 'Lie with legs resting up a wall.', tip: 'Let blood flow reverse', time: 120 },
+                { name: 'Final Relaxation', instruction: 'Complete stillness, full surrender.', tip: 'You\'ve earned this', time: 180 }
+            ]
+        };
+
+        let state = {
+            mode: 'quick',
+            currentIdx: 0,
+            timeLeft: 30,
+            isRunning: false,
+            intervalId: null,
+            breathPhase: 'inhale'
+        };
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        function updateDisplay() {
+            const routine = routines[state.mode];
+            const stretch = routine[state.currentIdx];
+
+            document.getElementById('stretchName').textContent = stretch.name;
+            document.getElementById('stretchInstruction').textContent = stretch.instruction;
+            document.getElementById('stretchTip').textContent = stretch.tip;
+            document.getElementById('timerDisplay').textContent = formatTime(state.timeLeft);
+
+            const progress = (stretch.time - state.timeLeft) / stretch.time;
+            const circumference = 502;
+            document.getElementById('timerProgress').style.strokeDashoffset = circumference * (1 - progress);
+
+            // Progress dots
+            const dots = document.getElementById('progressDots');
+            dots.innerHTML = routine.map((_, i) => `
+                <div class="progress-dot ${i < state.currentIdx ? 'done' : ''} ${i === state.currentIdx ? 'current' : ''}"></div>
+            `).join('');
+
+            document.getElementById('startBtn').textContent = state.isRunning ? 'PAUSE' : 'START';
+        }
+
+        function updateBreath() {
+            state.breathPhase = state.breathPhase === 'inhale' ? 'exhale' : 'inhale';
+            document.getElementById('breathText').textContent = state.breathPhase === 'inhale' ? 'Inhale deeply...' : 'Exhale slowly...';
+        }
+
+        function nextStretch() {
+            const routine = routines[state.mode];
+            state.currentIdx++;
+
+            if (state.currentIdx >= routine.length) {
+                complete();
+                return;
+            }
+
+            state.timeLeft = routine[state.currentIdx].time;
+            playSound('transition');
+            updateDisplay();
+        }
+
+        function start() {
+            if (state.isRunning) {
+                pause();
+                return;
+            }
+
+            state.isRunning = true;
+            initAudio();
+            startDrone();
+
+            state.intervalId = setInterval(() => {
+                state.timeLeft--;
+
+                if (state.timeLeft % 4 === 0) updateBreath();
+
+                if (state.timeLeft <= 0) {
+                    nextStretch();
+                }
+
+                updateDisplay();
+            }, 1000);
+
+            updateDisplay();
+        }
+
+        function pause() {
+            state.isRunning = false;
+            if (state.intervalId) { clearInterval(state.intervalId); state.intervalId = null; }
+            stopDrone();
+            updateDisplay();
+        }
+
+        function complete() {
+            pause();
+            playSound('complete');
+            state.currentIdx = 0;
+            state.timeLeft = routines[state.mode][0].time;
+            updateDisplay();
+            alert('Recovery session complete. You should feel restored and relaxed.');
+        }
+
+        function skip() {
+            nextStretch();
+        }
+
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.mode = btn.dataset.mode;
+                state.currentIdx = 0;
+                state.timeLeft = routines[state.mode][0].time;
+                if (state.isRunning) pause();
+                updateDisplay();
+            });
+        });
+
+        document.getElementById('startBtn').addEventListener('click', start);
+        document.getElementById('skipBtn').addEventListener('click', skip);
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
+            if (!soundEnabled) stopDrone();
+        });
+
+        setInterval(updateBreath, 4000);
+        updateDisplay();
+    </script>
+</body>
+</html>

@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constellation Builder | Saturno Movement</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: #050510;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        /* Deep space background */
+        .space-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 30%, rgba(100, 0, 150, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(0, 100, 150, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(50, 50, 100, 0.1) 0%, transparent 70%),
+                #050510;
+            z-index: 0;
+        }
+
+        /* Star field canvas */
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Main canvas for constellation */
+        #constellation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(5,5,16,0.95), transparent);
+        }
+
+        .logo {
+            height: 45px;
+            filter: drop-shadow(0 0 10px rgba(0,206,209,0.5));
+        }
+
+        h1 {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 300;
+            letter-spacing: 4px;
+            color: #00CED1;
+            text-shadow: 0 0 20px rgba(0,206,209,0.5);
+            z-index: 100;
+        }
+
+        .subtitle {
+            position: fixed;
+            top: 100px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #666;
+            z-index: 100;
+        }
+
+        /* Toolbox */
+        .toolbox {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .tool-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,206,209,0.3);
+            background: rgba(0,206,209,0.1);
+            color: #00CED1;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tool-btn:hover {
+            background: rgba(0,206,209,0.2);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0,206,209,0.3);
+        }
+
+        .tool-btn.active {
+            background: rgba(0,206,209,0.4);
+            border-color: #00CED1;
+            box-shadow: 0 0 20px rgba(0,206,209,0.5);
+        }
+
+        /* Exercise palette */
+        .palette {
+            position: fixed;
+            right: 20px;
+            top: 130px;
+            bottom: 80px;
+            width: 200px;
+            background: rgba(10,10,20,0.9);
+            border: 1px solid rgba(0,206,209,0.2);
+            border-radius: 15px;
+            padding: 1rem;
+            overflow-y: auto;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .palette h3 {
+            font-size: 0.8rem;
+            color: #00CED1;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .palette-category {
+            margin-bottom: 1rem;
+        }
+
+        .palette-category summary {
+            cursor: pointer;
+            font-size: 0.7rem;
+            color: #888;
+            padding: 0.3rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .exercise-chip {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            margin: 0.2rem;
+            font-size: 0.6rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            cursor: grab;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .exercise-chip:hover {
+            background: rgba(0,206,209,0.2);
+            border-color: #00CED1;
+        }
+
+        .exercise-chip:active {
+            cursor: grabbing;
+        }
+
+        .exercise-chip[data-tier="beginner"] { border-color: rgba(46,204,113,0.5); }
+        .exercise-chip[data-tier="intermediate"] { border-color: rgba(241,196,15,0.5); }
+        .exercise-chip[data-tier="advanced"] { border-color: rgba(231,76,60,0.5); }
+        .exercise-chip[data-tier="master"] { border-color: rgba(155,89,182,0.5); }
+
+        /* Info panel */
+        .info-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10,10,20,0.95);
+            border: 1px solid rgba(0,206,209,0.3);
+            border-radius: 15px;
+            padding: 1rem 2rem;
+            display: flex;
+            gap: 2rem;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-stat {
+            text-align: center;
+        }
+
+        .info-stat .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00CED1;
+        }
+
+        .info-stat .label {
+            font-size: 0.6rem;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        /* Action buttons */
+        .actions {
+            position: fixed;
+            bottom: 20px;
+            right: 240px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .action-btn {
+            padding: 0.8rem 1.2rem;
+            background: rgba(0,206,209,0.1);
+            border: 1px solid rgba(0,206,209,0.3);
+            border-radius: 8px;
+            color: #00CED1;
+            font-family: inherit;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(0,206,209,0.2);
+            transform: translateY(-2px);
+        }
+
+        .action-btn.danger {
+            border-color: rgba(231,76,60,0.3);
+            color: #E74C3C;
+        }
+
+        .action-btn.danger:hover {
+            background: rgba(231,76,60,0.2);
+        }
+
+        /* Star detail popup */
+        .star-popup {
+            position: fixed;
+            display: none;
+            background: rgba(10,10,20,0.95);
+            border: 1px solid rgba(0,206,209,0.5);
+            border-radius: 10px;
+            padding: 1rem;
+            min-width: 150px;
+            z-index: 200;
+            backdrop-filter: blur(10px);
+        }
+
+        .star-popup.visible {
+            display: block;
+        }
+
+        .star-popup h4 {
+            font-size: 0.8rem;
+            color: #00CED1;
+            margin-bottom: 0.5rem;
+        }
+
+        .star-popup p {
+            font-size: 0.7rem;
+            color: #888;
+        }
+
+        .star-popup input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 5px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.7rem;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,206,209,0.3);
+            border-radius: 3px;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .palette {
+                width: 150px;
+                right: 10px;
+            }
+
+            .toolbox {
+                left: 10px;
+            }
+
+            .info-panel {
+                width: 90%;
+                justify-content: space-around;
+            }
+        }
+
+        /* Shooting star animation */
+        .shooting-star {
+            position: fixed;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(to right, transparent, white, transparent);
+            animation: shoot 1s linear forwards;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        @keyframes shoot {
+            0% { transform: translateX(0) translateY(0); opacity: 1; }
+            100% { transform: translateX(300px) translateY(300px); opacity: 0; }
+        }
+
+        footer {
+            position: fixed;
+            bottom: 5px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.6rem;
+            color: #333;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div class="space-bg"></div>
+    <canvas id="starfield"></canvas>
+    <canvas id="constellation"></canvas>
+
+    <header>
+        <img src="https://raw.githubusercontent.com/gabosaturno11/titan-forge/main/assets/logo-planete-azul.png"
+             alt="Saturno Movement"
+             class="logo"
+             onerror="this.style.display='none'">
+    </header>
+
+    <h1>CONSTELLATION BUILDER</h1>
+    <div class="subtitle">Click to place stars · Drag to connect · Build your workout</div>
+
+    <!-- Toolbox -->
+    <div class="toolbox">
+        <button class="tool-btn active" data-tool="star" title="Place Star">⭐</button>
+        <button class="tool-btn" data-tool="connect" title="Connect Stars">🔗</button>
+        <button class="tool-btn" data-tool="move" title="Move Stars">✋</button>
+        <button class="tool-btn" data-tool="delete" title="Delete">🗑️</button>
+        <button class="tool-btn" data-tool="color" title="Color">🎨</button>
+    </div>
+
+    <!-- Exercise Palette -->
+    <div class="palette">
+        <h3>Exercises</h3>
+
+        <details class="palette-category" open>
+            <summary>Push</summary>
+            <div class="exercise-chip" data-tier="beginner" draggable="true">Wall Push-Up</div>
+            <div class="exercise-chip" data-tier="beginner" draggable="true">Knee Push-Up</div>
+            <div class="exercise-chip" data-tier="intermediate" draggable="true">Push-Up</div>
+            <div class="exercise-chip" data-tier="intermediate" draggable="true">Diamond</div>
+            <div class="exercise-chip" data-tier="advanced" draggable="true">Archer</div>
+            <div class="exercise-chip" data-tier="master" draggable="true">One-Arm</div>
+        </details>
+
+        <details class="palette-category">
+            <summary>Pull</summary>
+            <div class="exercise-chip" data-tier="beginner" draggable="true">Dead Hang</div>
+            <div class="exercise-chip" data-tier="beginner" draggable="true">Scapula Pull</div>
+            <div class="exercise-chip" data-tier="intermediate" draggable="true">Chin-Up</div>
+            <div class="exercise-chip" data-tier="intermediate" draggable="true">Pull-Up</div>
+            <div class="exercise-chip" data-tier="advanced" draggable="true">Archer Pull</div>
+            <div class="exercise-chip" data-tier="master" draggable="true">One-Arm Pull</div>
+        </details>
+
+        <details class="palette-category">
+            <summary>Squat</summary>
+            <div class="exercise-chip" data-tier="beginner" draggable="true">Box Squat</div>
+            <div class="exercise-chip" data-tier="intermediate" draggable="true">Squat</div>
+            <div class="exercise-chip" data-tier="intermediate" draggable="true">Bulgarian</div>
+            <div class="exercise-chip" data-tier="advanced" draggable="true">Shrimp</div>
+            <div class="exercise-chip" data-tier="master" draggable="true">Pistol</div>
+        </details>
+
+        <details class="palette-category">
+            <summary>Core</summary>
+            <div class="exercise-chip" data-tier="beginner" draggable="true">Plank</div>
+            <div class="exercise-chip" data-tier="beginner" draggable="true">Dead Bug</div>
+            <div class="exercise-chip" data-tier="intermediate" draggable="true">Hollow Hold</div>
+            <div class="exercise-chip" data-tier="intermediate" draggable="true">L-Sit</div>
+            <div class="exercise-chip" data-tier="advanced" draggable="true">Dragon Flag</div>
+            <div class="exercise-chip" data-tier="master" draggable="true">Front Lever</div>
+        </details>
+
+        <details class="palette-category">
+            <summary>Balance</summary>
+            <div class="exercise-chip" data-tier="beginner" draggable="true">Crow Pose</div>
+            <div class="exercise-chip" data-tier="intermediate" draggable="true">Wall HS</div>
+            <div class="exercise-chip" data-tier="advanced" draggable="true">Handstand</div>
+            <div class="exercise-chip" data-tier="master" draggable="true">One-Arm HS</div>
+        </details>
+
+        <details class="palette-category">
+            <summary>Mobility</summary>
+            <div class="exercise-chip" data-tier="beginner" draggable="true">Cat-Cow</div>
+            <div class="exercise-chip" data-tier="intermediate" draggable="true">Pancake</div>
+            <div class="exercise-chip" data-tier="advanced" draggable="true">Bridge</div>
+            <div class="exercise-chip" data-tier="master" draggable="true">Full Bridge</div>
+        </details>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="info-panel">
+        <div class="info-stat">
+            <div class="value" id="starCount">0</div>
+            <div class="label">Stars</div>
+        </div>
+        <div class="info-stat">
+            <div class="value" id="lineCount">0</div>
+            <div class="label">Lines</div>
+        </div>
+        <div class="info-stat">
+            <div class="value" id="exerciseCount">0</div>
+            <div class="label">Exercises</div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+        <button class="action-btn" onclick="saveConstellation()">💾 Save</button>
+        <button class="action-btn" onclick="loadConstellation()">📂 Load</button>
+        <button class="action-btn" onclick="exportWorkout()">📋 Export</button>
+        <button class="action-btn danger" onclick="clearAll()">🗑️ Clear</button>
+    </div>
+
+    <!-- Star popup -->
+    <div class="star-popup" id="starPopup">
+        <h4>⭐ Star Details</h4>
+        <p>Exercise:</p>
+        <input type="text" id="starLabel" placeholder="Enter exercise name">
+    </div>
+
+    <footer>SATURNO MOVEMENT</footer>
+
+    <script>
+        // Audio
+        let audioCtx = null;
+
+        // Canvas setup
+        const starfieldCanvas = document.getElementById('starfield');
+        const starfieldCtx = starfieldCanvas.getContext('2d');
+        const canvas = document.getElementById('constellation');
+        const ctx = canvas.getContext('2d');
+
+        // State
+        let currentTool = 'star';
+        let stars = [];
+        let lines = [];
+        let selectedStar = null;
+        let connectingFrom = null;
+        let isDragging = false;
+        let dragStar = null;
+        let currentColor = '#00CED1';
+
+        const colors = ['#00CED1', '#FFD700', '#FF6B6B', '#2ECC71', '#9B59B6', '#E74C3C', '#3498DB'];
+        let colorIndex = 0;
+
+        // Resize
+        function resize() {
+            starfieldCanvas.width = window.innerWidth;
+            starfieldCanvas.height = window.innerHeight;
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            drawStarfield();
+            draw();
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Background starfield
+        const bgStars = [];
+        function initStarfield() {
+            for (let i = 0; i < 300; i++) {
+                bgStars.push({
+                    x: Math.random() * starfieldCanvas.width,
+                    y: Math.random() * starfieldCanvas.height,
+                    size: Math.random() * 2 + 0.5,
+                    twinkle: Math.random() * Math.PI * 2,
+                    speed: Math.random() * 0.02 + 0.01
+                });
+            }
+        }
+
+        function drawStarfield() {
+            starfieldCtx.clearRect(0, 0, starfieldCanvas.width, starfieldCanvas.height);
+
+            bgStars.forEach(star => {
+                star.twinkle += star.speed;
+                const opacity = 0.3 + Math.sin(star.twinkle) * 0.4;
+
+                starfieldCtx.beginPath();
+                starfieldCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                starfieldCtx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                starfieldCtx.fill();
+            });
+
+            requestAnimationFrame(drawStarfield);
+        }
+
+        initStarfield();
+
+        // Main draw
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw lines
+            lines.forEach(line => {
+                const star1 = stars.find(s => s.id === line.from);
+                const star2 = stars.find(s => s.id === line.to);
+                if (star1 && star2) {
+                    // Glow
+                    ctx.beginPath();
+                    ctx.moveTo(star1.x, star1.y);
+                    ctx.lineTo(star2.x, star2.y);
+                    ctx.strokeStyle = line.color + '40';
+                    ctx.lineWidth = 6;
+                    ctx.stroke();
+
+                    // Main line
+                    ctx.beginPath();
+                    ctx.moveTo(star1.x, star1.y);
+                    ctx.lineTo(star2.x, star2.y);
+                    ctx.strokeStyle = line.color;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            });
+
+            // Draw stars
+            stars.forEach(star => {
+                // Outer glow
+                const gradient = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, 30);
+                gradient.addColorStop(0, star.color + '80');
+                gradient.addColorStop(1, 'transparent');
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, 30, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                // Star core
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fillStyle = star.color;
+                ctx.shadowColor = star.color;
+                ctx.shadowBlur = 15;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Inner bright
+                ctx.beginPath();
+                ctx.arc(star.x - 3, star.y - 3, star.size * 0.3, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.fill();
+
+                // Label
+                if (star.label) {
+                    ctx.font = '10px JetBrains Mono';
+                    ctx.fillStyle = '#fff';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(star.label, star.x, star.y + star.size + 15);
+                }
+
+                // Selection ring
+                if (star === selectedStar || star === connectingFrom) {
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.size + 8, 0, Math.PI * 2);
+                    ctx.strokeStyle = '#FFD700';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            });
+
+            // Drawing line preview
+            if (connectingFrom && currentTool === 'connect') {
+                ctx.beginPath();
+                ctx.moveTo(connectingFrom.x, connectingFrom.y);
+                ctx.lineTo(mouseX, mouseY);
+                ctx.strokeStyle = currentColor + '80';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            updateStats();
+        }
+
+        let mouseX = 0, mouseY = 0;
+
+        // Tool selection
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTool = btn.dataset.tool;
+                connectingFrom = null;
+
+                if (currentTool === 'color') {
+                    colorIndex = (colorIndex + 1) % colors.length;
+                    currentColor = colors[colorIndex];
+                    btn.style.color = currentColor;
+                    playSound('click');
+                }
+
+                draw();
+            });
+        });
+
+        // Canvas interactions
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            const clickedStar = getStarAt(x, y);
+
+            if (currentTool === 'star') {
+                if (!clickedStar) {
+                    const newStar = {
+                        id: Date.now(),
+                        x, y,
+                        size: 10,
+                        color: currentColor,
+                        label: ''
+                    };
+                    stars.push(newStar);
+                    playSound('place');
+                    shootingStar(x, y);
+                } else {
+                    showStarPopup(clickedStar, e.clientX, e.clientY);
+                }
+            } else if (currentTool === 'connect') {
+                if (clickedStar) {
+                    if (!connectingFrom) {
+                        connectingFrom = clickedStar;
+                        playSound('click');
+                    } else if (connectingFrom !== clickedStar) {
+                        // Check if line exists
+                        const exists = lines.some(l =>
+                            (l.from === connectingFrom.id && l.to === clickedStar.id) ||
+                            (l.from === clickedStar.id && l.to === connectingFrom.id)
+                        );
+                        if (!exists) {
+                            lines.push({
+                                from: connectingFrom.id,
+                                to: clickedStar.id,
+                                color: currentColor
+                            });
+                            playSound('connect');
+                        }
+                        connectingFrom = null;
+                    }
+                } else {
+                    connectingFrom = null;
+                }
+            } else if (currentTool === 'delete') {
+                if (clickedStar) {
+                    stars = stars.filter(s => s !== clickedStar);
+                    lines = lines.filter(l => l.from !== clickedStar.id && l.to !== clickedStar.id);
+                    playSound('delete');
+                }
+            }
+
+            draw();
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+
+            if (currentTool === 'move' && isDragging && dragStar) {
+                dragStar.x = mouseX;
+                dragStar.y = mouseY;
+            }
+
+            draw();
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            if (currentTool === 'move') {
+                const star = getStarAt(x, y);
+                if (star) {
+                    isDragging = true;
+                    dragStar = star;
+                }
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isDragging = false;
+            dragStar = null;
+        });
+
+        // Get star at position
+        function getStarAt(x, y) {
+            return stars.find(star => {
+                const dist = Math.sqrt((star.x - x) ** 2 + (star.y - y) ** 2);
+                return dist < star.size + 10;
+            });
+        }
+
+        // Star popup
+        function showStarPopup(star, x, y) {
+            selectedStar = star;
+            const popup = document.getElementById('starPopup');
+            const input = document.getElementById('starLabel');
+
+            popup.style.left = (x + 20) + 'px';
+            popup.style.top = (y - 50) + 'px';
+            popup.classList.add('visible');
+
+            input.value = star.label;
+            input.focus();
+
+            input.onchange = () => {
+                star.label = input.value;
+                draw();
+            };
+
+            input.onblur = () => {
+                setTimeout(() => {
+                    popup.classList.remove('visible');
+                    selectedStar = null;
+                    draw();
+                }, 200);
+            };
+        }
+
+        // Drag and drop from palette
+        document.querySelectorAll('.exercise-chip').forEach(chip => {
+            chip.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text', chip.textContent);
+                e.dataTransfer.setData('tier', chip.dataset.tier);
+            });
+        });
+
+        canvas.addEventListener('dragover', (e) => e.preventDefault());
+
+        canvas.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const label = e.dataTransfer.getData('text');
+            const tier = e.dataTransfer.getData('tier');
+
+            const tierColors = {
+                beginner: '#2ECC71',
+                intermediate: '#F1C40F',
+                advanced: '#E74C3C',
+                master: '#9B59B6'
+            };
+
+            stars.push({
+                id: Date.now(),
+                x, y,
+                size: 12,
+                color: tierColors[tier] || currentColor,
+                label
+            });
+
+            playSound('place');
+            shootingStar(x, y);
+            draw();
+        });
+
+        // Stats
+        function updateStats() {
+            document.getElementById('starCount').textContent = stars.length;
+            document.getElementById('lineCount').textContent = lines.length;
+            document.getElementById('exerciseCount').textContent = stars.filter(s => s.label).length;
+        }
+
+        // Actions
+        function saveConstellation() {
+            const data = { stars, lines };
+            localStorage.setItem('constellation', JSON.stringify(data));
+            playSound('save');
+            alert('✨ Constellation saved!');
+        }
+
+        function loadConstellation() {
+            const saved = localStorage.getItem('constellation');
+            if (saved) {
+                const data = JSON.parse(saved);
+                stars = data.stars;
+                lines = data.lines;
+                playSound('load');
+                draw();
+            } else {
+                alert('No saved constellation found.');
+            }
+        }
+
+        function exportWorkout() {
+            const exercises = stars.filter(s => s.label).map(s => s.label);
+            if (exercises.length === 0) {
+                alert('Add some exercises to your constellation first!');
+                return;
+            }
+
+            const workout = `🌟 CONSTELLATION WORKOUT\n\n${exercises.map((e, i) => `${i + 1}. ${e}`).join('\n')}\n\n✨ Created with Saturno Movement`;
+
+            navigator.clipboard.writeText(workout).then(() => {
+                alert('📋 Workout copied to clipboard!');
+                playSound('save');
+            });
+        }
+
+        function clearAll() {
+            if (confirm('Clear all stars and lines?')) {
+                stars = [];
+                lines = [];
+                playSound('delete');
+                draw();
+            }
+        }
+
+        // Shooting star effect
+        function shootingStar(x, y) {
+            const star = document.createElement('div');
+            star.className = 'shooting-star';
+            star.style.left = x + 'px';
+            star.style.top = y + 'px';
+            document.body.appendChild(star);
+            setTimeout(() => star.remove(), 1000);
+        }
+
+        // Audio
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'place') {
+                // Sparkle
+                [1, 1.25, 1.5].forEach((m, i) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(1200 * m, now + i * 0.05);
+                    gain.gain.setValueAtTime(0.1, now + i * 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.05 + 0.15);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + i * 0.05);
+                    osc.stop(now + i * 0.05 + 0.15);
+                });
+            } else if (type === 'connect') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            } else if (type === 'delete') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.15);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            } else if (type === 'click') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'save' || type === 'load') {
+                [1, 1.2, 1.5, 2].forEach((m, i) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440 * m, now + i * 0.08);
+                    gain.gain.setValueAtTime(0.1, now + i * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.2);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + i * 0.08);
+                    osc.stop(now + i * 0.08 + 0.2);
+                });
+            }
+        }
+
+        // Initial draw
+        draw();
+    </script>
+</body>
+</html>

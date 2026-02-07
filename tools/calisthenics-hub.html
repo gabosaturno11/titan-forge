@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CALISTHENICS HUB | Saturno Movement</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700;1,800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #050505;
+            --bg-secondary: #080808;
+            --bg-card: #000000;
+            --border: #27272a;
+            --border-hover: #ffffff;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #52525b;
+            --text-micro: #3f3f46;
+            --accent-green: #22c55e;
+            --accent-amber: #f59e0b;
+            --accent-blue: #3b82f6;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            height: 64px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .logo {
+            font-size: 14px;
+            font-weight: 800;
+            font-style: italic;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-tab {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover {
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            background: var(--text-primary);
+            color: var(--bg-card);
+            border-color: var(--text-primary);
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 32px 24px;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 32px;
+        }
+
+        .sidebar-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 48px;
+            overflow-y: auto;
+            background: var(--bg-secondary);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card Pattern */
+        .card {
+            border-left: 2px solid var(--border);
+            padding-left: 32px;
+            padding-top: 24px;
+            padding-bottom: 24px;
+            margin-bottom: 24px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            border-left-color: var(--border-hover);
+        }
+
+        .card-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 800;
+            font-style: italic;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .card-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        /* Timer */
+        .timer-display {
+            font-size: 72px;
+            font-weight: 300;
+            color: var(--text-primary);
+            text-align: center;
+            padding: 48px 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        .btn.primary {
+            background: var(--text-primary);
+            color: var(--bg-card);
+            border-color: var(--text-primary);
+        }
+
+        .btn.primary:hover {
+            background: var(--text-secondary);
+        }
+
+        .timer-presets {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .preset-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        /* Exercise Input */
+        .input-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .input-group {
+            flex: 1;
+        }
+
+        .input-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .input, select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input:focus, select:focus {
+            border-color: var(--border-hover);
+        }
+
+        select option {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        /* Workout List */
+        .workout-list {
+            margin-top: 32px;
+        }
+
+        .workout-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .workout-item:last-child {
+            border-bottom: none;
+        }
+
+        .workout-name {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .workout-sets {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .workout-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        .icon-btn.done {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        /* Skills */
+        .skill-item {
+            border-left: 2px solid var(--border);
+            padding-left: 24px;
+            padding-top: 16px;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .skill-item:hover {
+            border-left-color: var(--border-hover);
+        }
+
+        .skill-item.mastered {
+            border-left-color: var(--accent-green);
+        }
+
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 8px;
+        }
+
+        .skill-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .skill-level {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-amber);
+        }
+
+        .skill-level.mastered {
+            color: var(--accent-green);
+        }
+
+        .skill-progress {
+            height: 2px;
+            background: var(--border);
+            margin-bottom: 8px;
+        }
+
+        .skill-progress-bar {
+            height: 100%;
+            background: var(--text-primary);
+            transition: width 0.5s ease;
+        }
+
+        .skill-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Progress Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-muted);
+        }
+
+        /* PR List */
+        .pr-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pr-name {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .pr-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-amber);
+        }
+
+        /* Programs */
+        .program-card {
+            border-left: 2px solid var(--border);
+            padding: 24px;
+            padding-left: 32px;
+            margin-bottom: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .program-card:hover {
+            border-left-color: var(--border-hover);
+            background: var(--bg-card);
+        }
+
+        .program-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .program-title {
+            font-size: 18px;
+            font-weight: 800;
+            font-style: italic;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .program-level {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-amber);
+            border: 1px solid var(--accent-amber);
+            padding: 4px 8px;
+        }
+
+        .program-duration {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .program-description {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .program-tags {
+            display: flex;
+            gap: 8px;
+        }
+
+        .program-tag {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 4px 8px;
+        }
+
+        /* Journal */
+        .journal-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            margin-bottom: 16px;
+        }
+
+        .journal-textarea:focus {
+            border-color: var(--border-hover);
+        }
+
+        .journal-entry {
+            border-left: 2px solid var(--border);
+            padding-left: 24px;
+            padding-top: 16px;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+        }
+
+        .journal-date {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .journal-workout {
+            font-size: 13px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .journal-notes {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Quote */
+        .daily-quote {
+            border-left: 2px solid var(--accent-amber);
+            padding-left: 24px;
+            margin-bottom: 48px;
+        }
+
+        .quote-text {
+            font-size: 16px;
+            font-style: italic;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .quote-author {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 48px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 24px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        /* Mobile Timer (shown only on mobile) */
+        .mobile-timer {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .mobile-timer-display {
+            font-size: 48px;
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .mobile-timer-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .mobile-timer-presets {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar { display: none; }
+            .mobile-timer { display: block; }
+            .header { padding: 0 24px; }
+            .content { padding: 32px 24px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                height: auto;
+                flex-direction: column;
+                padding: 16px;
+                gap: 12px;
+            }
+
+            .logo {
+                font-size: 12px;
+            }
+
+            .nav-tabs {
+                width: 100%;
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding-bottom: 4px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .nav-tabs::-webkit-scrollbar {
+                height: 2px;
+            }
+
+            .nav-tabs::-webkit-scrollbar-thumb {
+                background: var(--border);
+            }
+
+            .nav-tab {
+                padding: 10px 14px;
+                font-size: 9px;
+                flex-shrink: 0;
+            }
+
+            .content {
+                padding: 24px 16px;
+            }
+
+            .daily-quote {
+                margin-bottom: 32px;
+            }
+
+            .quote-text {
+                font-size: 14px;
+            }
+
+            .section-title {
+                font-size: 9px;
+                margin-bottom: 16px;
+            }
+
+            .input-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .input-group {
+                width: 100%;
+            }
+
+            .input, select {
+                padding: 14px 16px;
+                font-size: 14px;
+            }
+
+            .btn {
+                padding: 14px 20px;
+                font-size: 11px;
+            }
+
+            .btn.primary {
+                padding: 16px 24px;
+            }
+
+            /* Workout items */
+            .workout-item {
+                padding: 14px 0;
+            }
+
+            .workout-name {
+                font-size: 13px;
+            }
+
+            .icon-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            /* Skills */
+            .skill-item {
+                padding: 14px;
+                padding-left: 20px;
+            }
+
+            .skill-name {
+                font-size: 13px;
+            }
+
+            .skill-level {
+                font-size: 9px;
+            }
+
+            /* Programs */
+            .program-card {
+                padding: 20px;
+                padding-left: 24px;
+            }
+
+            .program-title {
+                font-size: 16px;
+            }
+
+            .program-level {
+                font-size: 8px;
+                padding: 3px 6px;
+            }
+
+            .program-description {
+                font-size: 11px;
+            }
+
+            .program-tags {
+                flex-wrap: wrap;
+            }
+
+            .program-tag {
+                font-size: 8px;
+            }
+
+            /* Stats */
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-value {
+                font-size: 28px;
+            }
+
+            .stat-label {
+                font-size: 8px;
+            }
+
+            /* PR */
+            .pr-item {
+                padding: 14px 0;
+            }
+
+            .pr-name {
+                font-size: 12px;
+            }
+
+            .pr-value {
+                font-size: 14px;
+            }
+
+            /* Journal */
+            .journal-textarea {
+                min-height: 100px;
+                font-size: 14px;
+            }
+
+            .journal-entry {
+                padding: 12px;
+                padding-left: 16px;
+            }
+
+            .journal-date {
+                font-size: 9px;
+            }
+
+            .journal-workout {
+                font-size: 12px;
+            }
+
+            .journal-notes {
+                font-size: 11px;
+            }
+
+            /* Mobile timer adjustments */
+            .mobile-timer {
+                padding: 16px;
+            }
+
+            .mobile-timer-display {
+                font-size: 42px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .nav-tab {
+                padding: 8px 10px;
+                font-size: 8px;
+            }
+
+            .mobile-timer-display {
+                font-size: 36px;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+
+            .program-title {
+                font-size: 14px;
+            }
+        }
+
+        /* Touch improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .nav-tab,
+            .btn,
+            .preset-btn,
+            .icon-btn,
+            .skill-item,
+            .program-card {
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .nav-tab:active,
+            .btn:active,
+            .preset-btn:active {
+                transform: scale(0.97);
+            }
+
+            .skill-item:active,
+            .program-card:active {
+                background: var(--bg-card);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">CALISTHENICS HUB</div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="workout">WORKOUT</button>
+            <button class="nav-tab" data-tab="skills">SKILLS</button>
+            <button class="nav-tab" data-tab="programs">PROGRAMS</button>
+            <button class="nav-tab" data-tab="progress">PROGRESS</button>
+            <button class="nav-tab" data-tab="journal">JOURNAL</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-label">REST TIMER</div>
+                <div class="timer-display" id="timerDisplay">1:30</div>
+                <div class="timer-controls">
+                    <button class="btn" id="timerStartBtn">START</button>
+                    <button class="btn" id="timerResetBtn">RESET</button>
+                </div>
+                <div class="timer-presets">
+                    <button class="preset-btn" data-time="60">1:00</button>
+                    <button class="preset-btn" data-time="90">1:30</button>
+                    <button class="preset-btn" data-time="120">2:00</button>
+                    <button class="preset-btn" data-time="180">3:00</button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">QUICK STATS</div>
+                <div style="margin-bottom: 16px;">
+                    <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">TODAY'S EXERCISES</div>
+                    <div style="font-size: 24px; font-weight: 300;" id="todayExercises">0</div>
+                </div>
+                <div>
+                    <div style="font-size: 10px; color: var(--text-muted); margin-bottom: 4px;">TOTAL VOLUME</div>
+                    <div style="font-size: 24px; font-weight: 300;" id="todayVolume">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- WORKOUT TAB -->
+            <div class="tab-content active" id="tab-workout">
+                <!-- Mobile Timer (hidden on desktop) -->
+                <div class="mobile-timer">
+                    <div class="mobile-timer-display" id="mobileTimerDisplay">1:30</div>
+                    <div class="mobile-timer-controls">
+                        <button class="btn" id="mobileTimerStartBtn">START</button>
+                        <button class="btn" id="mobileTimerResetBtn">RESET</button>
+                    </div>
+                    <div class="mobile-timer-presets">
+                        <button class="preset-btn mobile-preset" data-time="60">1:00</button>
+                        <button class="preset-btn mobile-preset" data-time="90">1:30</button>
+                        <button class="preset-btn mobile-preset" data-time="120">2:00</button>
+                        <button class="preset-btn mobile-preset" data-time="180">3:00</button>
+                    </div>
+                </div>
+
+                <div class="daily-quote">
+                    <div class="quote-text" id="dailyQuote">"The only bad workout is the one that didn't happen."</div>
+                    <div class="quote-author">SATURNO MOVEMENT</div>
+                </div>
+
+                <div class="section-title">ADD EXERCISE</div>
+                <div class="input-row">
+                    <div class="input-group" style="flex: 2;">
+                        <label class="input-label">EXERCISE</label>
+                        <select class="input" id="exerciseSelect">
+                            <optgroup label="PUSH">
+                                <option value="Push-ups">Push-ups</option>
+                                <option value="Diamond Push-ups">Diamond Push-ups</option>
+                                <option value="Pike Push-ups">Pike Push-ups</option>
+                                <option value="Dips">Dips</option>
+                                <option value="HSPU">HSPU</option>
+                                <option value="Pseudo Planche Push-ups">Pseudo Planche Push-ups</option>
+                            </optgroup>
+                            <optgroup label="PULL">
+                                <option value="Pull-ups">Pull-ups</option>
+                                <option value="Chin-ups">Chin-ups</option>
+                                <option value="Rows">Rows</option>
+                                <option value="Muscle-ups">Muscle-ups</option>
+                                <option value="Front Lever Rows">Front Lever Rows</option>
+                                <option value="Typewriter Pull-ups">Typewriter Pull-ups</option>
+                            </optgroup>
+                            <optgroup label="LEGS">
+                                <option value="Squats">Squats</option>
+                                <option value="Lunges">Lunges</option>
+                                <option value="Pistol Squats">Pistol Squats</option>
+                                <option value="Nordic Curls">Nordic Curls</option>
+                                <option value="Calf Raises">Calf Raises</option>
+                            </optgroup>
+                            <optgroup label="CORE">
+                                <option value="Hollow Body Hold">Hollow Body Hold</option>
+                                <option value="L-Sit">L-Sit</option>
+                                <option value="Hanging Leg Raises">Hanging Leg Raises</option>
+                                <option value="Dragon Flags">Dragon Flags</option>
+                                <option value="Ab Wheel">Ab Wheel</option>
+                            </optgroup>
+                            <optgroup label="SKILLS">
+                                <option value="Handstand Practice">Handstand Practice</option>
+                                <option value="Planche Leans">Planche Leans</option>
+                                <option value="Front Lever Practice">Front Lever Practice</option>
+                                <option value="Back Lever Practice">Back Lever Practice</option>
+                                <option value="Human Flag Practice">Human Flag Practice</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">SETS</label>
+                        <input type="number" class="input" id="exerciseSets" value="3" min="1" max="20">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">REPS</label>
+                        <input type="number" class="input" id="exerciseReps" value="10" min="1" max="100">
+                    </div>
+                </div>
+                <button class="btn primary" id="addExerciseBtn" style="width: 100%;">ADD TO WORKOUT</button>
+
+                <div class="workout-list" id="workoutList">
+                    <div class="empty-state">
+                        <div class="empty-icon">///</div>
+                        <div class="empty-text">No exercises yet.<br>Add your first exercise above.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SKILLS TAB -->
+            <div class="tab-content" id="tab-skills">
+                <div class="section-title">PUSH / 01</div>
+                <div class="skill-item" onclick="updateSkill(this)" data-skill="handstand">
+                    <div class="skill-header">
+                        <span class="skill-name">Handstand</span>
+                        <span class="skill-level">WALL ASSISTED</span>
+                    </div>
+                    <div class="skill-progress"><div class="skill-progress-bar" style="width: 40%"></div></div>
+                    <div class="skill-meta"><span>Best: 15 sec</span><span>Goal: 60 sec</span></div>
+                </div>
+                <div class="skill-item" onclick="updateSkill(this)" data-skill="planche">
+                    <div class="skill-header">
+                        <span class="skill-name">Planche</span>
+                        <span class="skill-level">TUCK</span>
+                    </div>
+                    <div class="skill-progress"><div class="skill-progress-bar" style="width: 25%"></div></div>
+                    <div class="skill-meta"><span>Best: 8 sec</span><span>Goal: Straddle</span></div>
+                </div>
+                <div class="skill-item" onclick="updateSkill(this)" data-skill="hspu">
+                    <div class="skill-header">
+                        <span class="skill-name">HSPU</span>
+                        <span class="skill-level">WALL SUPPORTED</span>
+                    </div>
+                    <div class="skill-progress"><div class="skill-progress-bar" style="width: 60%"></div></div>
+                    <div class="skill-meta"><span>Best: 5 reps</span><span>Goal: 10 reps</span></div>
+                </div>
+
+                <div class="section-title" style="margin-top: 48px;">PULL / 02</div>
+                <div class="skill-item" onclick="updateSkill(this)" data-skill="frontlever">
+                    <div class="skill-header">
+                        <span class="skill-name">Front Lever</span>
+                        <span class="skill-level">ADVANCED TUCK</span>
+                    </div>
+                    <div class="skill-progress"><div class="skill-progress-bar" style="width: 35%"></div></div>
+                    <div class="skill-meta"><span>Best: 6 sec</span><span>Goal: Full</span></div>
+                </div>
+                <div class="skill-item" onclick="updateSkill(this)" data-skill="muscleup">
+                    <div class="skill-header">
+                        <span class="skill-name">Muscle-up</span>
+                        <span class="skill-level">CLEAN BAR</span>
+                    </div>
+                    <div class="skill-progress"><div class="skill-progress-bar" style="width: 80%"></div></div>
+                    <div class="skill-meta"><span>Best: 3 reps</span><span>Goal: 10 reps</span></div>
+                </div>
+                <div class="skill-item mastered" onclick="updateSkill(this)" data-skill="pullups">
+                    <div class="skill-header">
+                        <span class="skill-name">Pull-ups</span>
+                        <span class="skill-level mastered">MASTERED</span>
+                    </div>
+                    <div class="skill-progress"><div class="skill-progress-bar" style="width: 100%"></div></div>
+                    <div class="skill-meta"><span>Best: 20 reps</span><span>Goal: Achieved</span></div>
+                </div>
+
+                <div class="section-title" style="margin-top: 48px;">CORE / 03</div>
+                <div class="skill-item" onclick="updateSkill(this)" data-skill="lsit">
+                    <div class="skill-header">
+                        <span class="skill-name">L-Sit</span>
+                        <span class="skill-level">FLOOR</span>
+                    </div>
+                    <div class="skill-progress"><div class="skill-progress-bar" style="width: 70%"></div></div>
+                    <div class="skill-meta"><span>Best: 20 sec</span><span>Goal: 30 sec</span></div>
+                </div>
+                <div class="skill-item" onclick="updateSkill(this)" data-skill="vsit">
+                    <div class="skill-header">
+                        <span class="skill-name">V-Sit</span>
+                        <span class="skill-level">ATTEMPTING</span>
+                    </div>
+                    <div class="skill-progress"><div class="skill-progress-bar" style="width: 15%"></div></div>
+                    <div class="skill-meta"><span>Best: 2 sec</span><span>Goal: 10 sec</span></div>
+                </div>
+            </div>
+
+            <!-- PROGRAMS TAB -->
+            <div class="tab-content" id="tab-programs">
+                <div class="program-card" onclick="selectProgram('foundations')">
+                    <div class="program-header">
+                        <div class="program-title">Foundations</div>
+                        <span class="program-level">BEGINNER</span>
+                    </div>
+                    <div class="program-duration">8 WEEKS / 3X WEEK</div>
+                    <div class="program-description">Build a solid foundation with progressions for push-ups, pull-ups, dips, and core strength. Perfect for starting your calisthenics journey.</div>
+                    <div class="program-tags">
+                        <span class="program-tag">FULL BODY</span>
+                        <span class="program-tag">STRENGTH</span>
+                        <span class="program-tag">MOBILITY</span>
+                    </div>
+                </div>
+
+                <div class="program-card" onclick="selectProgram('pullpower')">
+                    <div class="program-header">
+                        <div class="program-title">Pull Power</div>
+                        <span class="program-level">INTERMEDIATE</span>
+                    </div>
+                    <div class="program-duration">6 WEEKS / 4X WEEK</div>
+                    <div class="program-description">Master your pulling strength. Progress from pull-ups to muscle-ups, front lever and one-arm chin-up prep.</div>
+                    <div class="program-tags">
+                        <span class="program-tag">PULL FOCUS</span>
+                        <span class="program-tag">SKILLS</span>
+                        <span class="program-tag">GRIP</span>
+                    </div>
+                </div>
+
+                <div class="program-card" onclick="selectProgram('planche')">
+                    <div class="program-header">
+                        <div class="program-title">Planche Protocol</div>
+                        <span class="program-level">ADVANCED</span>
+                    </div>
+                    <div class="program-duration">12 WEEKS / 3X WEEK</div>
+                    <div class="program-description">Systematic approach to the planche. Lean progressions, straight arm strength, and specific conditioning for this elite skill.</div>
+                    <div class="program-tags">
+                        <span class="program-tag">PLANCHE</span>
+                        <span class="program-tag">STRAIGHT ARM</span>
+                        <span class="program-tag">SKILL</span>
+                    </div>
+                </div>
+
+                <div class="program-card" onclick="selectProgram('handstand')">
+                    <div class="program-header">
+                        <div class="program-title">Handstand Mastery</div>
+                        <span class="program-level">ALL LEVELS</span>
+                    </div>
+                    <div class="program-duration">10 WEEKS / 5X WEEK</div>
+                    <div class="program-description">From wall handstands to freestanding holds and press to handstand. Daily practice protocol for balance mastery.</div>
+                    <div class="program-tags">
+                        <span class="program-tag">HANDSTAND</span>
+                        <span class="program-tag">BALANCE</span>
+                        <span class="program-tag">DAILY</span>
+                    </div>
+                </div>
+
+                <div class="program-card" onclick="selectProgram('fullbody')">
+                    <div class="program-header">
+                        <div class="program-title">Full Body Warrior</div>
+                        <span class="program-level">INTERMEDIATE</span>
+                    </div>
+                    <div class="program-duration">ONGOING / 4X WEEK</div>
+                    <div class="program-description">Balanced push/pull/legs split with skill work. Complete program for building strength and mastering movements.</div>
+                    <div class="program-tags">
+                        <span class="program-tag">FULL BODY</span>
+                        <span class="program-tag">BALANCED</span>
+                        <span class="program-tag">SKILLS</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROGRESS TAB -->
+            <div class="tab-content" id="tab-progress">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalWorkouts">0</div>
+                        <div class="stat-label">WORKOUTS</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="currentStreak">0</div>
+                        <div class="stat-label">DAY STREAK</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="skillsLearned">3</div>
+                        <div class="stat-label">SKILLS</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalVolume">0</div>
+                        <div class="stat-label">TOTAL REPS</div>
+                    </div>
+                </div>
+
+                <div class="section-title">PERSONAL RECORDS</div>
+                <div class="pr-item">
+                    <span class="pr-name">Max Pull-ups</span>
+                    <span class="pr-value" id="prPullups">20</span>
+                </div>
+                <div class="pr-item">
+                    <span class="pr-name">Max Push-ups</span>
+                    <span class="pr-value" id="prPushups">50</span>
+                </div>
+                <div class="pr-item">
+                    <span class="pr-name">Max Dips</span>
+                    <span class="pr-value" id="prDips">25</span>
+                </div>
+                <div class="pr-item">
+                    <span class="pr-name">Handstand Hold</span>
+                    <span class="pr-value" id="prHandstand">15s</span>
+                </div>
+                <div class="pr-item">
+                    <span class="pr-name">L-Sit Hold</span>
+                    <span class="pr-value" id="prLsit">20s</span>
+                </div>
+                <div class="pr-item">
+                    <span class="pr-name">Front Lever</span>
+                    <span class="pr-value" id="prFrontLever">Adv. Tuck</span>
+                </div>
+            </div>
+
+            <!-- JOURNAL TAB -->
+            <div class="tab-content" id="tab-journal">
+                <div class="section-title">ADD ENTRY</div>
+                <textarea class="journal-textarea" id="journalInput" placeholder="How was your training today? Any breakthroughs, struggles, or thoughts?"></textarea>
+                <button class="btn primary" id="saveJournalBtn" style="width: 100%;">SAVE ENTRY</button>
+
+                <div class="section-title" style="margin-top: 48px;">RECENT ENTRIES</div>
+                <div id="journalEntries">
+                    <div class="journal-entry">
+                        <div class="journal-date">TODAY</div>
+                        <div class="journal-workout">Push Day: 4x8 Dips, 4x10 Push-ups, 3x6 Pike Push-ups</div>
+                        <div class="journal-notes">Feeling strong today. Dips are getting easier - might be time to add weight next week.</div>
+                    </div>
+                    <div class="journal-entry">
+                        <div class="journal-date">YESTERDAY</div>
+                        <div class="journal-workout">Pull Day: 4x6 Pull-ups, 3x8 Rows, Muscle-up attempts</div>
+                        <div class="journal-notes">Almost got a clean muscle-up! The transition is getting smoother. Need to work on the kip less.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let state = {
+            workoutItems: [],
+            timerSeconds: 90,
+            timerRunning: false,
+            timerInterval: null,
+            totalWorkouts: parseInt(localStorage.getItem('cali_workouts') || '0'),
+            currentStreak: parseInt(localStorage.getItem('cali_streak') || '0'),
+            totalVolume: parseInt(localStorage.getItem('cali_volume') || '0'),
+            journalEntries: JSON.parse(localStorage.getItem('cali_journal') || '[]')
+        };
+
+        // Quotes
+        const quotes = [
+            "The only bad workout is the one that didn't happen.",
+            "Your body can stand almost anything. It's your mind you have to convince.",
+            "Discipline is choosing what you want most over what you want now.",
+            "Every rep is a step toward the person you want to become.",
+            "The bar doesn't care about your excuses.",
+            "Train hard, stay humble, and never stop learning.",
+            "Consistency beats intensity. Show up every day.",
+            "Your only limit is you.",
+            "Fall seven times, stand up eight.",
+            "The pain you feel today is the strength you feel tomorrow."
+        ];
+
+        // Tab Navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Timer
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function updateTimerDisplay() {
+            document.getElementById('timerDisplay').textContent = formatTime(state.timerSeconds);
+            document.getElementById('mobileTimerDisplay').textContent = formatTime(state.timerSeconds);
+        }
+
+        function startTimer() {
+            if (state.timerRunning) {
+                clearInterval(state.timerInterval);
+                state.timerRunning = false;
+                syncTimerButtons(false);
+            } else {
+                state.timerRunning = true;
+                syncTimerButtons(true);
+                state.timerInterval = setInterval(() => {
+                    state.timerSeconds--;
+                    updateTimerDisplay();
+                    if (state.timerSeconds <= 0) {
+                        clearInterval(state.timerInterval);
+                        state.timerRunning = false;
+                        syncTimerButtons(false);
+                        state.timerSeconds = 90;
+                        updateTimerDisplay();
+                        if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(state.timerInterval);
+            state.timerRunning = false;
+            state.timerSeconds = 90;
+            updateTimerDisplay();
+            syncTimerButtons(false);
+        }
+
+        function syncTimerButtons(running) {
+            const text = running ? 'PAUSE' : 'START';
+            document.getElementById('timerStartBtn').textContent = text;
+            document.getElementById('mobileTimerStartBtn').textContent = text;
+        }
+
+        document.getElementById('timerStartBtn').addEventListener('click', startTimer);
+        document.getElementById('timerResetBtn').addEventListener('click', resetTimer);
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                state.timerSeconds = parseInt(btn.dataset.time);
+                updateTimerDisplay();
+            });
+        });
+
+        // Mobile timer controls
+        document.getElementById('mobileTimerStartBtn').addEventListener('click', startTimer);
+        document.getElementById('mobileTimerResetBtn').addEventListener('click', resetTimer);
+
+        // Workout Builder
+        function renderWorkoutList() {
+            const list = document.getElementById('workoutList');
+            if (state.workoutItems.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="empty-icon">///</div><div class="empty-text">No exercises yet.<br>Add your first exercise above.</div></div>';
+                return;
+            }
+            list.innerHTML = state.workoutItems.map((item, i) => `
+                <div class="workout-item">
+                    <div>
+                        <div class="workout-name">${item.name}</div>
+                        <div class="workout-sets">${item.sets} sets × ${item.reps} reps</div>
+                    </div>
+                    <div class="workout-actions">
+                        <button class="icon-btn ${item.done ? 'done' : ''}" onclick="toggleDone(${i})">///</button>
+                        <button class="icon-btn" onclick="removeExercise(${i})">×</button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('todayExercises').textContent = state.workoutItems.length;
+        }
+
+        document.getElementById('addExerciseBtn').addEventListener('click', () => {
+            const name = document.getElementById('exerciseSelect').value;
+            const sets = parseInt(document.getElementById('exerciseSets').value) || 3;
+            const reps = parseInt(document.getElementById('exerciseReps').value) || 10;
+
+            state.workoutItems.push({ name, sets, reps, done: false });
+            renderWorkoutList();
+        });
+
+        window.toggleDone = function(index) {
+            state.workoutItems[index].done = !state.workoutItems[index].done;
+            if (state.workoutItems[index].done) {
+                const item = state.workoutItems[index];
+                state.totalVolume += item.sets * item.reps;
+                localStorage.setItem('cali_volume', state.totalVolume);
+                document.getElementById('totalVolume').textContent = state.totalVolume;
+                document.getElementById('todayVolume').textContent = state.workoutItems.filter(i => i.done).reduce((sum, i) => sum + i.sets * i.reps, 0);
+            }
+            renderWorkoutList();
+        };
+
+        window.removeExercise = function(index) {
+            state.workoutItems.splice(index, 1);
+            renderWorkoutList();
+        };
+
+        // Skills
+        window.updateSkill = function(card) {
+            card.style.transform = 'translateX(4px)';
+            setTimeout(() => card.style.transform = '', 150);
+        };
+
+        // Programs
+        window.selectProgram = function(program) {
+            alert(`${program.toUpperCase()} program selected.\n\nFull program details coming soon.`);
+        };
+
+        // Journal
+        document.getElementById('saveJournalBtn').addEventListener('click', () => {
+            const text = document.getElementById('journalInput').value.trim();
+            if (!text) return;
+
+            const entry = {
+                date: new Date().toISOString(),
+                text: text,
+                workout: state.workoutItems.map(i => `${i.sets}x${i.reps} ${i.name}`).join(', ')
+            };
+
+            state.journalEntries.unshift(entry);
+            localStorage.setItem('cali_journal', JSON.stringify(state.journalEntries));
+            document.getElementById('journalInput').value = '';
+
+            state.totalWorkouts++;
+            localStorage.setItem('cali_workouts', state.totalWorkouts);
+            document.getElementById('totalWorkouts').textContent = state.totalWorkouts;
+
+            renderJournal();
+        });
+
+        function renderJournal() {
+            const container = document.getElementById('journalEntries');
+            if (state.journalEntries.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">///</div><div class="empty-text">No journal entries yet.<br>Start tracking your progress.</div></div>';
+                return;
+            }
+            container.innerHTML = state.journalEntries.slice(0, 10).map(entry => {
+                const date = new Date(entry.date);
+                const today = new Date();
+                const diffDays = Math.floor((today - date) / (1000 * 60 * 60 * 24));
+                let dateLabel = diffDays === 0 ? 'TODAY' : diffDays === 1 ? 'YESTERDAY' : `${diffDays} DAYS AGO`;
+
+                return `
+                    <div class="journal-entry">
+                        <div class="journal-date">${dateLabel}</div>
+                        ${entry.workout ? `<div class="journal-workout">${entry.workout}</div>` : ''}
+                        <div class="journal-notes">${entry.text}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Init
+        function init() {
+            document.getElementById('dailyQuote').textContent = '"' + quotes[Math.floor(Math.random() * quotes.length)] + '"';
+            document.getElementById('totalWorkouts').textContent = state.totalWorkouts;
+            document.getElementById('currentStreak').textContent = state.currentStreak;
+            document.getElementById('totalVolume').textContent = state.totalVolume;
+            renderWorkoutList();
+            renderJournal();
+            updateTimerDisplay();
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Galaxy Zoom | Saturno Movement</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg-deep: #000005;
+    --text-primary: #e8e6f0;
+    --text-secondary: #9896a8;
+    --text-muted: #5d5b6e;
+    --accent-purple: #8b5cf6;
+    --accent-cyan: #06b6d4;
+    --accent-gold: #f59e0b;
+    --font-display: 'Outfit', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    min-height: 100vh;
+    overflow: hidden;
+    cursor: grab;
+}
+
+body:active { cursor: grabbing; }
+
+#canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding: 15px;
+    z-index: 100;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0,0,5,0.8), transparent);
+}
+
+.logo { height: 35px; filter: drop-shadow(0 0 10px rgba(139,92,246,0.3)); pointer-events: auto; }
+
+h1 {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 4px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    text-transform: uppercase;
+}
+
+.controls {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+}
+
+.btn {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 10px 18px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 100px;
+    background: rgba(0,0,0,0.6);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.btn:hover {
+    border-color: var(--accent-purple);
+    color: var(--text-primary);
+}
+
+.planet-info {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 280px;
+    background: rgba(10,10,20,0.9);
+    border: 1px solid rgba(139,92,246,0.3);
+    border-radius: 15px;
+    padding: 20px;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+}
+
+.planet-info.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.planet-info h2 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    color: var(--accent-gold);
+}
+
+.planet-info .subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.planet-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.8rem;
+}
+
+.planet-stat:last-child { border: none; }
+
+.planet-stat .label { color: var(--text-muted); }
+.planet-stat .value { color: var(--text-primary); font-family: var(--font-mono); }
+
+.planet-exercises {
+    margin-top: 15px;
+}
+
+.planet-exercises h3 {
+    font-size: 0.7rem;
+    color: var(--accent-cyan);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.exercise-item {
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    margin-bottom: 5px;
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+}
+
+.zoom-indicator {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    z-index: 100;
+}
+
+.zoom-indicator span { color: var(--accent-purple); }
+
+.instructions {
+    position: fixed;
+    left: 20px;
+    top: 100px;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+    z-index: 100;
+    opacity: 0.7;
+}
+
+footer {
+    position: fixed;
+    bottom: 5px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.5rem;
+    color: #333;
+    z-index: 100;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .header { padding: 10px; }
+    .logo { height: 25px; }
+    h1 { font-size: 0.55rem; letter-spacing: 2px; margin-top: 5px; }
+
+    .instructions {
+        display: none;
+    }
+
+    .controls {
+        bottom: 15px;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 0 10px;
+    }
+
+    .btn {
+        font-size: 0.6rem;
+        padding: 8px 12px;
+    }
+
+    .planet-info {
+        right: 10px;
+        left: 10px;
+        width: auto;
+        max-width: none;
+        top: auto;
+        bottom: 80px;
+        transform: none;
+        max-height: 40vh;
+        overflow-y: auto;
+    }
+
+    .planet-info h2 { font-size: 1rem; }
+    .planet-info .subtitle { font-size: 0.55rem; }
+    .planet-stat { font-size: 0.7rem; padding: 6px 0; }
+    .exercise-item { font-size: 0.65rem; padding: 6px 8px; }
+
+    .zoom-indicator {
+        left: 10px;
+        bottom: 80px;
+        font-size: 0.6rem;
+    }
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<header class="header">
+    <img src="https://raw.githubusercontent.com/gabosaturno11/titan-forge/main/assets/logo-planete-azul.png"
+         alt="Saturno Movement" class="logo" onerror="this.style.display='none'">
+    <h1>Galaxy Zoom</h1>
+</header>
+
+<div class="instructions">
+    SCROLL to zoom<br>
+    DRAG to pan<br>
+    CLICK planet to select
+</div>
+
+<div class="controls">
+    <button class="btn" onclick="resetView()">RESET VIEW</button>
+    <button class="btn" onclick="toggleSound()">SOUND</button>
+    <button class="btn" onclick="focusNext()">NEXT PLANET</button>
+</div>
+
+<div class="planet-info" id="planetInfo">
+    <h2 id="planetName">Earth</h2>
+    <div class="subtitle" id="planetPhase">FOUNDATION PHASE</div>
+
+    <div class="planet-stat">
+        <span class="label">Distance from Sun</span>
+        <span class="value" id="planetDistance">150M km</span>
+    </div>
+    <div class="planet-stat">
+        <span class="label">Orbital Period</span>
+        <span class="value" id="planetPeriod">365 days</span>
+    </div>
+    <div class="planet-stat">
+        <span class="label">Training Focus</span>
+        <span class="value" id="planetFocus">Strength</span>
+    </div>
+
+    <div class="planet-exercises">
+        <h3>Key Exercises</h3>
+        <div id="exerciseList"></div>
+    </div>
+</div>
+
+<div class="zoom-indicator">
+    ZOOM: <span id="zoomLevel">1.0x</span>
+</div>
+
+<footer>SATURNO MOVEMENT</footer>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+let width, height;
+let zoom = 1;
+let targetZoom = 1;
+let offsetX = 0, offsetY = 0;
+let targetOffsetX = 0, targetOffsetY = 0;
+let isDragging = false;
+let dragStartX, dragStartY;
+let selectedPlanet = null;
+let hoveredPlanet = null;
+
+let audioCtx = null;
+let soundEnabled = false;
+let ambientNodes = [];
+
+// Planet data with real-ish values
+const planets = [
+    {
+        name: 'Mercury',
+        phase: 'FOUNDATION 1',
+        color: '#B5B5B5',
+        size: 8,
+        orbitRadius: 80,
+        speed: 0.004,
+        angle: Math.random() * Math.PI * 2,
+        distance: '58M km',
+        period: '88 days',
+        focus: 'Mobility',
+        exercises: ['Cat-Cow', 'World Greatest Stretch', 'Hip Circles']
+    },
+    {
+        name: 'Venus',
+        phase: 'FOUNDATION 2',
+        color: '#E6C87A',
+        size: 15,
+        orbitRadius: 130,
+        speed: 0.003,
+        angle: Math.random() * Math.PI * 2,
+        distance: '108M km',
+        period: '225 days',
+        focus: 'Core Stability',
+        exercises: ['Plank', 'Dead Bug', 'Bird Dog']
+    },
+    {
+        name: 'Earth',
+        phase: 'FOUNDATION 3',
+        color: '#4A90D9',
+        size: 16,
+        orbitRadius: 180,
+        speed: 0.0025,
+        angle: Math.random() * Math.PI * 2,
+        distance: '150M km',
+        period: '365 days',
+        focus: 'Push Strength',
+        exercises: ['Push-Up', 'Dips', 'Pike Push-Up'],
+        hasMoon: true
+    },
+    {
+        name: 'Mars',
+        phase: 'EXPANSION 1',
+        color: '#C1440E',
+        size: 10,
+        orbitRadius: 240,
+        speed: 0.002,
+        angle: Math.random() * Math.PI * 2,
+        distance: '228M km',
+        period: '687 days',
+        focus: 'Pull Strength',
+        exercises: ['Pull-Up', 'Rows', 'Chin-Up']
+    },
+    {
+        name: 'Jupiter',
+        phase: 'EXPANSION 2',
+        color: '#D4A574',
+        size: 45,
+        orbitRadius: 350,
+        speed: 0.001,
+        angle: Math.random() * Math.PI * 2,
+        distance: '778M km',
+        period: '12 years',
+        focus: 'Lower Body',
+        exercises: ['Squat', 'Lunges', 'Step-Ups'],
+        hasRings: false,
+        bands: true
+    },
+    {
+        name: 'Saturn',
+        phase: 'MASTERY 1',
+        color: '#E8D4A8',
+        size: 38,
+        orbitRadius: 450,
+        speed: 0.0008,
+        angle: Math.random() * Math.PI * 2,
+        distance: '1.4B km',
+        period: '29 years',
+        focus: 'Skills',
+        exercises: ['Handstand', 'L-Sit', 'Muscle-Up'],
+        hasRings: true
+    },
+    {
+        name: 'Uranus',
+        phase: 'MASTERY 2',
+        color: '#7DE3E3',
+        size: 20,
+        orbitRadius: 550,
+        speed: 0.0006,
+        angle: Math.random() * Math.PI * 2,
+        distance: '2.9B km',
+        period: '84 years',
+        focus: 'Flexibility',
+        exercises: ['Front Split', 'Pancake', 'Bridge']
+    },
+    {
+        name: 'Neptune',
+        phase: 'MASTERY 3',
+        color: '#3E54E8',
+        size: 19,
+        orbitRadius: 650,
+        speed: 0.0004,
+        angle: Math.random() * Math.PI * 2,
+        distance: '4.5B km',
+        period: '165 years',
+        focus: 'Flow',
+        exercises: ['Movement Flow', 'Dance', 'Capoeira']
+    }
+];
+
+// Stars
+const stars = [];
+for (let i = 0; i < 2000; i++) {
+    stars.push({
+        x: (Math.random() - 0.5) * 4000,
+        y: (Math.random() - 0.5) * 4000,
+        size: Math.random() * 2 + 0.5,
+        brightness: Math.random()
+    });
+}
+
+// Distant galaxies
+const galaxies = [];
+for (let i = 0; i < 15; i++) {
+    galaxies.push({
+        x: (Math.random() - 0.5) * 3500,
+        y: (Math.random() - 0.5) * 3500,
+        size: Math.random() * 30 + 20,
+        rotation: Math.random() * Math.PI * 2,
+        color: ['#8b5cf6', '#06b6d4', '#f59e0b', '#ec4899'][Math.floor(Math.random() * 4)]
+    });
+}
+
+function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+}
+
+window.addEventListener('resize', resize);
+resize();
+
+// Input handlers
+canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+    targetZoom = Math.max(0.2, Math.min(15, targetZoom * zoomFactor));
+
+    if (soundEnabled) playZoomSound(e.deltaY < 0);
+});
+
+canvas.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+});
+
+canvas.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+        targetOffsetX += (e.clientX - dragStartX) / zoom;
+        targetOffsetY += (e.clientY - dragStartY) / zoom;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+    }
+
+    // Check hover
+    const worldX = (e.clientX - width/2) / zoom - offsetX;
+    const worldY = (e.clientY - height/2) / zoom - offsetY;
+
+    hoveredPlanet = null;
+    planets.forEach(planet => {
+        const px = Math.cos(planet.angle) * planet.orbitRadius;
+        const py = Math.sin(planet.angle) * planet.orbitRadius;
+        const dist = Math.sqrt((worldX - px) ** 2 + (worldY - py) ** 2);
+        if (dist < planet.size + 10) {
+            hoveredPlanet = planet;
+            canvas.style.cursor = 'pointer';
+        }
+    });
+
+    if (!hoveredPlanet && !isDragging) canvas.style.cursor = 'grab';
+});
+
+canvas.addEventListener('mouseup', () => { isDragging = false; });
+
+canvas.addEventListener('click', (e) => {
+    if (hoveredPlanet) {
+        selectPlanet(hoveredPlanet);
+    }
+});
+
+// Touch support
+canvas.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+        isDragging = true;
+        dragStartX = e.touches[0].clientX;
+        dragStartY = e.touches[0].clientY;
+    }
+});
+
+canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (isDragging && e.touches.length === 1) {
+        targetOffsetX += (e.touches[0].clientX - dragStartX) / zoom;
+        targetOffsetY += (e.touches[0].clientY - dragStartY) / zoom;
+        dragStartX = e.touches[0].clientX;
+        dragStartY = e.touches[0].clientY;
+    }
+});
+
+canvas.addEventListener('touchend', () => { isDragging = false; });
+
+function selectPlanet(planet) {
+    selectedPlanet = planet;
+
+    // Zoom to planet
+    const px = Math.cos(planet.angle) * planet.orbitRadius;
+    const py = Math.sin(planet.angle) * planet.orbitRadius;
+    targetOffsetX = -px;
+    targetOffsetY = -py;
+    targetZoom = Math.min(8, 200 / planet.size);
+
+    // Show info
+    document.getElementById('planetName').textContent = planet.name;
+    document.getElementById('planetPhase').textContent = planet.phase;
+    document.getElementById('planetDistance').textContent = planet.distance;
+    document.getElementById('planetPeriod').textContent = planet.period;
+    document.getElementById('planetFocus').textContent = planet.focus;
+
+    document.getElementById('exerciseList').innerHTML =
+        planet.exercises.map(ex => `<div class="exercise-item">${ex}</div>`).join('');
+
+    document.getElementById('planetInfo').classList.add('visible');
+
+    if (soundEnabled) playSelectSound();
+}
+
+function resetView() {
+    targetZoom = 1;
+    targetOffsetX = 0;
+    targetOffsetY = 0;
+    selectedPlanet = null;
+    document.getElementById('planetInfo').classList.remove('visible');
+    if (soundEnabled) playZoomSound(false);
+}
+
+let currentPlanetIndex = -1;
+function focusNext() {
+    currentPlanetIndex = (currentPlanetIndex + 1) % planets.length;
+    selectPlanet(planets[currentPlanetIndex]);
+}
+
+function draw() {
+    // Smooth interpolation
+    zoom += (targetZoom - zoom) * 0.08;
+    offsetX += (targetOffsetX - offsetX) * 0.08;
+    offsetY += (targetOffsetY - offsetY) * 0.08;
+
+    // Update zoom display
+    document.getElementById('zoomLevel').textContent = zoom.toFixed(1) + 'x';
+
+    ctx.fillStyle = '#000005';
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.save();
+    ctx.translate(width/2, height/2);
+    ctx.scale(zoom, zoom);
+    ctx.translate(offsetX, offsetY);
+
+    // Draw distant galaxies (only at low zoom)
+    if (zoom < 2) {
+        galaxies.forEach(galaxy => {
+            ctx.save();
+            ctx.translate(galaxy.x, galaxy.y);
+            ctx.rotate(galaxy.rotation);
+
+            const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, galaxy.size);
+            gradient.addColorStop(0, galaxy.color + '40');
+            gradient.addColorStop(0.5, galaxy.color + '20');
+            gradient.addColorStop(1, 'transparent');
+
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.ellipse(0, 0, galaxy.size, galaxy.size * 0.4, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        });
+    }
+
+    // Draw stars
+    stars.forEach(star => {
+        const twinkle = 0.5 + Math.sin(Date.now() * 0.001 + star.brightness * 10) * 0.3;
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness * twinkle})`;
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size / Math.max(1, zoom * 0.3), 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    // Draw sun
+    const sunGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 50);
+    sunGradient.addColorStop(0, '#FFF5E0');
+    sunGradient.addColorStop(0.3, '#FFD700');
+    sunGradient.addColorStop(0.7, '#FF8C00');
+    sunGradient.addColorStop(1, '#FF4500');
+
+    // Sun glow
+    const glowGradient = ctx.createRadialGradient(0, 0, 30, 0, 0, 120);
+    glowGradient.addColorStop(0, 'rgba(255, 200, 50, 0.4)');
+    glowGradient.addColorStop(1, 'transparent');
+    ctx.fillStyle = glowGradient;
+    ctx.beginPath();
+    ctx.arc(0, 0, 120, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = sunGradient;
+    ctx.beginPath();
+    ctx.arc(0, 0, 35, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw orbits
+    planets.forEach(planet => {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 1 / zoom;
+        ctx.beginPath();
+        ctx.arc(0, 0, planet.orbitRadius, 0, Math.PI * 2);
+        ctx.stroke();
+    });
+
+    // Update and draw planets
+    planets.forEach(planet => {
+        planet.angle += planet.speed;
+        const x = Math.cos(planet.angle) * planet.orbitRadius;
+        const y = Math.sin(planet.angle) * planet.orbitRadius;
+
+        // Planet glow
+        const glowSize = planet.size * 2;
+        const planetGlow = ctx.createRadialGradient(x, y, planet.size * 0.5, x, y, glowSize);
+        planetGlow.addColorStop(0, planet.color + '40');
+        planetGlow.addColorStop(1, 'transparent');
+        ctx.fillStyle = planetGlow;
+        ctx.beginPath();
+        ctx.arc(x, y, glowSize, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Saturn's rings
+        if (planet.hasRings) {
+            ctx.strokeStyle = 'rgba(232, 212, 168, 0.5)';
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.ellipse(x, y, planet.size * 2, planet.size * 0.5, 0.3, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(232, 212, 168, 0.3)';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.ellipse(x, y, planet.size * 2.3, planet.size * 0.6, 0.3, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        // Planet body
+        const planetGradient = ctx.createRadialGradient(
+            x - planet.size * 0.3, y - planet.size * 0.3, 0,
+            x, y, planet.size
+        );
+        planetGradient.addColorStop(0, '#fff');
+        planetGradient.addColorStop(0.2, planet.color);
+        planetGradient.addColorStop(1, shadeColor(planet.color, -40));
+
+        ctx.fillStyle = planetGradient;
+        ctx.beginPath();
+        ctx.arc(x, y, planet.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Jupiter bands
+        if (planet.bands) {
+            ctx.strokeStyle = 'rgba(180, 130, 90, 0.4)';
+            ctx.lineWidth = 3;
+            for (let i = -2; i <= 2; i++) {
+                ctx.beginPath();
+                ctx.arc(x, y + i * 8, planet.size * 0.9, Math.PI * 0.2, Math.PI * 0.8);
+                ctx.stroke();
+            }
+        }
+
+        // Earth's moon
+        if (planet.hasMoon) {
+            const moonAngle = planet.angle * 13;
+            const moonX = x + Math.cos(moonAngle) * 25;
+            const moonY = y + Math.sin(moonAngle) * 25;
+
+            ctx.fillStyle = '#ccc';
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Selection indicator
+        if (planet === selectedPlanet) {
+            ctx.strokeStyle = '#8b5cf6';
+            ctx.lineWidth = 2 / zoom;
+            ctx.setLineDash([5 / zoom, 5 / zoom]);
+            ctx.beginPath();
+            ctx.arc(x, y, planet.size + 10, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Hover indicator
+        if (planet === hoveredPlanet && planet !== selectedPlanet) {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 1 / zoom;
+            ctx.beginPath();
+            ctx.arc(x, y, planet.size + 8, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        // Planet name label (only at higher zoom)
+        if (zoom > 1.5) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.font = `${12 / zoom}px JetBrains Mono`;
+            ctx.textAlign = 'center';
+            ctx.fillText(planet.name, x, y + planet.size + 15 / zoom);
+        }
+    });
+
+    ctx.restore();
+
+    requestAnimationFrame(draw);
+}
+
+function shadeColor(color, percent) {
+    const num = parseInt(color.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = (num >> 16) + amt;
+    const G = (num >> 8 & 0x00FF) + amt;
+    const B = (num & 0x0000FF) + amt;
+    return '#' + (0x1000000 +
+        (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+        (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+        (B < 255 ? B < 1 ? 0 : B : 255)
+    ).toString(16).slice(1);
+}
+
+// Audio
+function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    if (soundEnabled) {
+        initAudio();
+        playAmbient();
+    } else {
+        ambientNodes.forEach(n => n.stop());
+        ambientNodes = [];
+    }
+}
+
+function playAmbient() {
+    initAudio();
+    // Deep space drone
+    [55, 82.5, 110].forEach(freq => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const filter = audioCtx.createBiquadFilter();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        filter.type = 'lowpass';
+        filter.frequency.value = 150;
+        gain.gain.value = 0.03;
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        ambientNodes.push(osc);
+    });
+}
+
+function playZoomSound(zoomIn) {
+    initAudio();
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(zoomIn ? 100 : 200, now);
+    osc.frequency.exponentialRampToValueAtTime(zoomIn ? 300 : 80, now + 0.15);
+
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(1500, now);
+    filter.frequency.exponentialRampToValueAtTime(200, now + 0.15);
+
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.15);
+}
+
+function playSelectSound() {
+    initAudio();
+    const now = audioCtx.currentTime;
+    [1, 1.25, 1.5].forEach((m, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400 * m, now + i * 0.08);
+        gain.gain.setValueAtTime(0.12, now + i * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + i * 0.08);
+        osc.stop(now + i * 0.08 + 0.2);
+    });
+}
+
+draw();
+</script>
+</body>
+</html>

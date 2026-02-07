@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LUNAR CYCLE | Training Calendar</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --silver: #C0C0C0; --blue: #00D4FF; --purple: #9D4EDD; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+
+        .header { text-align: center; margin-bottom: 20px; }
+        .logo { width: 50px; height: 50px; margin: 0 auto 10px; background: radial-gradient(circle at 30% 30%, #fff, var(--silver), #666); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(192, 192, 192, 0.3); }
+        .logo-text { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: #000; }
+        .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 3px; background: linear-gradient(135deg, var(--silver), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .header p { font-size: 9px; color: #666; margin-top: 4px; letter-spacing: 2px; }
+
+        .month-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .nav-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #333; background: transparent; color: #666; font-size: 18px; cursor: pointer; transition: all 0.2s; }
+        .nav-btn:hover { border-color: var(--silver); color: var(--silver); }
+        .month-title { font-size: 16px; font-weight: 700; color: var(--silver); letter-spacing: 2px; }
+
+        .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 8px; }
+        .weekday { text-align: center; font-size: 9px; color: #666; padding: 8px 0; letter-spacing: 1px; }
+
+        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 20px; }
+        .day { aspect-ratio: 1; border-radius: 8px; background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; position: relative; }
+        .day:hover { background: #1a1a2e; }
+        .day.empty { background: transparent; cursor: default; }
+        .day.today { border: 2px solid var(--blue); }
+        .day.selected { background: var(--purple); }
+        .day.has-workout { background: rgba(0, 212, 255, 0.1); }
+        .day.has-workout::after { content: ''; position: absolute; bottom: 4px; width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
+        .day-num { font-size: 12px; color: #888; }
+        .day.today .day-num { color: var(--blue); font-weight: 700; }
+        .day.selected .day-num { color: #fff; }
+
+        .day-detail { background: rgba(192, 192, 192, 0.05); border: 1px solid rgba(192, 192, 192, 0.2); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .detail-date { font-size: 12px; font-weight: 700; color: var(--silver); }
+        .detail-phase { font-size: 10px; color: #666; }
+
+        .workout-types { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+        .type-btn { padding: 6px 10px; border-radius: 4px; border: 1px solid #333; background: transparent; color: #666; font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+        .type-btn:hover { border-color: var(--blue); color: var(--blue); }
+        .type-btn.active { background: var(--blue); border-color: var(--blue); color: #000; }
+
+        .workout-notes { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #333; background: #111; color: #888; font-family: 'JetBrains Mono', monospace; font-size: 10px; resize: none; height: 60px; }
+        .workout-notes:focus { outline: none; border-color: var(--purple); }
+
+        .stats-row { display: flex; justify-content: space-around; margin-bottom: 16px; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--blue); }
+        .stat-label { font-size: 9px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+
+        .legend { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 9px; color: #666; }
+        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .legend-dot.push { background: #FF006E; }
+        .legend-dot.pull { background: #00D4FF; }
+        .legend-dot.legs { background: #00FF88; }
+        .legend-dot.rest { background: #666; }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--silver); color: var(--silver); }
+        .sound-toggle.active { color: var(--silver); border-color: var(--silver); }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Lunar Cycle</h1>
+            <p>Training Calendar</p>
+        </div>
+
+        <div class="month-nav">
+            <button class="nav-btn" id="prevMonth">&lt;</button>
+            <div class="month-title" id="monthTitle">January 2025</div>
+            <button class="nav-btn" id="nextMonth">&gt;</button>
+        </div>
+
+        <div class="weekdays">
+            <div class="weekday">SUN</div>
+            <div class="weekday">MON</div>
+            <div class="weekday">TUE</div>
+            <div class="weekday">WED</div>
+            <div class="weekday">THU</div>
+            <div class="weekday">FRI</div>
+            <div class="weekday">SAT</div>
+        </div>
+
+        <div class="calendar" id="calendar"></div>
+
+        <div class="day-detail">
+            <div class="detail-header">
+                <span class="detail-date" id="detailDate">Select a day</span>
+                <span class="detail-phase" id="detailPhase"></span>
+            </div>
+            <div class="workout-types" id="workoutTypes">
+                <button class="type-btn" data-type="push">PUSH</button>
+                <button class="type-btn" data-type="pull">PULL</button>
+                <button class="type-btn" data-type="legs">LEGS</button>
+                <button class="type-btn" data-type="core">CORE</button>
+                <button class="type-btn" data-type="skill">SKILL</button>
+                <button class="type-btn" data-type="cardio">CARDIO</button>
+                <button class="type-btn" data-type="rest">REST</button>
+            </div>
+            <textarea class="workout-notes" id="workoutNotes" placeholder="Add notes..."></textarea>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat">
+                <div class="stat-value" id="monthWorkouts">0</div>
+                <div class="stat-label">This Month</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="currentStreak">0</div>
+                <div class="stat-label">Streak</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="totalWorkouts">0</div>
+                <div class="stat-label">All Time</div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="legend-dot push"></div>Push</div>
+            <div class="legend-item"><div class="legend-dot pull"></div>Pull</div>
+            <div class="legend-item"><div class="legend-dot legs"></div>Legs</div>
+            <div class="legend-item"><div class="legend-dot rest"></div>Rest</div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx = null, soundEnabled = true;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'select') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, now);
+                osc.frequency.exponentialRampToValueAtTime(700, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'add') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(900, now + 0.15);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.2);
+            }
+        }
+
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const moonPhases = ['New Moon', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous', 'Full Moon', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent'];
+
+        let state = {
+            currentMonth: new Date().getMonth(),
+            currentYear: new Date().getFullYear(),
+            selectedDate: null,
+            workouts: JSON.parse(localStorage.getItem('lunar_workouts') || '{}')
+        };
+
+        function getDateKey(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function getMoonPhase(date) {
+            // Simplified moon phase calculation
+            const lp = 2551443; // lunar period in seconds
+            const newMoon = new Date(1970, 0, 7, 20, 35, 0).getTime() / 1000;
+            const phase = ((date.getTime() / 1000 - newMoon) % lp) / lp;
+            return moonPhases[Math.floor(phase * 8)];
+        }
+
+        function renderCalendar() {
+            const calendar = document.getElementById('calendar');
+            calendar.innerHTML = '';
+
+            const firstDay = new Date(state.currentYear, state.currentMonth, 1);
+            const lastDay = new Date(state.currentYear, state.currentMonth + 1, 0);
+            const today = new Date();
+
+            document.getElementById('monthTitle').textContent = `${months[state.currentMonth]} ${state.currentYear}`;
+
+            // Empty cells before first day
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                const empty = document.createElement('div');
+                empty.className = 'day empty';
+                calendar.appendChild(empty);
+            }
+
+            // Days of month
+            for (let d = 1; d <= lastDay.getDate(); d++) {
+                const date = new Date(state.currentYear, state.currentMonth, d);
+                const dateKey = getDateKey(date);
+                const day = document.createElement('div');
+                day.className = 'day';
+
+                if (date.toDateString() === today.toDateString()) {
+                    day.classList.add('today');
+                }
+
+                if (state.selectedDate && getDateKey(state.selectedDate) === dateKey) {
+                    day.classList.add('selected');
+                }
+
+                if (state.workouts[dateKey] && state.workouts[dateKey].types && state.workouts[dateKey].types.length > 0) {
+                    day.classList.add('has-workout');
+                }
+
+                day.innerHTML = `<span class="day-num">${d}</span>`;
+                day.addEventListener('click', () => selectDate(date));
+                calendar.appendChild(day);
+            }
+        }
+
+        function selectDate(date) {
+            state.selectedDate = date;
+            playSound('select');
+            renderCalendar();
+            updateDayDetail();
+        }
+
+        function updateDayDetail() {
+            if (!state.selectedDate) return;
+
+            const dateKey = getDateKey(state.selectedDate);
+            const workout = state.workouts[dateKey] || { types: [], notes: '' };
+
+            document.getElementById('detailDate').textContent = state.selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+            document.getElementById('detailPhase').textContent = getMoonPhase(state.selectedDate);
+            document.getElementById('workoutNotes').value = workout.notes || '';
+
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                btn.classList.toggle('active', workout.types.includes(btn.dataset.type));
+            });
+        }
+
+        function toggleWorkoutType(type) {
+            if (!state.selectedDate) return;
+
+            const dateKey = getDateKey(state.selectedDate);
+            if (!state.workouts[dateKey]) {
+                state.workouts[dateKey] = { types: [], notes: '' };
+            }
+
+            const idx = state.workouts[dateKey].types.indexOf(type);
+            if (idx === -1) {
+                state.workouts[dateKey].types.push(type);
+            } else {
+                state.workouts[dateKey].types.splice(idx, 1);
+            }
+
+            playSound('add');
+            saveWorkouts();
+            renderCalendar();
+            updateDayDetail();
+            updateStats();
+        }
+
+        function saveNotes() {
+            if (!state.selectedDate) return;
+            const dateKey = getDateKey(state.selectedDate);
+            if (!state.workouts[dateKey]) {
+                state.workouts[dateKey] = { types: [], notes: '' };
+            }
+            state.workouts[dateKey].notes = document.getElementById('workoutNotes').value;
+            saveWorkouts();
+        }
+
+        function saveWorkouts() {
+            localStorage.setItem('lunar_workouts', JSON.stringify(state.workouts));
+        }
+
+        function updateStats() {
+            // Count this month's workouts
+            let monthCount = 0;
+            const firstDay = new Date(state.currentYear, state.currentMonth, 1);
+            const lastDay = new Date(state.currentYear, state.currentMonth + 1, 0);
+
+            for (let d = 1; d <= lastDay.getDate(); d++) {
+                const date = new Date(state.currentYear, state.currentMonth, d);
+                const workout = state.workouts[getDateKey(date)];
+                if (workout && workout.types && workout.types.length > 0 && !workout.types.includes('rest')) {
+                    monthCount++;
+                }
+            }
+
+            // Calculate streak
+            let streak = 0;
+            let checkDate = new Date();
+            while (true) {
+                const workout = state.workouts[getDateKey(checkDate)];
+                if (workout && workout.types && workout.types.length > 0) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+
+            // Total workouts
+            const totalCount = Object.values(state.workouts).filter(w => w.types && w.types.length > 0 && !w.types.includes('rest')).length;
+
+            document.getElementById('monthWorkouts').textContent = monthCount;
+            document.getElementById('currentStreak').textContent = streak;
+            document.getElementById('totalWorkouts').textContent = totalCount;
+        }
+
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            state.currentMonth--;
+            if (state.currentMonth < 0) {
+                state.currentMonth = 11;
+                state.currentYear--;
+            }
+            renderCalendar();
+            updateStats();
+        });
+
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            state.currentMonth++;
+            if (state.currentMonth > 11) {
+                state.currentMonth = 0;
+                state.currentYear++;
+            }
+            renderCalendar();
+            updateStats();
+        });
+
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            btn.addEventListener('click', () => toggleWorkoutType(btn.dataset.type));
+        });
+
+        document.getElementById('workoutNotes').addEventListener('blur', saveNotes);
+
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
+        });
+
+        // Initialize with today selected
+        selectDate(new Date());
+        updateStats();
+    </script>
+</body>
+</html>

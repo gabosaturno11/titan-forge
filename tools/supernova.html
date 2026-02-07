@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SUPERNOVA | Explosive HIIT</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #0a0a0a;
+            --purple: #9D4EDD;
+            --blue: #4361EE;
+            --orange: #FF6B00;
+            --red: #FF3333;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Explosion Particles */
+        .particle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: explode 1s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: translate(0, 0) scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Background Pulse */
+        .bg-pulse {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vmax;
+            height: 100vmax;
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.1) 0%, transparent 50%);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 0;
+            transition: opacity 0.1s;
+        }
+
+        .bg-pulse.active {
+            animation: bgPulse 0.5s ease-out;
+        }
+
+        @keyframes bgPulse {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 10px;
+            background: radial-gradient(circle at 30% 30%, var(--orange), var(--red));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(255, 107, 0, 0.5);
+            animation: starPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes starPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(255, 107, 0, 0.5); }
+            50% { transform: scale(1.1); box-shadow: 0 0 50px rgba(255, 107, 0, 0.8); }
+        }
+
+        .logo-text {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, var(--orange), var(--red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+            letter-spacing: 2px;
+        }
+
+        /* Main Timer */
+        .timer-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timer-ring {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin-bottom: 24px;
+        }
+
+        .timer-ring svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .ring-bg {
+            fill: none;
+            stroke: #1a1a2e;
+            stroke-width: 10;
+        }
+
+        .ring-progress {
+            fill: none;
+            stroke: var(--purple);
+            stroke-width: 10;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.1s linear, stroke 0.3s;
+            filter: drop-shadow(0 0 15px currentColor);
+        }
+
+        .ring-glow {
+            position: absolute;
+            inset: -30px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.2) 0%, transparent 60%);
+            opacity: 0.5;
+            transition: all 0.3s;
+        }
+
+        .timer-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .countdown-num {
+            font-size: 80px;
+            font-weight: 700;
+            line-height: 1;
+            transition: all 0.2s;
+        }
+
+        .countdown-label {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            margin-top: 8px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .round-info {
+            font-size: 10px;
+            color: #666;
+            margin-top: 8px;
+            letter-spacing: 2px;
+        }
+
+        /* Phase Colors */
+        .phase-ready .countdown-num { color: var(--purple); }
+        .phase-ready .ring-progress { stroke: var(--purple); }
+        .phase-ready .ring-glow { background: radial-gradient(circle, rgba(157, 78, 221, 0.2) 0%, transparent 60%); }
+
+        .phase-go .countdown-num { color: var(--orange); }
+        .phase-go .countdown-label { color: var(--orange); }
+        .phase-go .ring-progress { stroke: var(--orange); }
+        .phase-go .ring-glow { background: radial-gradient(circle, rgba(255, 107, 0, 0.3) 0%, transparent 60%); }
+
+        .phase-rest .countdown-num { color: var(--blue); }
+        .phase-rest .countdown-label { color: var(--blue); }
+        .phase-rest .ring-progress { stroke: var(--blue); }
+        .phase-rest .ring-glow { background: radial-gradient(circle, rgba(67, 97, 238, 0.2) 0%, transparent 60%); }
+
+        .phase-done .countdown-num { color: var(--red); }
+        .phase-done .countdown-label { color: var(--red); }
+        .phase-done .ring-progress { stroke: var(--red); }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid var(--purple);
+            background: transparent;
+            color: var(--purple);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background: var(--purple);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-main {
+            width: 80px;
+            height: 80px;
+            font-size: 12px;
+            border-color: var(--orange);
+            color: var(--orange);
+        }
+
+        .btn-main:hover {
+            background: var(--orange);
+            box-shadow: 0 0 30px rgba(255, 107, 0, 0.5);
+        }
+
+        /* Settings */
+        .settings {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .setting-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .setting-label {
+            font-size: 9px;
+            color: #666;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .setting-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--purple);
+        }
+
+        .setting-controls {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .setting-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            background: transparent;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .setting-btn:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #1a1a2e;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--orange);
+        }
+
+        .stat-label {
+            font-size: 9px;
+            color: #666;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .sound-toggle:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .sound-toggle.active {
+            color: var(--purple);
+            border-color: var(--purple);
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="particle-container" id="particleContainer"></div>
+    <div class="bg-pulse" id="bgPulse"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-text">SM</span>
+            </div>
+            <h1>Supernova</h1>
+            <p>Explosive HIIT Countdown</p>
+        </div>
+
+        <div class="timer-section phase-ready" id="timerSection">
+            <div class="timer-ring">
+                <div class="ring-glow"></div>
+                <svg viewBox="0 0 260 260">
+                    <circle class="ring-bg" cx="130" cy="130" r="115"/>
+                    <circle class="ring-progress" id="ringProgress" cx="130" cy="130" r="115"
+                            stroke-dasharray="723" stroke-dashoffset="0"/>
+                </svg>
+                <div class="timer-center">
+                    <div class="countdown-num" id="countdownNum">10</div>
+                    <div class="countdown-label" id="countdownLabel">GET READY</div>
+                    <div class="round-info" id="roundInfo">ROUND 1/8</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn" id="resetBtn">RESET</button>
+                <button class="btn btn-main" id="mainBtn">START</button>
+                <button class="btn" id="skipBtn">SKIP</button>
+            </div>
+
+            <div class="settings">
+                <div class="setting-card">
+                    <div class="setting-label">WORK</div>
+                    <div class="setting-value" id="workValue">20</div>
+                    <div class="setting-controls">
+                        <button class="setting-btn" data-setting="work" data-delta="-5">-</button>
+                        <button class="setting-btn" data-setting="work" data-delta="5">+</button>
+                    </div>
+                </div>
+                <div class="setting-card">
+                    <div class="setting-label">REST</div>
+                    <div class="setting-value" id="restValue">10</div>
+                    <div class="setting-controls">
+                        <button class="setting-btn" data-setting="rest" data-delta="-5">-</button>
+                        <button class="setting-btn" data-setting="rest" data-delta="5">+</button>
+                    </div>
+                </div>
+                <div class="setting-card">
+                    <div class="setting-label">ROUNDS</div>
+                    <div class="setting-value" id="roundsValue">8</div>
+                    <div class="setting-controls">
+                        <button class="setting-btn" data-setting="rounds" data-delta="-1">-</button>
+                        <button class="setting-btn" data-setting="rounds" data-delta="1">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="totalTime">0:00</div>
+                    <div class="stat-label">Total Time</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalExplosions">0</div>
+                    <div class="stat-label">Explosions</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // PARTICLE EXPLOSION SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const particleContainer = document.getElementById('particleContainer');
+        const bgPulse = document.getElementById('bgPulse');
+
+        function createExplosion(x, y, color) {
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                const size = 4 + Math.random() * 8;
+                const angle = (Math.PI * 2 * i) / particleCount + Math.random() * 0.5;
+                const distance = 100 + Math.random() * 150;
+
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.background = color;
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                particle.style.boxShadow = `0 0 ${size}px ${color}`;
+
+                particleContainer.appendChild(particle);
+
+                setTimeout(() => particle.remove(), 1000);
+            }
+
+            bgPulse.classList.remove('active');
+            void bgPulse.offsetWidth;
+            bgPulse.classList.add('active');
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // AUDIO SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function makeDistortion(amount) {
+            const dist = audioCtx.createWaveShaper();
+            const k = amount;
+            const samples = 44100;
+            const curve = new Float32Array(samples);
+            for (let i = 0; i < samples; i++) {
+                const x = (i * 2) / samples - 1;
+                curve[i] = ((3 + k) * x * 20 * (Math.PI / 180)) / (Math.PI + k * Math.abs(x));
+            }
+            dist.curve = curve;
+            return dist;
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'explosion') {
+                // SUPERNOVA EXPLOSION
+                const osc = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const osc3 = audioCtx.createOscillator();
+                const noise = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+                const dist = makeDistortion(50);
+
+                osc.type = 'sawtooth';
+                osc2.type = 'square';
+                osc3.type = 'sine';
+                noise.type = 'sawtooth';
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(3000, now);
+                filter.frequency.exponentialRampToValueAtTime(100, now + 0.5);
+
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.4);
+
+                osc2.frequency.setValueAtTime(150, now);
+                osc2.frequency.exponentialRampToValueAtTime(20, now + 0.3);
+
+                osc3.frequency.setValueAtTime(100, now);
+                osc3.frequency.exponentialRampToValueAtTime(20, now + 0.5);
+
+                noise.frequency.setValueAtTime(80, now);
+                noise.frequency.exponentialRampToValueAtTime(20, now + 0.2);
+
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+
+                osc.connect(dist);
+                osc2.connect(dist);
+                osc3.connect(dist);
+                noise.connect(dist);
+                dist.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc2.start(now);
+                osc3.start(now);
+                noise.start(now);
+                osc.stop(now + 0.6);
+                osc2.stop(now + 0.6);
+                osc3.stop(now + 0.6);
+                noise.stop(now + 0.3);
+
+            } else if (type === 'countdown') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(800, now);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.1);
+
+            } else if (type === 'go') {
+                // HIGH ENERGY START
+                const osc = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = 'sawtooth';
+                osc2.type = 'square';
+
+                filter.type = 'highpass';
+                filter.frequency.setValueAtTime(500, now);
+
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.2);
+
+                osc2.frequency.setValueAtTime(100, now);
+                osc2.frequency.exponentialRampToValueAtTime(400, now + 0.1);
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+                osc.connect(filter);
+                osc2.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc2.start(now);
+                osc.stop(now + 0.3);
+                osc2.stop(now + 0.3);
+
+            } else if (type === 'rest') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.2);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.3);
+
+            } else if (type === 'complete') {
+                // FINAL SUPERNOVA
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        const dist = makeDistortion(30);
+
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(200 - i * 30, audioCtx.currentTime);
+                        osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.4);
+
+                        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+
+                        osc.connect(dist);
+                        dist.connect(gain);
+                        gain.connect(audioCtx.destination);
+
+                        osc.start(audioCtx.currentTime);
+                        osc.stop(audioCtx.currentTime + 0.5);
+                    }, i * 200);
+                }
+
+            } else if (type === 'click') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const config = {
+            work: 20,
+            rest: 10,
+            rounds: 8,
+            prepare: 10
+        };
+
+        let state = {
+            phase: 'idle', // idle, prepare, work, rest, done
+            currentRound: 1,
+            timeLeft: config.prepare,
+            totalPhaseTime: config.prepare,
+            isRunning: false,
+            intervalId: null,
+            explosionCount: parseInt(localStorage.getItem('supernova_explosions') || '0'),
+            totalSeconds: 0
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DOM ELEMENTS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const timerSection = document.getElementById('timerSection');
+        const countdownNum = document.getElementById('countdownNum');
+        const countdownLabel = document.getElementById('countdownLabel');
+        const roundInfo = document.getElementById('roundInfo');
+        const ringProgress = document.getElementById('ringProgress');
+        const mainBtn = document.getElementById('mainBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const workValue = document.getElementById('workValue');
+        const restValue = document.getElementById('restValue');
+        const roundsValue = document.getElementById('roundsValue');
+        const totalTime = document.getElementById('totalTime');
+        const totalExplosions = document.getElementById('totalExplosions');
+        const soundToggle = document.getElementById('soundToggle');
+
+        const circumference = 2 * Math.PI * 115;
+        ringProgress.style.strokeDasharray = circumference;
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function updateDisplay() {
+            countdownNum.textContent = state.timeLeft;
+            roundInfo.textContent = `ROUND ${state.currentRound}/${config.rounds}`;
+
+            const progress = state.timeLeft / state.totalPhaseTime;
+            const offset = circumference * (1 - progress);
+            ringProgress.style.strokeDashoffset = offset;
+
+            timerSection.className = 'timer-section phase-' + state.phase;
+
+            switch (state.phase) {
+                case 'idle':
+                case 'prepare':
+                    countdownLabel.textContent = 'GET READY';
+                    break;
+                case 'work':
+                    countdownLabel.textContent = 'EXPLODE';
+                    break;
+                case 'rest':
+                    countdownLabel.textContent = 'RECOVER';
+                    break;
+                case 'done':
+                    countdownLabel.textContent = 'SUPERNOVA';
+                    break;
+            }
+
+            mainBtn.textContent = state.isRunning ? 'PAUSE' : (state.phase === 'idle' || state.phase === 'done' ? 'START' : 'RESUME');
+            totalTime.textContent = formatTime(state.totalSeconds);
+            totalExplosions.textContent = state.explosionCount;
+        }
+
+        function updateSettings() {
+            workValue.textContent = config.work;
+            restValue.textContent = config.rest;
+            roundsValue.textContent = config.rounds;
+        }
+
+        function startTimer() {
+            if (state.phase === 'idle' || state.phase === 'done') {
+                state.phase = 'prepare';
+                state.currentRound = 1;
+                state.timeLeft = config.prepare;
+                state.totalPhaseTime = config.prepare;
+                state.totalSeconds = 0;
+            }
+
+            state.isRunning = true;
+            initAudio();
+
+            state.intervalId = setInterval(() => {
+                state.timeLeft--;
+                state.totalSeconds++;
+
+                if (state.timeLeft <= 3 && state.timeLeft > 0 && state.phase !== 'rest') {
+                    playSound('countdown');
+                }
+
+                if (state.timeLeft <= 0) {
+                    nextPhase();
+                }
+
+                updateDisplay();
+            }, 1000);
+
+            updateDisplay();
+        }
+
+        function pauseTimer() {
+            state.isRunning = false;
+            if (state.intervalId) {
+                clearInterval(state.intervalId);
+                state.intervalId = null;
+            }
+            updateDisplay();
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            state.phase = 'idle';
+            state.currentRound = 1;
+            state.timeLeft = config.prepare;
+            state.totalPhaseTime = config.prepare;
+            state.totalSeconds = 0;
+            playSound('click');
+            updateDisplay();
+        }
+
+        function nextPhase() {
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+
+            if (state.phase === 'prepare') {
+                state.phase = 'work';
+                state.timeLeft = config.work;
+                state.totalPhaseTime = config.work;
+                playSound('go');
+                createExplosion(centerX, centerY, '#FF6B00');
+
+            } else if (state.phase === 'work') {
+                // EXPLOSION!
+                state.explosionCount++;
+                localStorage.setItem('supernova_explosions', state.explosionCount);
+                playSound('explosion');
+                createExplosion(centerX, centerY, '#FF3333');
+
+                if (state.currentRound >= config.rounds) {
+                    state.phase = 'done';
+                    state.timeLeft = 0;
+                    state.totalPhaseTime = 1;
+                    playSound('complete');
+
+                    // Triple explosion
+                    setTimeout(() => createExplosion(centerX - 50, centerY, '#9D4EDD'), 200);
+                    setTimeout(() => createExplosion(centerX + 50, centerY, '#4361EE'), 400);
+
+                    pauseTimer();
+                } else {
+                    state.phase = 'rest';
+                    state.timeLeft = config.rest;
+                    state.totalPhaseTime = config.rest;
+                    playSound('rest');
+                }
+
+            } else if (state.phase === 'rest') {
+                state.currentRound++;
+                state.phase = 'work';
+                state.timeLeft = config.work;
+                state.totalPhaseTime = config.work;
+                playSound('go');
+                createExplosion(centerX, centerY, '#FF6B00');
+            }
+
+            updateDisplay();
+        }
+
+        function skipPhase() {
+            if (!state.isRunning && state.phase === 'idle') return;
+            playSound('click');
+            state.timeLeft = 1;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // EVENT LISTENERS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        mainBtn.addEventListener('click', () => {
+            playSound('click');
+            if (state.isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        });
+
+        resetBtn.addEventListener('click', resetTimer);
+        skipBtn.addEventListener('click', skipPhase);
+
+        document.querySelectorAll('.setting-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                playSound('click');
+                const setting = btn.dataset.setting;
+                const delta = parseInt(btn.dataset.delta);
+
+                if (setting === 'work') {
+                    config.work = Math.max(5, Math.min(120, config.work + delta));
+                } else if (setting === 'rest') {
+                    config.rest = Math.max(5, Math.min(60, config.rest + delta));
+                } else if (setting === 'rounds') {
+                    config.rounds = Math.max(1, Math.min(20, config.rounds + delta));
+                }
+
+                updateSettings();
+                if (state.phase === 'idle') {
+                    updateDisplay();
+                }
+            });
+        });
+
+        soundToggle.addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            soundToggle.classList.toggle('active', soundEnabled);
+            if (soundEnabled) playSound('click');
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        updateSettings();
+        updateDisplay();
+    </script>
+</body>
+</html>

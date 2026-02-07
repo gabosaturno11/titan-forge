@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEBULA CORE | Values Roulette</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #0f0f14;
+            --bg-tertiary: #1a1a2e;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #52525b;
+            --border: #27272a;
+            --gold: #FFD700;
+            --cyan: #00FFFF;
+            --purple: #9D4EDD;
+            --red: #FF4444;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 32px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 16px;
+            background: radial-gradient(circle at 30% 30%, var(--cyan), var(--purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        }
+
+        .logo-text {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--cyan), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .header-line {
+            width: 120px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan), var(--gold), transparent);
+            margin: 16px auto 0;
+        }
+
+        /* Content Box */
+        .content-box {
+            width: 100%;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 24px;
+            display: none;
+            background: var(--bg-secondary);
+        }
+
+        .content-box.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .content-icon {
+            font-size: 14px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+
+        .content-title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .content-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+        }
+
+        .tab:hover {
+            color: var(--text-secondary);
+        }
+
+        .tab.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--cyan);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            padding: 20px;
+            min-height: 200px;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Quotes Panel */
+        .quote-display {
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .quote-text {
+            font-size: 14px;
+            line-height: 1.7;
+            font-weight: 400;
+            padding: 0 8px;
+            transition: opacity 0.5s;
+        }
+
+        .quote-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .quote-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quote-dot.active {
+            width: 24px;
+            background: var(--cyan);
+        }
+
+        .quote-hint {
+            text-align: center;
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 16px;
+            letter-spacing: 1px;
+        }
+
+        /* Doctrine Panel */
+        .doctrine-text {
+            font-size: 12px;
+            line-height: 2;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            font-weight: 300;
+        }
+
+        .doctrine-hint {
+            text-align: center;
+            font-size: 10px;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-top: 20px;
+            letter-spacing: 1px;
+        }
+
+        /* Mantra Panel */
+        .mantra-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 160px;
+            padding: 16px;
+        }
+
+        .mantra-text {
+            font-size: 14px;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.8;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .mantra-hint {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 24px;
+            letter-spacing: 1px;
+        }
+
+        /* Reflect Panel */
+        .reflect-question {
+            font-size: 13px;
+            line-height: 1.7;
+            font-weight: 400;
+            margin-bottom: 16px;
+        }
+
+        .reflect-textarea {
+            width: 100%;
+            height: 80px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-primary);
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .reflect-textarea:focus {
+            border-color: var(--cyan);
+        }
+
+        .reflect-textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: all 0.2s;
+            background: var(--border);
+            color: var(--text-muted);
+        }
+
+        .save-btn.enabled {
+            background: var(--cyan);
+            color: var(--bg-primary);
+        }
+
+        .save-btn.enabled:hover {
+            opacity: 0.9;
+        }
+
+        .save-btn.enabled:active {
+            transform: scale(0.98);
+        }
+
+        /* Wheel */
+        .wheel-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin-bottom: 24px;
+        }
+
+        .wheel-glow {
+            position: absolute;
+            inset: -20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.2) 0%, rgba(157, 78, 221, 0.1) 50%, transparent 70%);
+            filter: blur(20px);
+            opacity: 0.7;
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            width: 0;
+            height: 0;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-top: 24px solid var(--gold);
+            filter: drop-shadow(0 0 10px var(--gold));
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid var(--border);
+            position: relative;
+            background: radial-gradient(circle at center, var(--bg-tertiary), var(--bg-secondary));
+            transition: transform 0s;
+        }
+
+        .wheel.spinning {
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+        }
+
+        .wheel-segment {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .wheel-segment-line {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 1px;
+            height: 50%;
+            transform-origin: bottom center;
+        }
+
+        .wheel-segment-content {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 12px;
+        }
+
+        .wheel-segment-icon {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .wheel-segment-label {
+            font-size: 7px;
+            font-weight: 600;
+            margin-top: 4px;
+            text-align: center;
+            max-width: 45px;
+            line-height: 1.2;
+            transform: rotate(180deg);
+            letter-spacing: 0.5px;
+        }
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            border: 2px solid var(--cyan);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .wheel-center-top {
+            font-size: 8px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+        }
+
+        .wheel-center-bottom {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--cyan);
+        }
+
+        /* Spin Button */
+        .spin-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid var(--cyan);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            color: var(--cyan);
+        }
+
+        .spin-btn:hover {
+            background: var(--cyan);
+            color: var(--bg-primary);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .spin-btn:active {
+            transform: scale(0.98);
+        }
+
+        .spin-btn:disabled {
+            border-color: var(--border);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .spin-btn:disabled:hover {
+            background: transparent;
+            box-shadow: none;
+        }
+
+        /* Tagline */
+        .tagline {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 300;
+            margin-top: 20px;
+            padding: 0 24px;
+            line-height: 1.7;
+            letter-spacing: 0.5px;
+        }
+
+        /* Saved Reflections */
+        .reflections-section {
+            width: 100%;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            display: none;
+        }
+
+        .reflections-section.visible {
+            display: block;
+        }
+
+        .reflections-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .reflection-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .reflection-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .reflection-icon {
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .reflection-meta {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .reflection-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .footer {
+            width: 100%;
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .footer-quote {
+            font-size: 12px;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .footer-tagline {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-muted);
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .sound-toggle:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .sound-toggle.active {
+            color: var(--cyan);
+            border-color: var(--cyan);
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <span class="logo-text">SM</span>
+            </div>
+            <h1>Nebula Core</h1>
+            <p>Values Roulette</p>
+            <div class="header-line"></div>
+        </div>
+
+        <!-- Content Box -->
+        <div class="content-box" id="contentBox">
+            <div class="content-header" id="contentHeader">
+                <span class="content-icon" id="contentIcon">[D]</span>
+                <h2 class="content-title" id="contentTitle">Discipline</h2>
+                <p class="content-subtitle" id="contentSubtitle">The foundation of all mastery</p>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="quotes">WISDOM</button>
+                <button class="tab" data-tab="doctrine">DOCTRINE</button>
+                <button class="tab" data-tab="mantra">MANTRA</button>
+                <button class="tab" data-tab="reflect">REFLECT</button>
+            </div>
+
+            <div class="tab-content">
+                <!-- Quotes Panel -->
+                <div class="tab-panel active" id="quotes-panel">
+                    <div class="quote-display">
+                        <p class="quote-text" id="quoteText">"Discipline is the bridge between goals and accomplishment."</p>
+                    </div>
+                    <div class="quote-dots" id="quoteDots"></div>
+                    <p class="quote-hint">TAP DOTS FOR MORE WISDOM</p>
+                </div>
+
+                <!-- Doctrine Panel -->
+                <div class="tab-panel" id="doctrine-panel">
+                    <p class="doctrine-text" id="doctrineText"></p>
+                    <p class="doctrine-hint">Let it sink in.</p>
+                </div>
+
+                <!-- Mantra Panel -->
+                <div class="tab-panel" id="mantra-panel">
+                    <div class="mantra-container">
+                        <p class="mantra-text" id="mantraText"></p>
+                        <p class="mantra-hint">BREATHE. REPEAT. EMBODY.</p>
+                    </div>
+                </div>
+
+                <!-- Reflect Panel -->
+                <div class="tab-panel" id="reflect-panel">
+                    <p class="reflect-question" id="reflectQuestion"></p>
+                    <textarea class="reflect-textarea" id="reflectInput" placeholder="Write your reflection..."></textarea>
+                    <button class="save-btn" id="saveBtn">SAVE REFLECTION</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wheel -->
+        <div class="wheel-container">
+            <div class="wheel-glow"></div>
+            <div class="wheel-pointer"></div>
+            <div class="wheel" id="wheel"></div>
+        </div>
+
+        <!-- Spin Button -->
+        <button class="spin-btn" id="spinBtn">SPIN THE NEBULA</button>
+
+        <!-- Tagline -->
+        <p class="tagline" id="tagline">Each spin reveals a core value, its doctrine, and a question for your evolution.</p>
+
+        <!-- Saved Reflections -->
+        <div class="reflections-section" id="reflectionsSection">
+            <h3 class="reflections-title">Your Reflections</h3>
+            <div id="reflectionsList"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-quote">"The body achieves what the mind believes."</p>
+            <p class="footer-tagline">Saturno Movement</p>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // SATURNO VALUES ROULETTE - DATA
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const CORE_VALUES = {
+            discipline: {
+                name: "Discipline",
+                subtitle: "The foundation of all mastery",
+                icon: "[D]",
+                color: "#FFD700",
+                quotes: [
+                    "Discipline is the bridge between goals and accomplishment.",
+                    "Freedom is on the other side of discipline.",
+                    "Do what you have to do until you can do what you want to do.",
+                    "Success isn't owned. It's leased. And rent is due every day.",
+                    "The pain of discipline weighs ounces. The pain of regret weighs tons."
+                ],
+                doctrine: `Discipline is not punishment.
+Discipline is freedom.
+
+It is the deliberate choice
+to do what must be done
+when you don't feel like doing it.
+
+Every rep you complete when you're tired,
+every session you show up to when life is chaos,
+every time you choose growth over comfort—
+that is discipline in action.
+
+The body wants to quit.
+The mind must command.
+This is not cruelty to the self.
+This is respect for who you're becoming.
+
+Discipline today.
+Freedom tomorrow.`,
+                mantra: "I DO WHAT MUST BE DONE. FEELINGS ARE TEMPORARY. DISCIPLINE IS ETERNAL.",
+                question: "Where in your life have you been waiting for motivation instead of relying on discipline?"
+            },
+
+            patience: {
+                name: "Patience",
+                subtitle: "Trust the process",
+                icon: "[P]",
+                color: "#00FFFF",
+                quotes: [
+                    "Patience is not passive waiting. It is active acceptance of the process.",
+                    "The oak tree was once a nut that held its ground.",
+                    "Nature does not hurry, yet everything is accomplished.",
+                    "A river cuts through rock not because of its power but its persistence.",
+                    "Trust the process. The results will come."
+                ],
+                doctrine: `You will not master the handstand
+in a week.
+Or a month.
+Or maybe even a year.
+
+And that is exactly the point.
+
+Patience is not the absence of urgency.
+It is the presence of understanding.
+Understanding that worthy things
+take worthy time.
+
+The muscle fiber tears.
+It rebuilds.
+Stronger.
+This takes time.
+
+The neural pathway fires.
+It strengthens.
+Faster.
+This takes time.
+
+You are not behind.
+You are exactly where you need to be.
+On the path.
+Moving forward.
+One rep at a time.`,
+                mantra: "I TRUST THE TIMELINE OF MY OWN EVOLUTION. PROGRESS IS PROGRESS.",
+                question: "What skill or goal have you abandoned because it was taking 'too long'?"
+            },
+
+            consistency: {
+                name: "Consistency",
+                subtitle: "Show up every single day",
+                icon: "[C]",
+                color: "#9D4EDD",
+                quotes: [
+                    "It's not what we do once in a while that shapes our lives. It's what we do consistently.",
+                    "Small disciplines repeated with consistency lead to great achievements.",
+                    "We are what we repeatedly do. Excellence is not an act, but a habit.",
+                    "The secret is there is no secret. It's just showing up.",
+                    "Consistency beats intensity. Always."
+                ],
+                doctrine: `One extraordinary session
+means nothing.
+
+One hundred ordinary sessions
+changes everything.
+
+Consistency is not glamorous.
+It is not viral.
+It does not trend.
+
+It is the quiet accumulation
+of showing up
+when no one is watching,
+when results seem invisible,
+when the only witness
+is yourself.
+
+365 days of 1% improvement
+is 37x better than you started.
+
+365 days of waiting for the perfect moment
+is 365 days wasted.
+
+Show up.
+Do the work.
+Repeat.`,
+                mantra: "I SHOW UP. EVERY DAY. NO EXCUSES. NO EXCEPTIONS. THIS IS WHO I AM.",
+                question: "What would change if you committed to showing up every single day for the next 90 days?"
+            },
+
+            mastery: {
+                name: "Mastery",
+                subtitle: "The endless pursuit of excellence",
+                icon: "[M]",
+                color: "#FF4444",
+                quotes: [
+                    "Mastery is not a destination, it is a way of traveling.",
+                    "The master has failed more times than the beginner has tried.",
+                    "An expert is someone who has made all the mistakes in a narrow field.",
+                    "The road to mastery is paved with ten thousand hours of deliberate practice.",
+                    "There is no end to mastery—only deeper levels."
+                ],
+                doctrine: `You will never arrive.
+
+Not because you're failing.
+But because mastery
+has no finish line.
+
+There is always a deeper level.
+A subtler refinement.
+A nuance you hadn't noticed.
+
+This is not frustrating.
+This is liberating.
+
+The planche you achieve today
+reveals the planche you cannot yet imagine.
+The strength you build
+shows you strengths you didn't know existed.
+
+The journey IS the destination.
+The practice IS the purpose.
+The pursuit IS the prize.
+
+Fall in love with the process.
+The outcomes will follow.`,
+                mantra: "I AM A STUDENT FOR LIFE. MASTERY IS A DIRECTION, NOT A DESTINATION.",
+                question: "What skill are you trying to 'finish' instead of continuously improving?"
+            },
+
+            flow: {
+                name: "Flow",
+                subtitle: "When movement becomes meditation",
+                icon: "[F]",
+                color: "#00FF88",
+                quotes: [
+                    "Flow is being completely involved in an activity for its own sake.",
+                    "In flow, the ego falls away. Time flies. Every action follows seamlessly.",
+                    "The body knows what the mind has forgotten.",
+                    "Movement is the song of the body.",
+                    "When you are in flow, you are not doing—you are being."
+                ],
+                doctrine: `There is a state beyond effort.
+
+Where the body moves
+without command.
+Where thought dissolves
+into pure action.
+Where you and the movement
+become one thing.
+
+This is flow.
+
+You cannot force it.
+You can only create conditions for it.
+
+Show up prepared.
+Remove distractions.
+Match challenge to skill.
+Let go of outcome.
+
+And sometimes—
+in the space between intention and action—
+you will disappear.
+
+Only movement will remain.
+And in that moment,
+you will know
+why you train.`,
+                mantra: "I RELEASE CONTROL. I TRUST MY BODY. I BECOME THE MOVEMENT.",
+                question: "When was the last time you lost yourself completely in what you were doing?"
+            },
+
+            strength: {
+                name: "Strength",
+                subtitle: "Mind over matter",
+                icon: "[S]",
+                color: "#FF6B00",
+                quotes: [
+                    "Strength does not come from physical capacity. It comes from an indomitable will.",
+                    "The body achieves what the mind believes.",
+                    "You are stronger than you think. Remember that.",
+                    "True strength is keeping everything together when everyone expects you to fall apart.",
+                    "Strength isn't about how much you can handle before you break. It's about how much you can handle after."
+                ],
+                doctrine: `There are two kinds of strength.
+
+The strength to lift weight.
+And the strength to keep going
+when everything says stop.
+
+One is measured in kilograms.
+The other in character.
+
+Both are trained.
+Both grow with resistance.
+Both require recovery.
+Both demand respect.
+
+Physical strength without mental strength
+collapses under pressure.
+Mental strength without physical discipline
+is philosophy without practice.
+
+Train them together.
+They are not separate.
+The iron teaches the mind.
+The mind commands the iron.
+
+This is true strength.`,
+                mantra: "MY MIND IS STRONGER THAN MY EXCUSES. MY WILL IS STRONGER THAN MY WEAKNESS.",
+                question: "What challenge have you been avoiding because you don't feel 'strong enough'?"
+            },
+
+            balance: {
+                name: "Balance",
+                subtitle: "Control within chaos",
+                icon: "[B]",
+                color: "#4ECDC4",
+                quotes: [
+                    "Balance is not something you find. It's something you create.",
+                    "In handstands and in life—balance is constant adjustment.",
+                    "The key is not to prioritize what's on your schedule, but to schedule your priorities.",
+                    "Stability comes from flexibility, not rigidity.",
+                    "A balanced life is not a perfect life. It's an intentional one."
+                ],
+                doctrine: `Balance is not stillness.
+Balance is micro-adjustments
+happening so fast
+they appear as stillness.
+
+Watch the handstand.
+The wrists pulse.
+The fingers grip and release.
+The core contracts and softens.
+A thousand corrections per second.
+
+This is balance.
+Not the absence of movement.
+But the presence of awareness.
+
+Life is no different.
+
+Work and rest.
+Push and pull.
+Ambition and acceptance.
+Always adjusting.
+Never perfect.
+Always present.
+
+Balance is not achieved.
+Balance is maintained.
+Moment by moment.`,
+                mantra: "I ADJUST CONSTANTLY. I AM PRESENT. BALANCE IS MY PRACTICE.",
+                question: "Where in your life have you been seeking perfect balance instead of constant adjustment?"
+            },
+
+            evolution: {
+                name: "Evolution",
+                subtitle: "Never stop becoming",
+                icon: "[E]",
+                color: "#E040FB",
+                quotes: [
+                    "The only constant in life is change. Embrace it.",
+                    "Every next level of your life will demand a different you.",
+                    "Evolution is not about becoming someone else. It's about becoming more yourself.",
+                    "The snake that cannot shed its skin perishes.",
+                    "Growth is painful. Change is painful. But nothing is as painful as staying stuck."
+                ],
+                doctrine: `You are not the same person
+who started this journey.
+
+And you will not be the same person
+who completes it.
+
+This is not loss.
+This is evolution.
+
+The caterpillar does not improve itself
+into a butterfly.
+It dissolves completely.
+And from that dissolution,
+something new emerges.
+
+You too will dissolve.
+Old beliefs that no longer serve.
+Old identities that limit.
+Old patterns that keep you small.
+
+Let them go.
+
+What emerges
+will be more powerful,
+more capable,
+more YOU
+than anything you've been before.
+
+Evolution is not optional.
+It's inevitable.
+You can resist it.
+Or you can direct it.`,
+                mantra: "I SHED WHAT NO LONGER SERVES. I BECOME WHO I'M MEANT TO BE.",
+                question: "What version of yourself needs to die for the next version to be born?"
+            },
+
+            focus: {
+                name: "Focus",
+                subtitle: "Where attention goes, energy flows",
+                icon: "[X]",
+                color: "#FFEB3B",
+                quotes: [
+                    "The successful warrior is the average man with laser-like focus.",
+                    "Concentrate all your thoughts upon the work at hand. The sun's rays do not burn until brought to a focus.",
+                    "Lack of direction, not lack of time, is the problem. We all have the same 24 hours.",
+                    "What you focus on expands.",
+                    "Starve your distractions. Feed your focus."
+                ],
+                doctrine: `Energy follows attention.
+Always.
+
+What you focus on grows.
+What you ignore withers.
+
+This is not metaphor.
+This is neuroscience.
+
+The neural pathways you activate
+strengthen.
+The ones you neglect
+fade.
+
+Every time you check your phone
+during training,
+you strengthen distraction.
+Every time you stay present,
+you strengthen focus.
+
+Focus is a muscle.
+You are training it
+whether you intend to or not.
+
+Train it intentionally.
+One set at a time.
+One rep at a time.
+One breath at a time.
+
+This moment.
+This movement.
+Nothing else exists.`,
+                mantra: "I AM HERE. I AM NOW. MY ATTENTION IS MY POWER.",
+                question: "What are you feeding with your attention that you should be starving?"
+            },
+
+            resilience: {
+                name: "Resilience",
+                subtitle: "Fall seven times, stand up eight",
+                icon: "[R]",
+                color: "#F44336",
+                quotes: [
+                    "It's not whether you get knocked down. It's whether you get up.",
+                    "Rock bottom became the solid foundation on which I rebuilt my life.",
+                    "The human capacity for burden is like bamboo—far more flexible than you'd ever believe.",
+                    "You may have to fight a battle more than once to win it.",
+                    "Resilience is accepting your new reality, even if it's less good than the one you had before."
+                ],
+                doctrine: `You will fail.
+
+Not might.
+Will.
+
+You will miss the hold.
+Fall from the handstand.
+Lose the streak.
+Doubt yourself.
+Want to quit.
+
+This is not a possibility.
+This is a certainty.
+
+And resilience is not preventing failure.
+Resilience is what happens after.
+
+Do you stay down?
+Or do you get up?
+
+The answer to that question—
+repeated over years—
+determines everything.
+
+You don't need to be unbreakable.
+You just need to be
+unquittable.`,
+                mantra: "I WILL GET KNOCKED DOWN. I WILL ALWAYS GET BACK UP. ALWAYS.",
+                question: "What failure are you still letting define you instead of refine you?"
+            },
+
+            presence: {
+                name: "Presence",
+                subtitle: "Be here now",
+                icon: "[N]",
+                color: "#00BCD4",
+                quotes: [
+                    "The present moment is the only moment available to us, and it is the door to all moments.",
+                    "Realize deeply that the present moment is all you have.",
+                    "If you are depressed, you are living in the past. If you are anxious, living in the future. If you are at peace, living in the present.",
+                    "Life is available only in the present moment.",
+                    "Be where your feet are."
+                ],
+                doctrine: `The past is memory.
+The future is imagination.
+Only now is real.
+
+And yet—
+how often are you actually here?
+
+Body in the gym.
+Mind in yesterday's argument.
+Heart in tomorrow's worry.
+
+This is the great theft.
+Not of time.
+Of life.
+
+The set you rush through
+while planning dinner
+never happened.
+Not really.
+
+Presence is the antidote.
+
+Attention on the muscle.
+Awareness of the breath.
+Complete absorption
+in this moment,
+this rep,
+this second.
+
+This is not just better training.
+This is better living.
+Because life only happens
+right now.`,
+                mantra: "I AM FULLY HERE. NOT HALF-PRESENT. FULLY HERE. NOW.",
+                question: "Where do you go when you leave the present moment?"
+            },
+
+            legacy: {
+                name: "Legacy",
+                subtitle: "What you leave behind",
+                icon: "[L]",
+                color: "#FFD700",
+                quotes: [
+                    "Carve your name on hearts, not tombstones.",
+                    "The greatest legacy is not what we leave for people. It's what we leave in them.",
+                    "We make a living by what we get. We make a life by what we give.",
+                    "What we do for ourselves dies with us. What we do for others is immortal.",
+                    "Your legacy is every life you've touched."
+                ],
+                doctrine: `One day, this body will stop.
+
+The handstands will end.
+The training will cease.
+The strength will fade.
+
+This is not morbid.
+This is clarifying.
+
+Knowing the end
+reveals what matters now.
+
+Not the numbers.
+Not the followers.
+Not the achievements.
+
+But the people you've helped.
+The knowledge you've shared.
+The example you've set.
+The lives you've touched.
+
+Train not just for yourself.
+Train to show others what's possible.
+Move not just for your body.
+Move to inspire others to move.
+
+This is legacy.
+Not a monument built after death.
+But a ripple created in life.
+
+What ripple are you creating?`,
+                mantra: "I TRAIN FOR MORE THAN MYSELF. MY MOVEMENT INSPIRES MOVEMENT.",
+                question: "If your training journey ended tomorrow, what would it have meant to others?"
+            }
+        };
+
+        const VALUE_KEYS = Object.keys(CORE_VALUES);
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // AUDIO SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function makeDistortion(amount) {
+            const dist = audioCtx.createWaveShaper();
+            const k = amount;
+            const samples = 44100;
+            const curve = new Float32Array(samples);
+            for (let i = 0; i < samples; i++) {
+                const x = (i * 2) / samples - 1;
+                curve[i] = ((3 + k) * x * 20 * (Math.PI / 180)) / (Math.PI + k * Math.abs(x));
+            }
+            dist.curve = curve;
+            dist.oversample = '4x';
+            return dist;
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'spin') {
+                // WARP DRIVE ENGAGE
+                const osc = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+                const dist = makeDistortion(20);
+
+                osc.type = 'sawtooth';
+                osc2.type = 'square';
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(200, now);
+                filter.frequency.exponentialRampToValueAtTime(2000, now + 0.3);
+                filter.frequency.exponentialRampToValueAtTime(100, now + 2);
+
+                osc.frequency.setValueAtTime(40, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.5);
+                osc.frequency.exponentialRampToValueAtTime(60, now + 2);
+
+                osc2.frequency.setValueAtTime(20, now);
+                osc2.frequency.exponentialRampToValueAtTime(150, now + 0.5);
+                osc2.frequency.exponentialRampToValueAtTime(30, now + 2);
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.2, now + 0.3);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 2.5);
+
+                osc.connect(dist);
+                osc2.connect(dist);
+                dist.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc2.start(now);
+                osc.stop(now + 2.5);
+                osc2.stop(now + 2.5);
+
+            } else if (type === 'land') {
+                // BASS DROP + IMPACT
+                const osc = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const noise = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const gain2 = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+                const dist = makeDistortion(30);
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(120, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.5);
+
+                osc2.type = 'square';
+                osc2.frequency.setValueAtTime(80, now);
+                osc2.frequency.exponentialRampToValueAtTime(20, now + 0.3);
+
+                noise.type = 'sawtooth';
+                noise.frequency.setValueAtTime(100, now);
+                noise.frequency.exponentialRampToValueAtTime(30, now + 0.1);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1000, now);
+                filter.frequency.exponentialRampToValueAtTime(60, now + 0.3);
+
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+
+                gain2.gain.setValueAtTime(0.2, now);
+                gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+                osc.connect(dist);
+                osc2.connect(dist);
+                dist.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                noise.connect(gain2);
+                gain2.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc2.start(now);
+                noise.start(now);
+                osc.stop(now + 0.6);
+                osc2.stop(now + 0.6);
+                noise.stop(now + 0.15);
+
+            } else if (type === 'click') {
+                // LASER BLIP
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.08);
+
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.08);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let state = {
+            rotation: 0,
+            isSpinning: false,
+            selectedValue: null,
+            currentQuoteIndex: 0,
+            quoteInterval: null,
+            savedReflections: JSON.parse(localStorage.getItem('saturno_reflections') || '[]')
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DOM ELEMENTS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const wheel = document.getElementById('wheel');
+        const spinBtn = document.getElementById('spinBtn');
+        const contentBox = document.getElementById('contentBox');
+        const contentIcon = document.getElementById('contentIcon');
+        const contentTitle = document.getElementById('contentTitle');
+        const contentSubtitle = document.getElementById('contentSubtitle');
+        const quoteText = document.getElementById('quoteText');
+        const quoteDots = document.getElementById('quoteDots');
+        const doctrineText = document.getElementById('doctrineText');
+        const mantraText = document.getElementById('mantraText');
+        const reflectQuestion = document.getElementById('reflectQuestion');
+        const reflectInput = document.getElementById('reflectInput');
+        const saveBtn = document.getElementById('saveBtn');
+        const tagline = document.getElementById('tagline');
+        const reflectionsSection = document.getElementById('reflectionsSection');
+        const reflectionsList = document.getElementById('reflectionsList');
+        const tabs = document.querySelectorAll('.tab');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+        const soundToggle = document.getElementById('soundToggle');
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // SOUND TOGGLE
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        soundToggle.addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            soundToggle.classList.toggle('active', soundEnabled);
+            if (soundEnabled) playSound('click');
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // INITIALIZE WHEEL
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function initWheel() {
+            const segmentAngle = 360 / VALUE_KEYS.length;
+
+            VALUE_KEYS.forEach((key, index) => {
+                const value = CORE_VALUES[key];
+                const angle = segmentAngle * index;
+
+                const segment = document.createElement('div');
+                segment.className = 'wheel-segment';
+                segment.style.transform = `rotate(${angle}deg)`;
+
+                const line = document.createElement('div');
+                line.className = 'wheel-segment-line';
+                line.style.backgroundColor = `${value.color}40`;
+                segment.appendChild(line);
+
+                const content = document.createElement('div');
+                content.className = 'wheel-segment-content';
+
+                const icon = document.createElement('span');
+                icon.className = 'wheel-segment-icon';
+                icon.textContent = value.icon;
+                icon.style.color = value.color;
+
+                const label = document.createElement('span');
+                label.className = 'wheel-segment-label';
+                label.style.color = value.color;
+                label.textContent = value.name.split(' ')[0];
+
+                content.appendChild(icon);
+                content.appendChild(label);
+                segment.appendChild(content);
+
+                wheel.appendChild(segment);
+            });
+
+            const center = document.createElement('div');
+            center.className = 'wheel-center';
+            center.innerHTML = `
+                <span class="wheel-center-top">CORE</span>
+                <span class="wheel-center-bottom">VALUES</span>
+            `;
+            wheel.appendChild(center);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // SPIN WHEEL
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function spinWheel() {
+            if (state.isSpinning) return;
+
+            initAudio();
+            playSound('spin');
+
+            state.isSpinning = true;
+            spinBtn.disabled = true;
+            spinBtn.textContent = 'RECEIVING...';
+            contentBox.classList.remove('visible');
+            tagline.style.display = 'none';
+
+            if (state.quoteInterval) {
+                clearInterval(state.quoteInterval);
+            }
+
+            const randomSpins = 5 + Math.random() * 3;
+            const randomIndex = Math.floor(Math.random() * VALUE_KEYS.length);
+            const segmentAngle = 360 / VALUE_KEYS.length;
+            const targetAngle = randomSpins * 360 + (randomIndex * segmentAngle) + (segmentAngle / 2);
+
+            state.rotation += targetAngle;
+            wheel.classList.add('spinning');
+            wheel.style.transform = `rotate(${state.rotation}deg)`;
+
+            setTimeout(() => {
+                state.isSpinning = false;
+                state.selectedValue = VALUE_KEYS[randomIndex];
+                state.currentQuoteIndex = 0;
+
+                playSound('land');
+
+                spinBtn.disabled = false;
+                spinBtn.textContent = 'SPIN THE NEBULA';
+                wheel.classList.remove('spinning');
+
+                showContent();
+            }, 4000);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // SHOW CONTENT
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function showContent() {
+            const value = CORE_VALUES[state.selectedValue];
+
+            contentBox.style.background = `linear-gradient(135deg, ${value.color}08, transparent)`;
+            contentIcon.textContent = value.icon;
+            contentIcon.style.color = value.color;
+            contentTitle.textContent = value.name;
+            contentTitle.style.color = value.color;
+            contentSubtitle.textContent = value.subtitle;
+
+            updateQuote();
+            renderQuoteDots();
+            startQuoteRotation();
+
+            doctrineText.textContent = value.doctrine;
+
+            mantraText.textContent = value.mantra;
+            mantraText.style.color = value.color;
+
+            reflectQuestion.textContent = value.question;
+            reflectInput.value = '';
+            updateSaveBtn();
+
+            tabs.forEach(t => t.classList.remove('active'));
+            tabPanels.forEach(p => p.classList.remove('active'));
+            tabs[0].classList.add('active');
+            tabs[0].style.borderBottomColor = value.color;
+            document.getElementById('quotes-panel').classList.add('active');
+
+            contentBox.classList.add('visible');
+        }
+
+        function updateQuote() {
+            const value = CORE_VALUES[state.selectedValue];
+            quoteText.textContent = `"${value.quotes[state.currentQuoteIndex]}"`;
+            quoteText.style.color = value.color;
+        }
+
+        function renderQuoteDots() {
+            const value = CORE_VALUES[state.selectedValue];
+            quoteDots.innerHTML = '';
+
+            value.quotes.forEach((_, idx) => {
+                const dot = document.createElement('button');
+                dot.className = 'quote-dot' + (idx === state.currentQuoteIndex ? ' active' : '');
+                if (idx === state.currentQuoteIndex) {
+                    dot.style.backgroundColor = value.color;
+                }
+                dot.onclick = () => {
+                    playSound('click');
+                    state.currentQuoteIndex = idx;
+                    updateQuote();
+                    renderQuoteDots();
+                };
+                quoteDots.appendChild(dot);
+            });
+        }
+
+        function startQuoteRotation() {
+            if (state.quoteInterval) {
+                clearInterval(state.quoteInterval);
+            }
+
+            state.quoteInterval = setInterval(() => {
+                const value = CORE_VALUES[state.selectedValue];
+                state.currentQuoteIndex = (state.currentQuoteIndex + 1) % value.quotes.length;
+                updateQuote();
+                renderQuoteDots();
+            }, 5000);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // TABS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                playSound('click');
+                const tabName = tab.dataset.tab;
+                const value = CORE_VALUES[state.selectedValue];
+
+                tabs.forEach(t => {
+                    t.classList.remove('active');
+                    t.style.borderBottomColor = 'transparent';
+                });
+                tabPanels.forEach(p => p.classList.remove('active'));
+
+                tab.classList.add('active');
+                tab.style.borderBottomColor = value.color;
+                document.getElementById(`${tabName}-panel`).classList.add('active');
+            });
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // REFLECTIONS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        reflectInput.addEventListener('input', updateSaveBtn);
+
+        function updateSaveBtn() {
+            if (reflectInput.value.trim()) {
+                saveBtn.classList.add('enabled');
+            } else {
+                saveBtn.classList.remove('enabled');
+            }
+        }
+
+        saveBtn.addEventListener('click', () => {
+            if (!reflectInput.value.trim() || !state.selectedValue) return;
+
+            playSound('land');
+
+            const reflection = {
+                value: state.selectedValue,
+                text: reflectInput.value.trim(),
+                date: new Date().toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                })
+            };
+
+            state.savedReflections.unshift(reflection);
+            localStorage.setItem('saturno_reflections', JSON.stringify(state.savedReflections));
+            reflectInput.value = '';
+            updateSaveBtn();
+            renderReflections();
+        });
+
+        function renderReflections() {
+            if (state.savedReflections.length === 0) {
+                reflectionsSection.classList.remove('visible');
+                return;
+            }
+
+            reflectionsSection.classList.add('visible');
+            reflectionsList.innerHTML = '';
+
+            state.savedReflections.slice(0, 10).forEach(ref => {
+                const value = CORE_VALUES[ref.value];
+                if (!value) return;
+
+                const card = document.createElement('div');
+                card.className = 'reflection-card';
+                card.innerHTML = `
+                    <div class="reflection-header">
+                        <span class="reflection-icon" style="color: ${value.color}">${value.icon}</span>
+                        <span class="reflection-meta">${value.name} // ${ref.date}</span>
+                    </div>
+                    <p class="reflection-text">${ref.text}</p>
+                `;
+                reflectionsList.appendChild(card);
+            });
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        initWheel();
+        renderReflections();
+        spinBtn.addEventListener('click', spinWheel);
+    </script>
+</body>
+</html>

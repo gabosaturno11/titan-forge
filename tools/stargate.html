@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>STARGATE | Workout Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --blue: #00D4FF; --purple: #9D4EDD; --pink: #FF006E; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+
+        .header { text-align: center; margin-bottom: 20px; }
+        .logo { width: 50px; height: 50px; margin: 0 auto 10px; background: linear-gradient(135deg, var(--blue), var(--purple)); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .logo-text { font-size: 9px; font-weight: 700; letter-spacing: 1px; }
+        .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 3px; background: linear-gradient(135deg, var(--blue), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .header p { font-size: 9px; color: #666; margin-top: 4px; letter-spacing: 2px; }
+
+        .gate-container { position: relative; width: 260px; height: 260px; margin: 0 auto 24px; }
+        .gate-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); }
+        .ring-outer { width: 260px; height: 260px; border: 3px solid var(--purple); animation: rotateRing 20s linear infinite; }
+        .ring-middle { width: 200px; height: 200px; border: 2px solid var(--blue); animation: rotateRing 15s linear infinite reverse; }
+        .ring-inner { width: 140px; height: 140px; border: 2px solid var(--pink); animation: rotateRing 10s linear infinite; }
+        @keyframes rotateRing { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+        .gate-symbols { position: absolute; width: 260px; height: 260px; top: 0; left: 0; }
+        .gate-symbol { position: absolute; width: 20px; height: 20px; background: var(--purple); border-radius: 3px; font-size: 10px; display: flex; align-items: center; justify-content: center; color: #000; font-weight: 700; transition: all 0.3s; }
+        .gate-symbol.active { background: var(--blue); box-shadow: 0 0 20px var(--blue); transform: scale(1.2); }
+
+        .portal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, rgba(0, 212, 255, 0.3), rgba(157, 78, 221, 0.2), transparent); cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .portal:hover { background: radial-gradient(circle, rgba(0, 212, 255, 0.5), rgba(157, 78, 221, 0.3), transparent); }
+        .portal.active { background: radial-gradient(circle, var(--blue), var(--purple)); box-shadow: 0 0 60px var(--blue); }
+        .portal-text { font-size: 10px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+        .portal.active .portal-text { color: #000; font-weight: 700; }
+
+        .destination { background: rgba(157, 78, 221, 0.05); border: 1px solid rgba(157, 78, 221, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: center; min-height: 120px; }
+        .dest-label { font-size: 9px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .dest-name { font-size: 20px; font-weight: 700; color: var(--purple); margin-bottom: 8px; }
+        .dest-desc { font-size: 11px; color: #888; line-height: 1.6; }
+
+        .portals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+        .portal-btn { padding: 12px 8px; border-radius: 8px; border: 1px solid #222; background: transparent; color: #666; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+        .portal-btn:hover { border-color: var(--purple); color: var(--purple); }
+        .portal-btn.active { background: linear-gradient(135deg, var(--blue), var(--purple)); border-color: transparent; color: #000; }
+
+        .workout-preview { background: rgba(0, 212, 255, 0.02); border: 1px solid #1a1a2e; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+        .preview-title { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+        .preview-exercises { display: flex; flex-direction: column; gap: 8px; }
+        .preview-ex { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.02); border-radius: 4px; }
+        .preview-ex-name { font-size: 11px; color: #888; }
+        .preview-ex-reps { font-size: 10px; color: var(--blue); }
+
+        .action-btn { width: 100%; padding: 16px; border-radius: 8px; border: 2px solid var(--purple); background: transparent; color: var(--purple); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
+        .action-btn:hover { background: var(--purple); color: #000; box-shadow: 0 0 30px rgba(157, 78, 221, 0.4); }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--purple); color: var(--purple); }
+        .sound-toggle.active { color: var(--purple); border-color: var(--purple); }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Stargate</h1>
+            <p>Workout Portal</p>
+        </div>
+
+        <div class="gate-container">
+            <div class="gate-ring ring-outer"></div>
+            <div class="gate-ring ring-middle"></div>
+            <div class="gate-ring ring-inner"></div>
+            <div class="gate-symbols" id="gateSymbols"></div>
+            <div class="portal" id="mainPortal">
+                <span class="portal-text">ENTER</span>
+            </div>
+        </div>
+
+        <div class="portals-grid" id="portalsGrid"></div>
+
+        <div class="destination">
+            <div class="dest-label">Destination</div>
+            <div class="dest-name" id="destName">Select Portal</div>
+            <div class="dest-desc" id="destDesc">Choose your training dimension</div>
+        </div>
+
+        <div class="workout-preview" id="workoutPreview" style="display: none;">
+            <div class="preview-title">Portal Contents</div>
+            <div class="preview-exercises" id="previewExercises"></div>
+        </div>
+
+        <button class="action-btn" id="actionBtn">ACTIVATE GATE</button>
+    </div>
+
+    <script>
+        let audioCtx = null, soundEnabled = true;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'select') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(2000, now);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(400, now + 0.15);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.2);
+            } else if (type === 'activate') {
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(200 + i * 50, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.3);
+                    }, i * 60);
+                }
+            } else if (type === 'warp') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(5000, now);
+                filter.frequency.exponentialRampToValueAtTime(100, now + 1);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(100, now);
+                osc.frequency.exponentialRampToValueAtTime(50, now + 1);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 1);
+                osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 1);
+            }
+        }
+
+        const portals = {
+            push: { name: 'Push Dimension', desc: 'Chest, shoulders, triceps - horizontal and vertical pressing movements', exercises: [
+                { name: 'Push-ups', reps: '3x15' }, { name: 'Pike Push-ups', reps: '3x10' },
+                { name: 'Diamond Push-ups', reps: '3x12' }, { name: 'Dips', reps: '3x10' }
+            ]},
+            pull: { name: 'Pull Dimension', desc: 'Back, biceps, rear delts - all pulling variations', exercises: [
+                { name: 'Pull-ups', reps: '3x8' }, { name: 'Chin-ups', reps: '3x8' },
+                { name: 'Australian Rows', reps: '3x12' }, { name: 'Archer Rows', reps: '3x8 each' }
+            ]},
+            legs: { name: 'Legs Dimension', desc: 'Quads, glutes, hamstrings, calves - lower body power', exercises: [
+                { name: 'Squats', reps: '3x20' }, { name: 'Lunges', reps: '3x12 each' },
+                { name: 'Jump Squats', reps: '3x15' }, { name: 'Calf Raises', reps: '3x25' }
+            ]},
+            core: { name: 'Core Dimension', desc: 'Abs, obliques, lower back - trunk stability and strength', exercises: [
+                { name: 'Hollow Body', reps: '3x30s' }, { name: 'L-Sit Progression', reps: '3x15s' },
+                { name: 'Dragon Flags', reps: '3x8' }, { name: 'Plank', reps: '3x45s' }
+            ]},
+            skill: { name: 'Skill Dimension', desc: 'Advanced movements requiring balance and coordination', exercises: [
+                { name: 'Handstand Holds', reps: '5x30s' }, { name: 'Muscle-up Prog', reps: '5x3' },
+                { name: 'Front Lever', reps: '5x10s' }, { name: 'Pistol Squats', reps: '3x5 each' }
+            ]},
+            cardio: { name: 'Cardio Dimension', desc: 'Heart-pumping metabolic conditioning', exercises: [
+                { name: 'Burpees', reps: '5x10' }, { name: 'Mountain Climbers', reps: '3x30s' },
+                { name: 'High Knees', reps: '3x30s' }, { name: 'Jump Rope', reps: '3x60s' }
+            ]}
+        };
+
+        let selectedPortal = null;
+
+        function createSymbols() {
+            const container = document.getElementById('gateSymbols');
+            const symbols = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
+            const radius = 115;
+
+            symbols.forEach((sym, i) => {
+                const angle = (i / symbols.length) * Math.PI * 2 - Math.PI / 2;
+                const x = 130 + Math.cos(angle) * radius;
+                const y = 130 + Math.sin(angle) * radius;
+
+                const el = document.createElement('div');
+                el.className = 'gate-symbol';
+                el.textContent = sym;
+                el.style.left = (x - 10) + 'px';
+                el.style.top = (y - 10) + 'px';
+                container.appendChild(el);
+            });
+        }
+
+        function createPortalButtons() {
+            const grid = document.getElementById('portalsGrid');
+            Object.keys(portals).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = 'portal-btn';
+                btn.textContent = key.toUpperCase();
+                btn.addEventListener('click', () => selectPortal(key));
+                grid.appendChild(btn);
+            });
+        }
+
+        function selectPortal(key) {
+            selectedPortal = key;
+            playSound('select');
+
+            document.querySelectorAll('.portal-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.portal-btn:nth-child(${Object.keys(portals).indexOf(key) + 1})`).classList.add('active');
+
+            const portal = portals[key];
+            document.getElementById('destName').textContent = portal.name;
+            document.getElementById('destDesc').textContent = portal.desc;
+
+            const preview = document.getElementById('workoutPreview');
+            const exercises = document.getElementById('previewExercises');
+            preview.style.display = 'block';
+            exercises.innerHTML = portal.exercises.map(ex => `
+                <div class="preview-ex">
+                    <span class="preview-ex-name">${ex.name}</span>
+                    <span class="preview-ex-reps">${ex.reps}</span>
+                </div>
+            `).join('');
+
+            // Animate symbols
+            const symbols = document.querySelectorAll('.gate-symbol');
+            symbols.forEach((s, i) => {
+                setTimeout(() => {
+                    s.classList.add('active');
+                    setTimeout(() => s.classList.remove('active'), 300);
+                }, i * 100);
+            });
+        }
+
+        function activateGate() {
+            if (!selectedPortal) {
+                playSound('select');
+                return;
+            }
+
+            const mainPortal = document.getElementById('mainPortal');
+            mainPortal.classList.add('active');
+            playSound('warp');
+
+            setTimeout(() => {
+                mainPortal.classList.remove('active');
+                // Could navigate to workout or show completion
+                alert(`Entering ${portals[selectedPortal].name}!\n\nWorkout loaded. Train hard!`);
+            }, 1000);
+        }
+
+        document.getElementById('mainPortal').addEventListener('click', activateGate);
+        document.getElementById('actionBtn').addEventListener('click', activateGate);
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
+        });
+
+        createSymbols();
+        createPortalButtons();
+    </script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SLEEP PROTOCOL | Rest & Recovery</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #050510; --midnight: #0D0D2B; --purple: #6B4EDD; --blue: #4DA8FF; --dim: #222244; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; }
+
+        .night-sky { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; background: linear-gradient(to bottom, var(--bg) 0%, var(--midnight) 100%); }
+        .night-star { position: absolute; width: 2px; height: 2px; background: #fff; border-radius: 50%; opacity: 0.4; animation: starTwinkle 4s ease-in-out infinite; }
+        @keyframes starTwinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.6; } }
+        .moon { position: absolute; top: 10%; right: 15%; width: 60px; height: 60px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #fffae6, #d4d4a0); box-shadow: 0 0 40px rgba(255, 250, 230, 0.3); }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; position: relative; z-index: 1; }
+
+        .header { text-align: center; margin-bottom: 20px; }
+        .logo { width: 50px; height: 50px; margin: 0 auto 10px; background: linear-gradient(135deg, var(--purple), var(--blue)); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
+        .logo-text { font-size: 9px; font-weight: 700; letter-spacing: 1px; }
+        .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 3px; background: linear-gradient(135deg, var(--purple), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; opacity: 0.9; }
+        .header p { font-size: 9px; color: #444466; margin-top: 4px; letter-spacing: 2px; }
+
+        .sleep-time { background: rgba(107, 78, 221, 0.05); border: 1px solid rgba(107, 78, 221, 0.2); border-radius: 16px; padding: 20px; margin-bottom: 20px; text-align: center; }
+        .time-label { font-size: 10px; color: #555577; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .time-display { font-size: 48px; font-weight: 300; color: var(--purple); opacity: 0.9; }
+        .time-target { font-size: 11px; color: #444466; margin-top: 8px; }
+        .time-target span { color: var(--blue); }
+
+        .routine-phase { background: rgba(77, 168, 255, 0.05); border: 1px solid rgba(77, 168, 255, 0.15); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .phase-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .phase-name { font-size: 12px; font-weight: 700; color: var(--blue); letter-spacing: 1px; }
+        .phase-time { font-size: 10px; color: #555577; }
+        .phase-desc { font-size: 11px; color: #666688; line-height: 1.6; }
+
+        .checklist { margin-bottom: 20px; }
+        .checklist-title { font-size: 10px; color: #555577; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+        .check-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(255, 255, 255, 0.02); border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.3s; }
+        .check-item:hover { background: rgba(107, 78, 221, 0.05); }
+        .check-box { width: 22px; height: 22px; border: 2px solid var(--dim); border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .check-item.done .check-box { background: var(--purple); border-color: var(--purple); }
+        .check-item.done .check-box::after { content: ''; width: 8px; height: 4px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg) translateY(-1px); }
+        .check-text { font-size: 11px; color: #666688; }
+        .check-item.done .check-text { color: var(--purple); }
+
+        .breathing-section { background: rgba(107, 78, 221, 0.03); border-radius: 12px; padding: 20px; margin-bottom: 20px; text-align: center; }
+        .breathing-label { font-size: 10px; color: #555577; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+        .breathing-circle { width: 100px; height: 100px; margin: 0 auto 16px; border-radius: 50%; background: rgba(107, 78, 221, 0.1); border: 2px solid var(--purple); display: flex; align-items: center; justify-content: center; animation: breatheCircle 8s ease-in-out infinite; }
+        @keyframes breatheCircle { 0%, 100% { transform: scale(0.8); opacity: 0.5; } 25% { transform: scale(1.1); opacity: 0.9; } 50% { transform: scale(1.1); opacity: 0.9; } 75% { transform: scale(0.8); opacity: 0.5; } }
+        .breathing-text { font-size: 12px; color: var(--purple); font-weight: 600; }
+        .breathing-pattern { font-size: 10px; color: #555577; }
+
+        .sleep-stats { display: flex; justify-content: center; gap: 32px; margin-bottom: 20px; }
+        .sleep-stat { text-align: center; }
+        .stat-value { font-size: 20px; font-weight: 700; color: var(--blue); opacity: 0.8; }
+        .stat-label { font-size: 9px; color: #444466; letter-spacing: 1px; text-transform: uppercase; }
+
+        .wind-down-btn { width: 100%; padding: 16px; border-radius: 8px; border: 2px solid var(--purple); background: transparent; color: var(--purple); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; opacity: 0.8; }
+        .wind-down-btn:hover { opacity: 1; background: rgba(107, 78, 221, 0.1); }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(5, 5, 16, 0.9); border: 1px solid #222244; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #444466; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--purple); color: var(--purple); }
+        .sound-toggle.active { color: var(--purple); border-color: var(--purple); }
+    </style>
+</head>
+<body>
+    <div class="night-sky" id="nightSky">
+        <div class="moon"></div>
+    </div>
+
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Sleep Protocol</h1>
+            <p>Rest & Recovery</p>
+        </div>
+
+        <div class="sleep-time">
+            <div class="time-label">Current Time</div>
+            <div class="time-display" id="currentTime">22:00</div>
+            <div class="time-target">Target sleep: <span id="targetSleep">23:00</span> (8h rest)</div>
+        </div>
+
+        <div class="routine-phase">
+            <div class="phase-header">
+                <span class="phase-name">Wind Down Phase</span>
+                <span class="phase-time">60-90 min before bed</span>
+            </div>
+            <div class="phase-desc">
+                Dim the lights. Reduce screen time. Let your body know it's time to rest. Your recovery starts now.
+            </div>
+        </div>
+
+        <div class="checklist">
+            <div class="checklist-title">Pre-Sleep Checklist</div>
+            <div id="checklistItems"></div>
+        </div>
+
+        <div class="breathing-section">
+            <div class="breathing-label">4-7-8 Sleep Breathing</div>
+            <div class="breathing-circle">
+                <span class="breathing-text" id="breathPhase">Inhale</span>
+            </div>
+            <div class="breathing-pattern">Inhale 4s | Hold 7s | Exhale 8s</div>
+        </div>
+
+        <div class="sleep-stats">
+            <div class="sleep-stat">
+                <div class="stat-value" id="avgSleep">7.5h</div>
+                <div class="stat-label">Avg Sleep</div>
+            </div>
+            <div class="sleep-stat">
+                <div class="stat-value" id="streak">0</div>
+                <div class="stat-label">Day Streak</div>
+            </div>
+            <div class="sleep-stat">
+                <div class="stat-value" id="quality">--</div>
+                <div class="stat-label">Quality</div>
+            </div>
+        </div>
+
+        <button class="wind-down-btn" id="windDownBtn">BEGIN WIND DOWN</button>
+    </div>
+
+    <script>
+        // Create night stars
+        const nightSky = document.getElementById('nightSky');
+        for (let i = 0; i < 80; i++) {
+            const star = document.createElement('div');
+            star.className = 'night-star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 70 + '%';
+            star.style.animationDelay = Math.random() * 4 + 's';
+            nightSky.appendChild(star);
+        }
+
+        let audioCtx = null, soundEnabled = true, droneOsc = null, droneGain = null;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function startSleepDrone() {
+            if (!soundEnabled || droneOsc) return;
+            initAudio();
+            droneOsc = audioCtx.createOscillator();
+            droneGain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(100, audioCtx.currentTime);
+            droneOsc.type = 'sine';
+            droneOsc.frequency.setValueAtTime(50, audioCtx.currentTime);
+            droneGain.gain.setValueAtTime(0, audioCtx.currentTime);
+            droneGain.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 5);
+            droneOsc.connect(filter);
+            filter.connect(droneGain);
+            droneGain.connect(audioCtx.destination);
+            droneOsc.start();
+        }
+
+        function stopDrone() {
+            if (droneOsc && droneGain) {
+                droneGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 3);
+                setTimeout(() => {
+                    if (droneOsc) { droneOsc.stop(); droneOsc = null; droneGain = null; }
+                }, 3000);
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'check') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(500, now + 0.2);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.3);
+            }
+        }
+
+        const sleepChecklist = [
+            { text: 'No screens 1 hour before bed', done: false },
+            { text: 'Room temperature cool (65-68°F)', done: false },
+            { text: 'Lights dimmed or off', done: false },
+            { text: 'No caffeine after 2pm today', done: false },
+            { text: 'Light stretching or yoga', done: false },
+            { text: 'Gratitude or journaling', done: false },
+            { text: 'Tomorrow\'s clothes ready', done: false },
+            { text: 'Phone on silent/DND', done: false }
+        ];
+
+        let state = {
+            checklist: JSON.parse(localStorage.getItem('sleep_checklist') || JSON.stringify(sleepChecklist)),
+            streak: parseInt(localStorage.getItem('sleep_streak') || '0'),
+            windingDown: false,
+            breathPhase: 0
+        };
+
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const mins = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('currentTime').textContent = `${hours}:${mins}`;
+
+            // Calculate target sleep (8 hours before 7am wake)
+            const targetHour = 23;
+            document.getElementById('targetSleep').textContent = `${targetHour}:00`;
+        }
+
+        function renderChecklist() {
+            const container = document.getElementById('checklistItems');
+            container.innerHTML = state.checklist.map((item, i) => `
+                <div class="check-item ${item.done ? 'done' : ''}" data-idx="${i}">
+                    <div class="check-box"></div>
+                    <span class="check-text">${item.text}</span>
+                </div>
+            `).join('');
+
+            container.querySelectorAll('.check-item').forEach(item => {
+                item.addEventListener('click', () => toggleCheck(parseInt(item.dataset.idx)));
+            });
+        }
+
+        function toggleCheck(idx) {
+            state.checklist[idx].done = !state.checklist[idx].done;
+            localStorage.setItem('sleep_checklist', JSON.stringify(state.checklist));
+            playSound('check');
+            renderChecklist();
+            updateStats();
+        }
+
+        function updateStats() {
+            const completedCount = state.checklist.filter(c => c.done).length;
+            const quality = completedCount >= 6 ? 'Great' : completedCount >= 4 ? 'Good' : completedCount >= 2 ? 'Fair' : '--';
+            document.getElementById('quality').textContent = quality;
+            document.getElementById('streak').textContent = state.streak;
+        }
+
+        function animateBreathing() {
+            const phases = ['Inhale', 'Hold', 'Exhale'];
+            const durations = [4000, 7000, 8000]; // 4-7-8 pattern
+
+            let currentPhase = 0;
+
+            function nextPhase() {
+                document.getElementById('breathPhase').textContent = phases[currentPhase];
+                setTimeout(() => {
+                    currentPhase = (currentPhase + 1) % 3;
+                    if (state.windingDown) nextPhase();
+                }, durations[currentPhase]);
+            }
+
+            nextPhase();
+        }
+
+        function beginWindDown() {
+            state.windingDown = !state.windingDown;
+            const btn = document.getElementById('windDownBtn');
+
+            if (state.windingDown) {
+                btn.textContent = 'END WIND DOWN';
+                startSleepDrone();
+                animateBreathing();
+            } else {
+                btn.textContent = 'BEGIN WIND DOWN';
+                stopDrone();
+            }
+        }
+
+        // Reset checklist at midnight
+        function checkNewDay() {
+            const lastReset = localStorage.getItem('sleep_last_reset');
+            const today = new Date().toDateString();
+
+            if (lastReset !== today) {
+                // Check if previous day was complete
+                const completedCount = state.checklist.filter(c => c.done).length;
+                if (completedCount >= 5) {
+                    state.streak++;
+                } else {
+                    state.streak = 0;
+                }
+                localStorage.setItem('sleep_streak', state.streak);
+
+                // Reset checklist
+                state.checklist = state.checklist.map(c => ({ ...c, done: false }));
+                localStorage.setItem('sleep_checklist', JSON.stringify(state.checklist));
+                localStorage.setItem('sleep_last_reset', today);
+            }
+        }
+
+        document.getElementById('windDownBtn').addEventListener('click', beginWindDown);
+
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
+            if (!soundEnabled) stopDrone();
+        });
+
+        checkNewDay();
+        updateTime();
+        setInterval(updateTime, 1000);
+        renderChecklist();
+        updateStats();
+    </script>
+</body>
+</html>

@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WORMHOLE GENERATOR | Saturno Movement</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #0a0a0a;
+            --purple: #9D4EDD;
+            --blue: #4361EE;
+            --cyan: #00D4FF;
+            --pink: #F72585;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Wormhole Background */
+        .wormhole-bg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150vmax;
+            height: 150vmax;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.3;
+        }
+
+        .wormhole-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 2px solid;
+            animation: wormholeRotate linear infinite;
+        }
+
+        @keyframes wormholeRotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 12px;
+            background: radial-gradient(circle at 30% 30%, var(--blue), var(--purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(67, 97, 238, 0.4);
+        }
+
+        .logo-text {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .header h1 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 10px;
+            color: #666;
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+
+        /* Portal */
+        .portal-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .portal {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin-bottom: 24px;
+        }
+
+        .portal-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 3px solid var(--purple);
+            opacity: 0.6;
+            animation: portalPulse 2s ease-in-out infinite;
+        }
+
+        .portal-ring:nth-child(1) {
+            width: 100%;
+            height: 100%;
+            animation-delay: 0s;
+        }
+
+        .portal-ring:nth-child(2) {
+            width: 85%;
+            height: 85%;
+            border-color: var(--blue);
+            animation-delay: 0.2s;
+        }
+
+        .portal-ring:nth-child(3) {
+            width: 70%;
+            height: 70%;
+            border-color: var(--cyan);
+            animation-delay: 0.4s;
+        }
+
+        .portal-ring:nth-child(4) {
+            width: 55%;
+            height: 55%;
+            border-color: var(--purple);
+            animation-delay: 0.6s;
+        }
+
+        @keyframes portalPulse {
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        .portal-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle, var(--purple), var(--blue), var(--bg));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(157, 78, 221, 0.4);
+        }
+
+        .portal-content {
+            padding: 12px;
+        }
+
+        .portal-label {
+            font-size: 8px;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .portal-exercise {
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.3;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Warping Animation */
+        .portal.warping .portal-ring {
+            animation: warpRing 0.8s ease-out;
+        }
+
+        @keyframes warpRing {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            50% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+            51% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+        }
+
+        .portal.warping .portal-center {
+            animation: warpCenter 0.8s ease-out;
+        }
+
+        @keyframes warpCenter {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(0); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* Workout Card */
+        .workout-card {
+            width: 100%;
+            background: rgba(157, 78, 221, 0.05);
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .workout-card.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .workout-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .workout-title {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: var(--purple);
+            text-transform: uppercase;
+        }
+
+        .workout-count {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .workout-list {
+            list-style: none;
+        }
+
+        .workout-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .workout-item:last-child {
+            border-bottom: none;
+        }
+
+        .workout-num {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .workout-info {
+            flex: 1;
+        }
+
+        .workout-name {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .workout-detail {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .workout-check {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #333;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .workout-check:hover {
+            border-color: var(--purple);
+        }
+
+        .workout-check.done {
+            background: var(--purple);
+            border-color: var(--purple);
+        }
+
+        .workout-check.done::after {
+            content: '';
+            width: 8px;
+            height: 4px;
+            border-left: 2px solid #fff;
+            border-bottom: 2px solid #fff;
+            transform: rotate(-45deg) translateY(-1px);
+        }
+
+        /* Generate Button */
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid var(--purple);
+            background: transparent;
+            color: var(--purple);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .generate-btn:hover {
+            background: var(--purple);
+            color: #fff;
+            box-shadow: 0 0 30px rgba(157, 78, 221, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Category Selector */
+        .categories {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .category-btn {
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            background: transparent;
+            color: #666;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-btn:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+
+        .category-btn.active {
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            border-color: transparent;
+            color: #fff;
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: rgba(15, 15, 20, 0.9);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .sound-toggle:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .sound-toggle.active {
+            color: var(--purple);
+            border-color: var(--purple);
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--blue);
+        }
+
+        .stat-label {
+            font-size: 9px;
+            color: #666;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="wormhole-bg" id="wormholeBg"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-text">SM</span>
+            </div>
+            <h1>Wormhole Generator</h1>
+            <p>Random Workout Discovery</p>
+        </div>
+
+        <div class="categories">
+            <button class="category-btn active" data-category="all">ALL</button>
+            <button class="category-btn" data-category="push">PUSH</button>
+            <button class="category-btn" data-category="pull">PULL</button>
+            <button class="category-btn" data-category="legs">LEGS</button>
+            <button class="category-btn" data-category="core">CORE</button>
+            <button class="category-btn" data-category="skill">SKILL</button>
+        </div>
+
+        <div class="portal-container">
+            <div class="portal" id="portal">
+                <div class="portal-ring"></div>
+                <div class="portal-ring"></div>
+                <div class="portal-ring"></div>
+                <div class="portal-ring"></div>
+                <div class="portal-center">
+                    <div class="portal-content">
+                        <div class="portal-label">NEXT EXERCISE</div>
+                        <div class="portal-exercise" id="portalExercise">TAP TO WARP</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="workout-card" id="workoutCard">
+                <div class="workout-header">
+                    <span class="workout-title">Wormhole Workout</span>
+                    <span class="workout-count" id="workoutCount">0/5 Complete</span>
+                </div>
+                <ul class="workout-list" id="workoutList"></ul>
+            </div>
+
+            <button class="generate-btn" id="generateBtn">Open Wormhole</button>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="totalWarps">0</div>
+                    <div class="stat-label">Warps</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalCompleted">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // WORMHOLE BACKGROUND
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const wormholeBg = document.getElementById('wormholeBg');
+        for (let i = 0; i < 20; i++) {
+            const ring = document.createElement('div');
+            ring.className = 'wormhole-ring';
+            const size = 50 + i * 50;
+            ring.style.width = size + 'px';
+            ring.style.height = size + 'px';
+            ring.style.borderColor = i % 2 === 0 ? '#9D4EDD20' : '#4361EE20';
+            ring.style.animationDuration = (10 + i * 2) + 's';
+            ring.style.animationDirection = i % 2 === 0 ? 'normal' : 'reverse';
+            wormholeBg.appendChild(ring);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // EXERCISE DATABASE
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const EXERCISES = {
+            push: [
+                { name: 'Push-ups', reps: '15-20', detail: 'Full ROM' },
+                { name: 'Diamond Push-ups', reps: '10-15', detail: 'Tricep focus' },
+                { name: 'Pike Push-ups', reps: '10-12', detail: 'Shoulder focus' },
+                { name: 'Archer Push-ups', reps: '8 each', detail: 'Unilateral' },
+                { name: 'Pseudo Planche Push-ups', reps: '8-12', detail: 'Lean forward' },
+                { name: 'Decline Push-ups', reps: '12-15', detail: 'Feet elevated' },
+                { name: 'Hindu Push-ups', reps: '10-15', detail: 'Flow movement' },
+                { name: 'Dips', reps: '10-15', detail: 'Parallel bars' },
+                { name: 'Handstand Push-ups', reps: '5-8', detail: 'Wall assisted' },
+                { name: 'Explosive Push-ups', reps: '8-10', detail: 'Max power' }
+            ],
+            pull: [
+                { name: 'Pull-ups', reps: '8-12', detail: 'Overhand grip' },
+                { name: 'Chin-ups', reps: '8-12', detail: 'Underhand grip' },
+                { name: 'Australian Rows', reps: '12-15', detail: 'Body horizontal' },
+                { name: 'Archer Pull-ups', reps: '5 each', detail: 'Unilateral' },
+                { name: 'Negative Pull-ups', reps: '5-8', detail: '5s descent' },
+                { name: 'Wide Pull-ups', reps: '8-10', detail: 'Lat focus' },
+                { name: 'Close Grip Pull-ups', reps: '8-10', detail: 'Bicep focus' },
+                { name: 'L-Sit Pull-ups', reps: '6-8', detail: 'Core engaged' },
+                { name: 'Muscle-up Transition', reps: '3-5', detail: 'Low bar' },
+                { name: 'Front Lever Rows', reps: '5-8', detail: 'Tucked' }
+            ],
+            legs: [
+                { name: 'Squats', reps: '20-25', detail: 'Full depth' },
+                { name: 'Pistol Squat Negatives', reps: '5 each', detail: '3s descent' },
+                { name: 'Bulgarian Split Squats', reps: '12 each', detail: 'Rear elevated' },
+                { name: 'Jump Squats', reps: '15', detail: 'Explosive' },
+                { name: 'Cossack Squats', reps: '10 each', detail: 'Side to side' },
+                { name: 'Shrimp Squats', reps: '5 each', detail: 'Rear knee touches' },
+                { name: 'Nordic Curls', reps: '5-8', detail: 'Eccentric focus' },
+                { name: 'Single Leg Glute Bridge', reps: '12 each', detail: 'Hold top' },
+                { name: 'Box Jumps', reps: '10', detail: 'Step down' },
+                { name: 'Wall Sit', reps: '45-60s', detail: 'Thighs parallel' }
+            ],
+            core: [
+                { name: 'Hollow Body Hold', reps: '30-45s', detail: 'Arms overhead' },
+                { name: 'L-Sit', reps: '15-30s', detail: 'Floor or bars' },
+                { name: 'Dragon Flags', reps: '5-8', detail: 'Negative' },
+                { name: 'Ab Wheel Rollouts', reps: '10-12', detail: 'Full extension' },
+                { name: 'Hanging Leg Raises', reps: '10-15', detail: 'Toes to bar' },
+                { name: 'Plank', reps: '60s', detail: 'No hip sag' },
+                { name: 'Side Plank', reps: '30s each', detail: 'Stack feet' },
+                { name: 'V-Ups', reps: '15-20', detail: 'Touch toes' },
+                { name: 'Arch Body Hold', reps: '30s', detail: 'Superman' },
+                { name: 'Dead Bug', reps: '10 each', detail: 'Controlled' }
+            ],
+            skill: [
+                { name: 'Handstand Practice', reps: '5 min', detail: 'Wall or free' },
+                { name: 'Crow Pose Hold', reps: '30s x 3', detail: 'Knees on triceps' },
+                { name: 'Frog Stand', reps: '20s x 4', detail: 'Balance' },
+                { name: 'L-Sit Progression', reps: '5 x 10s', detail: 'Build time' },
+                { name: 'Back Lever Tuck', reps: '15s x 3', detail: 'Rings or bar' },
+                { name: 'Front Lever Tuck', reps: '15s x 3', detail: 'Engage lats' },
+                { name: 'Planche Lean', reps: '30s x 3', detail: 'Shoulders forward' },
+                { name: 'Skin the Cat', reps: '5', detail: 'Slow control' },
+                { name: 'Muscle-up Practice', reps: '10 min', detail: 'Any progression' },
+                { name: 'Human Flag Progression', reps: '10s x 3', detail: 'Tuck or straddle' }
+            ]
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // AUDIO SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function makeDistortion(amount) {
+            const dist = audioCtx.createWaveShaper();
+            const k = amount;
+            const samples = 44100;
+            const curve = new Float32Array(samples);
+            for (let i = 0; i < samples; i++) {
+                const x = (i * 2) / samples - 1;
+                curve[i] = ((3 + k) * x * 20 * (Math.PI / 180)) / (Math.PI + k * Math.abs(x));
+            }
+            dist.curve = curve;
+            return dist;
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'warp') {
+                // WORMHOLE TRANSIT
+                const osc = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const osc3 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+                const dist = makeDistortion(15);
+
+                osc.type = 'sawtooth';
+                osc2.type = 'sine';
+                osc3.type = 'square';
+
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(200, now);
+                filter.frequency.exponentialRampToValueAtTime(2000, now + 0.3);
+                filter.frequency.exponentialRampToValueAtTime(100, now + 0.8);
+                filter.Q.value = 5;
+
+                osc.frequency.setValueAtTime(80, now);
+                osc.frequency.exponentialRampToValueAtTime(400, now + 0.2);
+                osc.frequency.exponentialRampToValueAtTime(50, now + 0.8);
+
+                osc2.frequency.setValueAtTime(40, now);
+                osc2.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+                osc2.frequency.exponentialRampToValueAtTime(30, now + 0.8);
+
+                osc3.frequency.setValueAtTime(100, now);
+                osc3.frequency.exponentialRampToValueAtTime(500, now + 0.2);
+                osc3.frequency.exponentialRampToValueAtTime(60, now + 0.8);
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.2, now + 0.2);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.9);
+
+                osc.connect(dist);
+                osc2.connect(dist);
+                osc3.connect(dist);
+                dist.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc2.start(now);
+                osc3.start(now);
+                osc.stop(now + 0.9);
+                osc2.stop(now + 0.9);
+                osc3.stop(now + 0.9);
+
+            } else if (type === 'complete') {
+                // SUCCESS CHIME
+                const osc = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc2.type = 'sine';
+
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc2.frequency.setValueAtTime(659.25, now); // E5
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+                osc.connect(gain);
+                osc2.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc2.start(now);
+                osc.stop(now + 0.3);
+                osc2.stop(now + 0.3);
+
+            } else if (type === 'click') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let state = {
+            category: 'all',
+            workout: [],
+            completed: [],
+            totalWarps: parseInt(localStorage.getItem('wormhole_warps') || '0'),
+            totalCompleted: parseInt(localStorage.getItem('wormhole_completed') || '0')
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DOM ELEMENTS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const portal = document.getElementById('portal');
+        const portalExercise = document.getElementById('portalExercise');
+        const workoutCard = document.getElementById('workoutCard');
+        const workoutList = document.getElementById('workoutList');
+        const workoutCount = document.getElementById('workoutCount');
+        const generateBtn = document.getElementById('generateBtn');
+        const totalWarpsEl = document.getElementById('totalWarps');
+        const totalCompletedEl = document.getElementById('totalCompleted');
+        const soundToggle = document.getElementById('soundToggle');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function getRandomExercise() {
+            let pool = [];
+            if (state.category === 'all') {
+                Object.values(EXERCISES).forEach(arr => pool = pool.concat(arr));
+            } else {
+                pool = EXERCISES[state.category];
+            }
+            return pool[Math.floor(Math.random() * pool.length)];
+        }
+
+        function generateWorkout() {
+            initAudio();
+            playSound('warp');
+
+            portal.classList.add('warping');
+
+            setTimeout(() => {
+                state.workout = [];
+                state.completed = [];
+
+                const usedNames = new Set();
+                while (state.workout.length < 5) {
+                    const ex = getRandomExercise();
+                    if (!usedNames.has(ex.name)) {
+                        usedNames.add(ex.name);
+                        state.workout.push(ex);
+                    }
+                }
+
+                state.totalWarps++;
+                localStorage.setItem('wormhole_warps', state.totalWarps);
+                updateStats();
+
+                portalExercise.textContent = state.workout[0].name;
+                renderWorkout();
+                workoutCard.classList.add('visible');
+                portal.classList.remove('warping');
+            }, 400);
+        }
+
+        function renderWorkout() {
+            workoutList.innerHTML = '';
+            state.workout.forEach((ex, i) => {
+                const li = document.createElement('li');
+                li.className = 'workout-item';
+                li.innerHTML = `
+                    <div class="workout-num">${i + 1}</div>
+                    <div class="workout-info">
+                        <div class="workout-name">${ex.name}</div>
+                        <div class="workout-detail">${ex.reps} // ${ex.detail}</div>
+                    </div>
+                    <div class="workout-check ${state.completed.includes(i) ? 'done' : ''}" data-index="${i}"></div>
+                `;
+                workoutList.appendChild(li);
+            });
+
+            document.querySelectorAll('.workout-check').forEach(check => {
+                check.addEventListener('click', () => {
+                    const idx = parseInt(check.dataset.index);
+                    if (state.completed.includes(idx)) {
+                        state.completed = state.completed.filter(i => i !== idx);
+                        check.classList.remove('done');
+                    } else {
+                        state.completed.push(idx);
+                        check.classList.add('done');
+                        playSound('complete');
+
+                        if (!state.completed.includes(idx)) {
+                            state.totalCompleted++;
+                            localStorage.setItem('wormhole_completed', state.totalCompleted);
+                            updateStats();
+                        }
+                    }
+                    updateWorkoutCount();
+                });
+            });
+
+            updateWorkoutCount();
+        }
+
+        function updateWorkoutCount() {
+            workoutCount.textContent = `${state.completed.length}/5 Complete`;
+        }
+
+        function updateStats() {
+            totalWarpsEl.textContent = state.totalWarps;
+            totalCompletedEl.textContent = state.totalCompleted;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // EVENT LISTENERS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        generateBtn.addEventListener('click', generateWorkout);
+
+        portal.addEventListener('click', () => {
+            if (state.workout.length > 0) {
+                const currentIdx = state.workout.findIndex(ex => ex.name === portalExercise.textContent);
+                const nextIdx = (currentIdx + 1) % state.workout.length;
+                playSound('click');
+                portalExercise.textContent = state.workout[nextIdx].name;
+            } else {
+                generateWorkout();
+            }
+        });
+
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                playSound('click');
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.category = btn.dataset.category;
+            });
+        });
+
+        soundToggle.addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            soundToggle.classList.toggle('active', soundEnabled);
+            if (soundEnabled) playSound('click');
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        updateStats();
+    </script>
+</body>
+</html>

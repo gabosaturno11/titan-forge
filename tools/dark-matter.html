@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DARK MATTER | Hidden Challenges</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --purple: #9D4EDD; --blue: #00D4FF; --dark: #1a1a2e; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+
+        .header { text-align: center; margin-bottom: 24px; }
+        .logo { width: 50px; height: 50px; margin: 0 auto 10px; background: linear-gradient(135deg, #333, #111); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--purple); }
+        .logo-text { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: var(--purple); }
+        .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 3px; background: linear-gradient(135deg, var(--purple), #333); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .header p { font-size: 9px; color: #666; margin-top: 4px; letter-spacing: 2px; }
+
+        .dark-meter { background: var(--dark); border-radius: 12px; padding: 16px; margin-bottom: 24px; text-align: center; }
+        .meter-label { font-size: 9px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .meter-value { font-size: 36px; font-weight: 700; color: var(--purple); }
+        .meter-bar { height: 8px; background: #111; border-radius: 4px; margin-top: 12px; overflow: hidden; }
+        .meter-fill { height: 100%; background: linear-gradient(90deg, #333, var(--purple)); border-radius: 4px; transition: width 0.5s; }
+        .meter-hint { font-size: 9px; color: #444; margin-top: 8px; }
+
+        .challenges { display: flex; flex-direction: column; gap: 12px; }
+        .challenge { background: var(--dark); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; cursor: pointer; transition: all 0.3s; }
+        .challenge.locked { filter: brightness(0.5); }
+        .challenge.locked::before { content: '???'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; color: #333; }
+        .challenge.locked .challenge-content { filter: blur(8px); pointer-events: none; }
+        .challenge:not(.locked):hover { background: rgba(157, 78, 221, 0.1); border-color: var(--purple); }
+        .challenge.completed { border: 1px solid var(--purple); box-shadow: 0 0 20px rgba(157, 78, 221, 0.2); }
+
+        .challenge-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .challenge-name { font-size: 12px; font-weight: 700; color: var(--purple); letter-spacing: 1px; }
+        .challenge-points { font-size: 10px; color: #666; background: #111; padding: 4px 8px; border-radius: 4px; }
+        .challenge-desc { font-size: 11px; color: #888; line-height: 1.5; margin-bottom: 8px; }
+        .challenge-progress { height: 4px; background: #111; border-radius: 2px; overflow: hidden; }
+        .challenge-progress-fill { height: 100%; background: var(--purple); transition: width 0.3s; }
+        .challenge-status { font-size: 9px; color: #444; margin-top: 6px; text-align: right; }
+        .challenge.completed .challenge-status { color: var(--purple); }
+
+        .reveal-section { background: rgba(157, 78, 221, 0.05); border: 1px dashed rgba(157, 78, 221, 0.3); border-radius: 12px; padding: 20px; margin-top: 24px; text-align: center; }
+        .reveal-title { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+        .reveal-btn { padding: 12px 24px; border-radius: 8px; border: 2px solid var(--purple); background: transparent; color: var(--purple); font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+        .reveal-btn:hover { background: var(--purple); color: #000; }
+        .reveal-hint { font-size: 9px; color: #444; margin-top: 12px; }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--purple); color: var(--purple); }
+        .sound-toggle.active { color: var(--purple); border-color: var(--purple); }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Dark Matter</h1>
+            <p>Hidden Challenges</p>
+        </div>
+
+        <div class="dark-meter">
+            <div class="meter-label">Dark Matter Collected</div>
+            <div class="meter-value" id="totalPoints">0</div>
+            <div class="meter-bar">
+                <div class="meter-fill" id="meterFill" style="width: 0%"></div>
+            </div>
+            <div class="meter-hint" id="meterHint">Complete challenges to unlock secrets</div>
+        </div>
+
+        <div class="challenges" id="challengesList"></div>
+
+        <div class="reveal-section">
+            <div class="reveal-title">Next Unlock</div>
+            <button class="reveal-btn" id="revealBtn">SCAN FOR DARK MATTER</button>
+            <div class="reveal-hint" id="revealHint">50 points to reveal next challenge</div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx = null, soundEnabled = true;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'unlock') {
+                for (let i = 0; i < 4; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(300 + i * 100, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.3);
+                    }, i * 100);
+                }
+            } else if (type === 'complete') {
+                for (let i = 0; i < 6; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(150 + i * 75, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.2);
+                    }, i * 80);
+                }
+            } else if (type === 'scan') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(3000, now);
+                filter.frequency.exponentialRampToValueAtTime(100, now + 0.5);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(80, now);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.5);
+            } else if (type === 'progress') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.15);
+            }
+        }
+
+        const challenges = [
+            { id: 'c1', name: 'First Contact', desc: 'Complete your first workout session', points: 10, unlocked: true, progress: 0, goal: 1 },
+            { id: 'c2', name: 'Push Pioneer', desc: 'Perform 100 total push-ups', points: 25, unlocked: true, progress: 0, goal: 100 },
+            { id: 'c3', name: 'Pull Force', desc: 'Perform 50 total pull-ups', points: 30, unlocked: true, progress: 0, goal: 50 },
+            { id: 'c4', name: 'Leg Day Legend', desc: 'Complete 5 leg-focused workouts', points: 35, unlocked: false, progress: 0, goal: 5 },
+            { id: 'c5', name: 'Core Crusher', desc: 'Hold plank for 3 minutes total', points: 40, unlocked: false, progress: 0, goal: 180 },
+            { id: 'c6', name: 'Iron Will', desc: 'Train 7 days in a row', points: 50, unlocked: false, progress: 0, goal: 7 },
+            { id: 'c7', name: 'Gravity Defier', desc: 'Hold a 30 second handstand', points: 75, unlocked: false, progress: 0, goal: 1 },
+            { id: 'c8', name: 'Dark Lord', desc: 'Collect 200 dark matter points', points: 100, unlocked: false, progress: 0, goal: 200 }
+        ];
+
+        function loadState() {
+            const saved = localStorage.getItem('dark_matter_state');
+            if (saved) return JSON.parse(saved);
+            return { challenges, totalPoints: 0, unlockedCount: 3 };
+        }
+
+        function saveState() {
+            localStorage.setItem('dark_matter_state', JSON.stringify(state));
+        }
+
+        let state = loadState();
+
+        function updateDisplay() {
+            document.getElementById('totalPoints').textContent = state.totalPoints;
+            document.getElementById('meterFill').style.width = Math.min(100, (state.totalPoints / 300) * 100) + '%';
+
+            const list = document.getElementById('challengesList');
+            list.innerHTML = '';
+
+            state.challenges.forEach((c, i) => {
+                const completed = c.progress >= c.goal;
+                const div = document.createElement('div');
+                div.className = 'challenge' + (!c.unlocked ? ' locked' : '') + (completed ? ' completed' : '');
+
+                div.innerHTML = `
+                    <div class="challenge-content">
+                        <div class="challenge-header">
+                            <span class="challenge-name">${c.name}</span>
+                            <span class="challenge-points">+${c.points}</span>
+                        </div>
+                        <div class="challenge-desc">${c.desc}</div>
+                        <div class="challenge-progress">
+                            <div class="challenge-progress-fill" style="width: ${Math.min(100, (c.progress / c.goal) * 100)}%"></div>
+                        </div>
+                        <div class="challenge-status">${completed ? 'COMPLETED' : `${c.progress}/${c.goal}`}</div>
+                    </div>
+                `;
+
+                if (c.unlocked && !completed) {
+                    div.addEventListener('click', () => addProgress(i));
+                }
+
+                list.appendChild(div);
+            });
+
+            const nextLocked = state.challenges.find(c => !c.unlocked);
+            if (nextLocked) {
+                document.getElementById('revealHint').textContent = `${50 - (state.totalPoints % 50)} more points to reveal`;
+            } else {
+                document.getElementById('revealHint').textContent = 'All challenges revealed!';
+            }
+
+            saveState();
+        }
+
+        function addProgress(idx) {
+            const c = state.challenges[idx];
+            if (c.progress >= c.goal) return;
+
+            c.progress++;
+            playSound('progress');
+
+            if (c.progress >= c.goal) {
+                state.totalPoints += c.points;
+                playSound('complete');
+
+                // Check for new unlocks
+                checkUnlocks();
+            }
+
+            updateDisplay();
+        }
+
+        function checkUnlocks() {
+            const unlockedCount = state.challenges.filter(c => c.unlocked).length;
+            const threshold = unlockedCount * 50;
+
+            if (state.totalPoints >= threshold) {
+                const nextLocked = state.challenges.find(c => !c.unlocked);
+                if (nextLocked) {
+                    nextLocked.unlocked = true;
+                    playSound('unlock');
+                }
+            }
+        }
+
+        function scanForDarkMatter() {
+            initAudio();
+            playSound('scan');
+
+            const nextLocked = state.challenges.find(c => !c.unlocked);
+            if (nextLocked && state.totalPoints >= state.challenges.filter(c => c.unlocked).length * 50) {
+                nextLocked.unlocked = true;
+                setTimeout(() => {
+                    playSound('unlock');
+                    updateDisplay();
+                }, 500);
+            } else {
+                updateDisplay();
+            }
+        }
+
+        document.getElementById('revealBtn').addEventListener('click', scanForDarkMatter);
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>

@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>COSMIC TIMER | Saturno Movement</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #0a0a0a;
+            --gold: #FFD700;
+            --cyan: #00FFFF;
+            --red: #FF4444;
+            --green: #00FF88;
+            --purple: #9D4EDD;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Starfield Background */
+        .starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 12px;
+            background: radial-gradient(circle at 30% 30%, var(--cyan), var(--purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        }
+
+        .logo-text {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--cyan);
+            text-transform: uppercase;
+        }
+
+        /* Timer Display */
+        .timer-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timer-ring {
+            position: relative;
+            width: 280px;
+            height: 280px;
+        }
+
+        .timer-ring svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .timer-ring-bg {
+            fill: none;
+            stroke: #1a1a2e;
+            stroke-width: 8;
+        }
+
+        .timer-ring-progress {
+            fill: none;
+            stroke: var(--cyan);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.1s linear, stroke 0.3s;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        .timer-ring-glow {
+            position: absolute;
+            inset: -20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.15) 0%, transparent 70%);
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        .timer-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .timer-phase {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            color: var(--cyan);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .timer-time {
+            font-size: 64px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+
+        .timer-round {
+            font-size: 11px;
+            color: #666;
+            margin-top: 8px;
+            letter-spacing: 2px;
+        }
+
+        /* Phase Colors */
+        .phase-work .timer-phase,
+        .phase-work .timer-time { color: var(--green); }
+        .phase-work .timer-ring-progress { stroke: var(--green); }
+        .phase-work .timer-ring-glow { background: radial-gradient(circle, rgba(0, 255, 136, 0.15) 0%, transparent 70%); }
+
+        .phase-rest .timer-phase,
+        .phase-rest .timer-time { color: var(--cyan); }
+        .phase-rest .timer-ring-progress { stroke: var(--cyan); }
+
+        .phase-prepare .timer-phase,
+        .phase-prepare .timer-time { color: var(--gold); }
+        .phase-prepare .timer-ring-progress { stroke: var(--gold); }
+        .phase-prepare .timer-ring-glow { background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, transparent 70%); }
+
+        .phase-done .timer-phase,
+        .phase-done .timer-time { color: var(--purple); }
+        .phase-done .timer-ring-progress { stroke: var(--purple); }
+        .phase-done .timer-ring-glow { background: radial-gradient(circle, rgba(157, 78, 221, 0.15) 0%, transparent 70%); }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 32px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 2px solid var(--cyan);
+            background: transparent;
+            color: var(--cyan);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background: var(--cyan);
+            color: var(--bg);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-main {
+            width: 80px;
+            height: 80px;
+            font-size: 12px;
+        }
+
+        .btn-reset {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        .btn-reset:hover {
+            background: var(--red);
+            color: var(--bg);
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.4);
+        }
+
+        /* Settings Panel */
+        .settings {
+            margin-top: 32px;
+            padding: 20px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #222;
+            border-radius: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .settings-title {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: #666;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .setting-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .setting-label {
+            font-size: 11px;
+            color: #888;
+            letter-spacing: 1px;
+        }
+
+        .setting-value {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .setting-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: transparent;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .setting-btn:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .setting-btn:active {
+            transform: scale(0.9);
+        }
+
+        .setting-num {
+            font-size: 16px;
+            font-weight: 600;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        /* Presets */
+        .presets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #222;
+        }
+
+        .preset-btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            background: transparent;
+            color: #888;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .preset-btn.active {
+            background: var(--cyan);
+            color: var(--bg);
+            border-color: var(--cyan);
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: rgba(15, 15, 20, 0.9);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .sound-toggle:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .sound-toggle.active {
+            color: var(--cyan);
+            border-color: var(--cyan);
+        }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="starfield" id="starfield"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-text">SM</span>
+            </div>
+            <h1>Cosmic Timer</h1>
+        </div>
+
+        <div class="timer-container phase-prepare" id="timerContainer">
+            <div class="timer-ring">
+                <div class="timer-ring-glow"></div>
+                <svg viewBox="0 0 280 280">
+                    <circle class="timer-ring-bg" cx="140" cy="140" r="130"/>
+                    <circle class="timer-ring-progress" id="progressRing" cx="140" cy="140" r="130"
+                            stroke-dasharray="816.81" stroke-dashoffset="0"/>
+                </svg>
+                <div class="timer-center">
+                    <div class="timer-phase" id="phaseLabel">PREPARE</div>
+                    <div class="timer-time" id="timeDisplay">00:10</div>
+                    <div class="timer-round" id="roundDisplay">ROUND 1 / 8</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-reset" id="resetBtn">RESET</button>
+                <button class="btn btn-main" id="mainBtn">START</button>
+                <button class="btn" id="skipBtn">SKIP</button>
+            </div>
+        </div>
+
+        <div class="settings">
+            <div class="settings-title">Configuration</div>
+
+            <div class="setting-row">
+                <span class="setting-label">WORK</span>
+                <div class="setting-value">
+                    <button class="setting-btn" data-setting="work" data-action="minus">-</button>
+                    <span class="setting-num" id="workDisplay">30s</span>
+                    <button class="setting-btn" data-setting="work" data-action="plus">+</button>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <span class="setting-label">REST</span>
+                <div class="setting-value">
+                    <button class="setting-btn" data-setting="rest" data-action="minus">-</button>
+                    <span class="setting-num" id="restDisplay">10s</span>
+                    <button class="setting-btn" data-setting="rest" data-action="plus">+</button>
+                </div>
+            </div>
+
+            <div class="setting-row">
+                <span class="setting-label">ROUNDS</span>
+                <div class="setting-value">
+                    <button class="setting-btn" data-setting="rounds" data-action="minus">-</button>
+                    <span class="setting-num" id="roundsDisplay">8</span>
+                    <button class="setting-btn" data-setting="rounds" data-action="plus">+</button>
+                </div>
+            </div>
+
+            <div class="presets">
+                <button class="preset-btn" data-work="20" data-rest="10" data-rounds="8">TABATA</button>
+                <button class="preset-btn" data-work="30" data-rest="10" data-rounds="8">30/10</button>
+                <button class="preset-btn" data-work="40" data-rest="20" data-rounds="6">40/20</button>
+                <button class="preset-btn" data-work="45" data-rest="15" data-rounds="10">45/15</button>
+                <button class="preset-btn" data-work="60" data-rest="30" data-rounds="5">EMOM</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // STARFIELD
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const starfield = document.getElementById('starfield');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = star.style.height = (Math.random() * 2 + 1) + 'px';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            star.style.animationDuration = (2 + Math.random() * 2) + 's';
+            starfield.appendChild(star);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // AUDIO SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function makeDistortion(amount) {
+            const dist = audioCtx.createWaveShaper();
+            const k = amount;
+            const samples = 44100;
+            const curve = new Float32Array(samples);
+            for (let i = 0; i < samples; i++) {
+                const x = (i * 2) / samples - 1;
+                curve[i] = ((3 + k) * x * 20 * (Math.PI / 180)) / (Math.PI + k * Math.abs(x));
+            }
+            dist.curve = curve;
+            return dist;
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'tick') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, now);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.05);
+
+            } else if (type === 'countdown') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(600, now);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.1);
+
+            } else if (type === 'work') {
+                // WARP ENGAGE - aggressive start
+                const osc = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+                const dist = makeDistortion(20);
+
+                osc.type = 'sawtooth';
+                osc2.type = 'square';
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(500, now);
+                filter.frequency.exponentialRampToValueAtTime(3000, now + 0.1);
+                filter.frequency.exponentialRampToValueAtTime(200, now + 0.4);
+
+                osc.frequency.setValueAtTime(100, now);
+                osc.frequency.exponentialRampToValueAtTime(400, now + 0.1);
+                osc.frequency.exponentialRampToValueAtTime(150, now + 0.3);
+
+                osc2.frequency.setValueAtTime(50, now);
+                osc2.frequency.exponentialRampToValueAtTime(200, now + 0.1);
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+
+                osc.connect(dist);
+                osc2.connect(dist);
+                dist.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc2.start(now);
+                osc.stop(now + 0.5);
+                osc2.stop(now + 0.5);
+
+            } else if (type === 'rest') {
+                // COOL DOWN - descending tone
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(2000, now);
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.4);
+
+            } else if (type === 'complete') {
+                // MISSION COMPLETE - epic bass drop
+                const osc = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const osc3 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const dist = makeDistortion(30);
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(40, now + 0.8);
+
+                osc2.type = 'sawtooth';
+                osc2.frequency.setValueAtTime(300, now);
+                osc2.frequency.exponentialRampToValueAtTime(80, now + 0.6);
+
+                osc3.type = 'square';
+                osc3.frequency.setValueAtTime(600, now);
+                osc3.frequency.exponentialRampToValueAtTime(100, now + 0.4);
+
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 1);
+
+                osc.connect(dist);
+                osc2.connect(dist);
+                osc3.connect(dist);
+                dist.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc2.start(now);
+                osc3.start(now);
+                osc.stop(now + 1);
+                osc2.stop(now + 0.6);
+                osc3.stop(now + 0.4);
+
+            } else if (type === 'click') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(400, now + 0.05);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // TIMER STATE
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const config = {
+            work: 30,
+            rest: 10,
+            rounds: 8,
+            prepare: 10
+        };
+
+        let state = {
+            phase: 'idle', // idle, prepare, work, rest, done
+            currentRound: 1,
+            timeLeft: config.prepare,
+            totalPhaseTime: config.prepare,
+            intervalId: null,
+            isRunning: false
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DOM ELEMENTS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const timerContainer = document.getElementById('timerContainer');
+        const phaseLabel = document.getElementById('phaseLabel');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const roundDisplay = document.getElementById('roundDisplay');
+        const progressRing = document.getElementById('progressRing');
+        const mainBtn = document.getElementById('mainBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const workDisplay = document.getElementById('workDisplay');
+        const restDisplay = document.getElementById('restDisplay');
+        const roundsDisplay = document.getElementById('roundsDisplay');
+        const soundToggle = document.getElementById('soundToggle');
+
+        const circumference = 2 * Math.PI * 130;
+        progressRing.style.strokeDasharray = circumference;
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // DISPLAY FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function updateDisplay() {
+            timeDisplay.textContent = formatTime(state.timeLeft);
+            roundDisplay.textContent = `ROUND ${state.currentRound} / ${config.rounds}`;
+
+            const progress = state.timeLeft / state.totalPhaseTime;
+            const offset = circumference * (1 - progress);
+            progressRing.style.strokeDashoffset = offset;
+
+            timerContainer.className = 'timer-container phase-' + state.phase;
+
+            switch (state.phase) {
+                case 'prepare': phaseLabel.textContent = 'PREPARE'; break;
+                case 'work': phaseLabel.textContent = 'WORK'; break;
+                case 'rest': phaseLabel.textContent = 'REST'; break;
+                case 'done': phaseLabel.textContent = 'COMPLETE'; break;
+                default: phaseLabel.textContent = 'READY';
+            }
+
+            mainBtn.textContent = state.isRunning ? 'PAUSE' : (state.phase === 'idle' || state.phase === 'done' ? 'START' : 'RESUME');
+        }
+
+        function updateSettings() {
+            workDisplay.textContent = config.work + 's';
+            restDisplay.textContent = config.rest + 's';
+            roundsDisplay.textContent = config.rounds;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // TIMER LOGIC
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        function startTimer() {
+            if (state.phase === 'idle' || state.phase === 'done') {
+                state.phase = 'prepare';
+                state.currentRound = 1;
+                state.timeLeft = config.prepare;
+                state.totalPhaseTime = config.prepare;
+            }
+
+            state.isRunning = true;
+            initAudio();
+
+            state.intervalId = setInterval(() => {
+                state.timeLeft--;
+
+                if (state.timeLeft <= 3 && state.timeLeft > 0) {
+                    playSound('countdown');
+                } else if (state.timeLeft > 3) {
+                    playSound('tick');
+                }
+
+                if (state.timeLeft <= 0) {
+                    nextPhase();
+                }
+
+                updateDisplay();
+            }, 1000);
+
+            updateDisplay();
+        }
+
+        function pauseTimer() {
+            state.isRunning = false;
+            if (state.intervalId) {
+                clearInterval(state.intervalId);
+                state.intervalId = null;
+            }
+            updateDisplay();
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            state.phase = 'idle';
+            state.currentRound = 1;
+            state.timeLeft = config.prepare;
+            state.totalPhaseTime = config.prepare;
+            playSound('click');
+            updateDisplay();
+        }
+
+        function nextPhase() {
+            if (state.phase === 'prepare') {
+                state.phase = 'work';
+                state.timeLeft = config.work;
+                state.totalPhaseTime = config.work;
+                playSound('work');
+
+            } else if (state.phase === 'work') {
+                if (state.currentRound >= config.rounds) {
+                    state.phase = 'done';
+                    state.timeLeft = 0;
+                    state.totalPhaseTime = 1;
+                    playSound('complete');
+                    pauseTimer();
+                } else {
+                    state.phase = 'rest';
+                    state.timeLeft = config.rest;
+                    state.totalPhaseTime = config.rest;
+                    playSound('rest');
+                }
+
+            } else if (state.phase === 'rest') {
+                state.currentRound++;
+                state.phase = 'work';
+                state.timeLeft = config.work;
+                state.totalPhaseTime = config.work;
+                playSound('work');
+            }
+
+            updateDisplay();
+        }
+
+        function skipPhase() {
+            if (!state.isRunning && state.phase === 'idle') return;
+            playSound('click');
+            state.timeLeft = 1;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // EVENT LISTENERS
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        mainBtn.addEventListener('click', () => {
+            playSound('click');
+            if (state.isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        });
+
+        resetBtn.addEventListener('click', resetTimer);
+        skipBtn.addEventListener('click', skipPhase);
+
+        document.querySelectorAll('.setting-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                playSound('click');
+                const setting = btn.dataset.setting;
+                const action = btn.dataset.action;
+                const delta = action === 'plus' ? 5 : -5;
+
+                if (setting === 'work') {
+                    config.work = Math.max(5, Math.min(300, config.work + delta));
+                } else if (setting === 'rest') {
+                    config.rest = Math.max(5, Math.min(120, config.rest + delta));
+                } else if (setting === 'rounds') {
+                    const roundDelta = action === 'plus' ? 1 : -1;
+                    config.rounds = Math.max(1, Math.min(20, config.rounds + roundDelta));
+                }
+
+                updateSettings();
+                if (state.phase === 'idle') {
+                    updateDisplay();
+                }
+            });
+        });
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                playSound('click');
+                config.work = parseInt(btn.dataset.work);
+                config.rest = parseInt(btn.dataset.rest);
+                config.rounds = parseInt(btn.dataset.rounds);
+
+                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                updateSettings();
+                if (state.phase === 'idle' || state.phase === 'done') {
+                    resetTimer();
+                }
+            });
+        });
+
+        soundToggle.addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            soundToggle.classList.toggle('active', soundEnabled);
+            if (soundEnabled) playSound('click');
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        updateSettings();
+        updateDisplay();
+    </script>
+</body>
+</html>

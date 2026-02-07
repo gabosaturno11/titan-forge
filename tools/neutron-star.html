@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEUTRON STAR | Density Training</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --cyan: #00FFD4; --blue: #00D4FF; --purple: #9D4EDD; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow: hidden; }
+
+        .neutron-bg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 200px; pointer-events: none; z-index: 0; }
+        .neutron-core { width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #fff, var(--cyan), var(--blue)); box-shadow: 0 0 60px var(--cyan), 0 0 100px var(--blue); animation: neutronPulse 1s ease-in-out infinite; }
+        @keyframes neutronPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .neutron-core.active { animation: neutronSpin 0.5s linear infinite; }
+        @keyframes neutronSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+
+        .header { text-align: center; margin-bottom: 16px; }
+        .logo { width: 50px; height: 50px; margin: 0 auto 10px; background: radial-gradient(circle at 30% 30%, #fff, var(--cyan)); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px var(--cyan); }
+        .logo-text { font-size: 9px; font-weight: 700; letter-spacing: 1px; color: #000; }
+        .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 3px; background: linear-gradient(135deg, var(--cyan), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .header p { font-size: 9px; color: #666; margin-top: 4px; letter-spacing: 2px; }
+
+        .density-meter { background: rgba(0, 255, 212, 0.05); border: 1px solid rgba(0, 255, 212, 0.2); border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center; }
+        .density-label { font-size: 9px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .density-value { font-size: 48px; font-weight: 700; color: var(--cyan); text-shadow: 0 0 20px var(--cyan); }
+        .density-unit { font-size: 12px; color: var(--blue); letter-spacing: 2px; }
+
+        .time-block { display: flex; justify-content: center; gap: 24px; margin-bottom: 16px; }
+        .time-stat { text-align: center; }
+        .time-value { font-size: 32px; font-weight: 300; color: var(--blue); }
+        .time-label { font-size: 9px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+
+        .exercise-tracker { background: rgba(157, 78, 221, 0.05); border: 1px solid rgba(157, 78, 221, 0.2); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .tracker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .tracker-title { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; }
+        .tracker-total { font-size: 12px; color: var(--purple); font-weight: 700; }
+
+        .exercise-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .exercise-row:last-child { border-bottom: none; }
+        .ex-name { flex: 1; font-size: 11px; color: #888; }
+        .ex-count { font-size: 14px; font-weight: 700; color: var(--cyan); min-width: 40px; text-align: center; }
+        .ex-btns { display: flex; gap: 6px; }
+        .ex-btn { width: 32px; height: 32px; border-radius: 6px; border: 1px solid #333; background: transparent; color: #666; font-size: 16px; cursor: pointer; transition: all 0.2s; }
+        .ex-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+        .ex-btn:active { background: var(--cyan); color: #000; }
+
+        .controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; }
+        .btn { padding: 14px 28px; border-radius: 8px; border: 2px solid var(--cyan); background: transparent; color: var(--cyan); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { background: var(--cyan); color: #000; }
+
+        .records { display: flex; justify-content: center; gap: 24px; }
+        .record { text-align: center; }
+        .record-value { font-size: 20px; font-weight: 700; color: var(--purple); }
+        .record-label { font-size: 9px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--cyan); color: var(--cyan); }
+        .sound-toggle.active { color: var(--cyan); border-color: var(--cyan); }
+    </style>
+</head>
+<body>
+    <div class="neutron-bg">
+        <div class="neutron-core" id="neutronCore"></div>
+    </div>
+
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Neutron Star</h1>
+            <p>Density Training</p>
+        </div>
+
+        <div class="density-meter">
+            <div class="density-label">Work Density</div>
+            <div class="density-value" id="densityValue">0.0</div>
+            <div class="density-unit">reps/min</div>
+        </div>
+
+        <div class="time-block">
+            <div class="time-stat">
+                <div class="time-value" id="elapsedTime">0:00</div>
+                <div class="time-label">Elapsed</div>
+            </div>
+            <div class="time-stat">
+                <div class="time-value" id="totalReps">0</div>
+                <div class="time-label">Total Reps</div>
+            </div>
+        </div>
+
+        <div class="exercise-tracker">
+            <div class="tracker-header">
+                <span class="tracker-title">Exercise Log</span>
+                <span class="tracker-total" id="exerciseCount">0 exercises</span>
+            </div>
+            <div id="exerciseList"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="startBtn">START</button>
+            <button class="btn" id="resetBtn">RESET</button>
+        </div>
+
+        <div class="records">
+            <div class="record">
+                <div class="record-value" id="bestDensity">0.0</div>
+                <div class="record-label">Best Density</div>
+            </div>
+            <div class="record">
+                <div class="record-value" id="bestReps">0</div>
+                <div class="record-label">Best Reps</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx = null, soundEnabled = true;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'add') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(1000, now + 0.08);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'milestone') {
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(300 + i * 150, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.15);
+                    }, i * 60);
+                }
+            } else if (type === 'record') {
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(400 + i * 100, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.2);
+                    }, i * 80);
+                }
+            }
+        }
+
+        const defaultExercises = [
+            { name: 'Push-ups', count: 0 },
+            { name: 'Squats', count: 0 },
+            { name: 'Pull-ups', count: 0 },
+            { name: 'Dips', count: 0 },
+            { name: 'Lunges', count: 0 }
+        ];
+
+        let state = {
+            exercises: JSON.parse(JSON.stringify(defaultExercises)),
+            elapsed: 0,
+            isRunning: false,
+            bestDensity: parseFloat(localStorage.getItem('neutron_best_density') || '0'),
+            bestReps: parseInt(localStorage.getItem('neutron_best_reps') || '0'),
+            intervalId: null
+        };
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        function getTotalReps() {
+            return state.exercises.reduce((sum, ex) => sum + ex.count, 0);
+        }
+
+        function getDensity() {
+            if (state.elapsed === 0) return 0;
+            return (getTotalReps() / (state.elapsed / 60)).toFixed(1);
+        }
+
+        function renderExercises() {
+            const list = document.getElementById('exerciseList');
+            list.innerHTML = state.exercises.map((ex, i) => `
+                <div class="exercise-row">
+                    <span class="ex-name">${ex.name}</span>
+                    <span class="ex-count">${ex.count}</span>
+                    <div class="ex-btns">
+                        <button class="ex-btn" data-idx="${i}" data-action="sub">-</button>
+                        <button class="ex-btn" data-idx="${i}" data-action="add">+</button>
+                    </div>
+                </div>
+            `).join('');
+
+            list.querySelectorAll('.ex-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = parseInt(btn.dataset.idx);
+                    const action = btn.dataset.action;
+                    if (action === 'add') {
+                        state.exercises[idx].count++;
+                        playSound('add');
+                        const total = getTotalReps();
+                        if (total % 25 === 0) playSound('milestone');
+                    } else if (state.exercises[idx].count > 0) {
+                        state.exercises[idx].count--;
+                    }
+                    updateDisplay();
+                });
+            });
+        }
+
+        function updateDisplay() {
+            const density = getDensity();
+            const totalReps = getTotalReps();
+
+            document.getElementById('densityValue').textContent = density;
+            document.getElementById('elapsedTime').textContent = formatTime(state.elapsed);
+            document.getElementById('totalReps').textContent = totalReps;
+            document.getElementById('exerciseCount').textContent = state.exercises.filter(e => e.count > 0).length + ' exercises';
+            document.getElementById('bestDensity').textContent = state.bestDensity.toFixed(1);
+            document.getElementById('bestReps').textContent = state.bestReps;
+            document.getElementById('startBtn').textContent = state.isRunning ? 'PAUSE' : 'START';
+            document.getElementById('neutronCore').classList.toggle('active', state.isRunning);
+
+            renderExercises();
+        }
+
+        function start() {
+            if (state.isRunning) {
+                pause();
+                return;
+            }
+
+            state.isRunning = true;
+            initAudio();
+
+            state.intervalId = setInterval(() => {
+                state.elapsed++;
+                updateDisplay();
+            }, 1000);
+
+            updateDisplay();
+        }
+
+        function pause() {
+            state.isRunning = false;
+            if (state.intervalId) { clearInterval(state.intervalId); state.intervalId = null; }
+
+            // Check records
+            const density = parseFloat(getDensity());
+            const totalReps = getTotalReps();
+
+            let newRecord = false;
+            if (density > state.bestDensity && state.elapsed >= 60) {
+                state.bestDensity = density;
+                localStorage.setItem('neutron_best_density', density);
+                newRecord = true;
+            }
+            if (totalReps > state.bestReps) {
+                state.bestReps = totalReps;
+                localStorage.setItem('neutron_best_reps', totalReps);
+                newRecord = true;
+            }
+
+            if (newRecord) playSound('record');
+
+            updateDisplay();
+        }
+
+        function reset() {
+            pause();
+            state.exercises = JSON.parse(JSON.stringify(defaultExercises));
+            state.elapsed = 0;
+            updateDisplay();
+        }
+
+        document.getElementById('startBtn').addEventListener('click', start);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>

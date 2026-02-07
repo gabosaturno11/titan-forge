@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BREATHING PACER | Saturno Movement</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #030308;
+            --cyan: #00ffcc;
+            --purple: #a855f7;
+            --pink: #ec4899;
+            --blue: #3b82f6;
+            --text: #e4e4e7;
+            --text-dim: #52525b;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Starfield background */
+        .starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Glitch effect */
+        .glitch {
+            animation: glitch 0.3s infinite;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .header {
+            position: absolute;
+            top: 32px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .header img {
+            width: 40px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 15px var(--cyan));
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--cyan);
+            letter-spacing: 4px;
+            text-shadow:
+                0 0 10px var(--cyan),
+                0 0 20px var(--cyan),
+                2px 2px 0 var(--purple),
+                -2px -2px 0 var(--pink);
+        }
+
+        .header p {
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 8px;
+            letter-spacing: 0.2em;
+        }
+
+        /* Breathing Circle */
+        .breath-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .breath-circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid var(--cyan);
+            box-shadow:
+                0 0 30px var(--cyan),
+                inset 0 0 30px rgba(0, 255, 204, 0.1);
+            transition: all 0.1s linear;
+        }
+
+        .breath-circle.ring1 {
+            width: 100%;
+            height: 100%;
+            opacity: 0.3;
+        }
+
+        .breath-circle.ring2 {
+            width: 80%;
+            height: 80%;
+            border-color: var(--purple);
+            box-shadow:
+                0 0 20px var(--purple),
+                inset 0 0 20px rgba(168, 85, 247, 0.1);
+            opacity: 0.5;
+        }
+
+        .breath-circle.ring3 {
+            width: 60%;
+            height: 60%;
+            border-color: var(--pink);
+            box-shadow:
+                0 0 15px var(--pink),
+                inset 0 0 15px rgba(236, 72, 153, 0.1);
+            opacity: 0.7;
+        }
+
+        .breath-circle.main {
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(0, 255, 204, 0.2) 0%, transparent 70%);
+            border-width: 3px;
+        }
+
+        /* Phase indicator */
+        .phase-display {
+            position: absolute;
+            text-align: center;
+            z-index: 20;
+        }
+
+        .phase-text {
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--cyan);
+            text-shadow: 0 0 20px var(--cyan);
+        }
+
+        .phase-timer {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--text);
+            margin-top: 8px;
+        }
+
+        /* Controls */
+        .controls {
+            position: absolute;
+            bottom: 100px;
+            display: flex;
+            gap: 16px;
+            z-index: 10;
+        }
+
+        .control-btn {
+            padding: 12px 32px;
+            background: transparent;
+            border: 2px solid var(--cyan);
+            color: var(--cyan);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            background: var(--cyan);
+            color: var(--bg);
+            box-shadow: 0 0 30px var(--cyan);
+        }
+
+        .control-btn.stop {
+            border-color: var(--pink);
+            color: var(--pink);
+        }
+
+        .control-btn.stop:hover {
+            background: var(--pink);
+            color: var(--bg);
+            box-shadow: 0 0 30px var(--pink);
+        }
+
+        /* Pattern selector */
+        .pattern-selector {
+            position: absolute;
+            bottom: 160px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .pattern-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--text-dim);
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pattern-btn:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .pattern-btn.active {
+            border-color: var(--cyan);
+            color: var(--cyan);
+            background: rgba(0, 255, 204, 0.1);
+        }
+
+        /* Stats */
+        .stats {
+            position: absolute;
+            bottom: 32px;
+            display: flex;
+            gap: 32px;
+            z-index: 10;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--purple);
+        }
+
+        .stat-label {
+            font-size: 9px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Scanlines overlay */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1),
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0.3;
+        }
+
+        /* Audio toggle */
+        .audio-toggle {
+            position: absolute;
+            top: 32px;
+            right: 32px;
+            background: transparent;
+            border: 1px solid var(--text-dim);
+            color: var(--text-dim);
+            padding: 8px 12px;
+            font-family: inherit;
+            font-size: 10px;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+
+        .audio-toggle:hover,
+        .audio-toggle.on {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header { top: 20px; }
+            .header h1 { font-size: 16px; letter-spacing: 2px; }
+            .header p { font-size: 9px; }
+
+            .breath-container { width: 250px; height: 250px; }
+            .phase-text { font-size: 18px; }
+            .phase-timer { font-size: 36px; }
+
+            .pattern-selector {
+                bottom: 140px;
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 0 16px;
+                gap: 6px;
+            }
+            .pattern-btn { padding: 6px 10px; font-size: 9px; }
+
+            .controls { bottom: 80px; gap: 12px; }
+            .control-btn { padding: 10px 24px; font-size: 11px; }
+
+            .stats { bottom: 24px; gap: 24px; }
+            .stat-value { font-size: 20px; }
+            .stat-label { font-size: 8px; }
+
+            .audio-toggle { top: 16px; right: 16px; padding: 6px 10px; font-size: 9px; }
+        }
+
+        @media (max-width: 380px) {
+            .breath-container { width: 200px; height: 200px; }
+            .phase-text { font-size: 14px; }
+            .phase-timer { font-size: 28px; }
+            .header h1 { font-size: 14px; }
+            .pattern-btn { padding: 5px 8px; font-size: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="starfield" id="starfield"></div>
+<div class="scanlines"></div>
+
+<button class="audio-toggle on" id="audioToggle">🔊 SOUND ON</button>
+
+<div class="header">
+    <img src="../planet-logo.png" alt="Saturno Movement">
+    <h1>BREATHING PACER</h1>
+    <p>SATURNO MOVEMENT</p>
+</div>
+
+<div class="breath-container" id="breathContainer">
+    <div class="breath-circle ring1" id="ring1"></div>
+    <div class="breath-circle ring2" id="ring2"></div>
+    <div class="breath-circle ring3" id="ring3"></div>
+    <div class="breath-circle main" id="mainCircle"></div>
+
+    <div class="phase-display">
+        <div class="phase-text" id="phaseText">READY</div>
+        <div class="phase-timer" id="phaseTimer">—</div>
+    </div>
+</div>
+
+<div class="pattern-selector">
+    <button class="pattern-btn active" data-pattern="box">BOX 4-4-4-4</button>
+    <button class="pattern-btn" data-pattern="relax">RELAX 4-7-8</button>
+    <button class="pattern-btn" data-pattern="power">POWER 4-4</button>
+    <button class="pattern-btn" data-pattern="wim">WIM HOF</button>
+</div>
+
+<div class="controls">
+    <button class="control-btn" id="startBtn">▶ START</button>
+    <button class="control-btn stop" id="stopBtn">■ STOP</button>
+</div>
+
+<div class="stats">
+    <div class="stat">
+        <div class="stat-value" id="roundCount">0</div>
+        <div class="stat-label">Rounds</div>
+    </div>
+    <div class="stat">
+        <div class="stat-value" id="totalTime">0:00</div>
+        <div class="stat-label">Total Time</div>
+    </div>
+</div>
+
+<script>
+    const PATTERNS = {
+        box: { name: 'Box Breathing', phases: [
+            { name: 'INHALE', duration: 4, scale: 1.5 },
+            { name: 'HOLD', duration: 4, scale: 1.5 },
+            { name: 'EXHALE', duration: 4, scale: 1 },
+            { name: 'HOLD', duration: 4, scale: 1 }
+        ]},
+        relax: { name: '4-7-8 Relaxation', phases: [
+            { name: 'INHALE', duration: 4, scale: 1.5 },
+            { name: 'HOLD', duration: 7, scale: 1.5 },
+            { name: 'EXHALE', duration: 8, scale: 1 }
+        ]},
+        power: { name: 'Power Breathing', phases: [
+            { name: 'INHALE', duration: 4, scale: 1.6 },
+            { name: 'EXHALE', duration: 4, scale: 1 }
+        ]},
+        wim: { name: 'Wim Hof Style', phases: [
+            { name: 'INHALE', duration: 2, scale: 1.4 },
+            { name: 'EXHALE', duration: 2, scale: 1 }
+        ], rounds: 30 }
+    };
+
+    let currentPattern = 'box';
+    let isRunning = false;
+    let currentPhase = 0;
+    let currentSecond = 0;
+    let roundCount = 0;
+    let totalSeconds = 0;
+    let breathInterval = null;
+    let timerInterval = null;
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    // Audio
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    function playGlitchSound(type) {
+        if (!soundEnabled || !audioCtx) return;
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'inhale') {
+            // Rising glitchy synth
+            for (let i = 0; i < 3; i++) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = 'sawtooth';
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(500, now);
+                filter.frequency.exponentialRampToValueAtTime(2000, now + 0.5);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.frequency.setValueAtTime(100 + i * 50, now);
+                osc.frequency.exponentialRampToValueAtTime(400 + i * 100, now + 0.3);
+
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+
+                osc.start(now + i * 0.02);
+                osc.stop(now + 0.5);
+            }
+        } else if (type === 'exhale') {
+            // Falling spacey whoosh
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+
+            osc.type = 'sine';
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1500, now);
+            filter.frequency.exponentialRampToValueAtTime(100, now + 0.6);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(100, now + 0.5);
+
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+
+            osc.start(now);
+            osc.stop(now + 0.6);
+        } else if (type === 'hold') {
+            // Glitchy digital blip
+            for (let i = 0; i < 5; i++) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'square';
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.frequency.setValueAtTime(800 + Math.random() * 400, now + i * 0.03);
+                gain.gain.setValueAtTime(0.05, now + i * 0.03);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.03 + 0.05);
+
+                osc.start(now + i * 0.03);
+                osc.stop(now + i * 0.03 + 0.05);
+            }
+        } else if (type === 'complete') {
+            // Spacey completion chord
+            const freqs = [261, 329, 392, 523];
+            freqs.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = 'triangle';
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(2000, now);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.frequency.setValueAtTime(freq, now);
+                gain.gain.setValueAtTime(0.1, now + i * 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 1);
+
+                osc.start(now + i * 0.1);
+                osc.stop(now + 1);
+            });
+        }
+    }
+
+    // Starfield
+    function createStarfield() {
+        const container = document.getElementById('starfield');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            star.style.opacity = Math.random() * 0.5 + 0.3;
+            container.appendChild(star);
+        }
+    }
+
+    // Animation
+    function updateCircles(scale) {
+        const rings = ['ring1', 'ring2', 'ring3', 'mainCircle'];
+        rings.forEach((id, i) => {
+            const el = document.getElementById(id);
+            const baseSize = [100, 80, 60, 40][i];
+            const newSize = baseSize * scale;
+            el.style.width = newSize + '%';
+            el.style.height = newSize + '%';
+        });
+    }
+
+    function start() {
+        if (isRunning) return;
+
+        initAudio();
+        isRunning = true;
+        currentPhase = 0;
+        currentSecond = 0;
+        roundCount = 0;
+        totalSeconds = 0;
+
+        document.getElementById('startBtn').textContent = '▶ RUNNING';
+
+        runPhase();
+
+        timerInterval = setInterval(() => {
+            totalSeconds++;
+            const mins = Math.floor(totalSeconds / 60);
+            const secs = totalSeconds % 60;
+            document.getElementById('totalTime').textContent =
+                mins + ':' + secs.toString().padStart(2, '0');
+        }, 1000);
+    }
+
+    function runPhase() {
+        const pattern = PATTERNS[currentPattern];
+        const phase = pattern.phases[currentPhase];
+
+        document.getElementById('phaseText').textContent = phase.name;
+
+        // Play sound based on phase
+        if (phase.name === 'INHALE') playGlitchSound('inhale');
+        else if (phase.name === 'EXHALE') playGlitchSound('exhale');
+        else if (phase.name === 'HOLD') playGlitchSound('hold');
+
+        // Glitch effect on phase change
+        document.getElementById('phaseText').classList.add('glitch');
+        setTimeout(() => {
+            document.getElementById('phaseText').classList.remove('glitch');
+        }, 300);
+
+        currentSecond = phase.duration;
+        document.getElementById('phaseTimer').textContent = currentSecond;
+
+        // Animate to target scale
+        const startScale = currentPhase === 0 ? 1 : PATTERNS[currentPattern].phases[currentPhase - 1]?.scale || 1;
+        const targetScale = phase.scale;
+
+        animateScale(startScale, targetScale, phase.duration * 1000);
+
+        breathInterval = setInterval(() => {
+            currentSecond--;
+            document.getElementById('phaseTimer').textContent = currentSecond;
+
+            if (currentSecond <= 0) {
+                clearInterval(breathInterval);
+                nextPhase();
+            }
+        }, 1000);
+    }
+
+    function animateScale(from, to, duration) {
+        const startTime = Date.now();
+
+        function animate() {
+            if (!isRunning) return;
+
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Ease in-out
+            const eased = progress < 0.5
+                ? 2 * progress * progress
+                : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+            const currentScale = from + (to - from) * eased;
+            updateCircles(currentScale);
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        }
+
+        animate();
+    }
+
+    function nextPhase() {
+        const pattern = PATTERNS[currentPattern];
+        currentPhase++;
+
+        if (currentPhase >= pattern.phases.length) {
+            currentPhase = 0;
+            roundCount++;
+            document.getElementById('roundCount').textContent = roundCount;
+            playGlitchSound('complete');
+
+            // Wim Hof has specific round count
+            if (pattern.rounds && roundCount >= pattern.rounds) {
+                stop();
+                document.getElementById('phaseText').textContent = 'COMPLETE';
+                return;
+            }
+        }
+
+        if (isRunning) {
+            runPhase();
+        }
+    }
+
+    function stop() {
+        isRunning = false;
+        clearInterval(breathInterval);
+        clearInterval(timerInterval);
+
+        document.getElementById('startBtn').textContent = '▶ START';
+        document.getElementById('phaseText').textContent = 'READY';
+        document.getElementById('phaseTimer').textContent = '—';
+
+        updateCircles(1);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        createStarfield();
+
+        document.getElementById('startBtn').addEventListener('click', start);
+        document.getElementById('stopBtn').addEventListener('click', stop);
+
+        document.querySelectorAll('.pattern-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentPattern = btn.dataset.pattern;
+                if (isRunning) {
+                    stop();
+                    start();
+                }
+            });
+        });
+
+        document.getElementById('audioToggle').addEventListener('click', function() {
+            soundEnabled = !soundEnabled;
+            this.textContent = soundEnabled ? '🔊 SOUND ON' : '🔇 SOUND OFF';
+            this.classList.toggle('on', soundEnabled);
+            if (soundEnabled) initAudio();
+        });
+    });
+</script>
+
+</body>
+</html>

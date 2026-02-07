@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RED GIANT | Endurance Timer</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0a0a0a; --red: #FF3333; --orange: #FF6B00; --purple: #9D4EDD; }
+        body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: #fff; min-height: 100vh; overflow: hidden; }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+
+        .header { text-align: center; margin-bottom: 20px; }
+        .logo { width: 50px; height: 50px; margin: 0 auto 10px; background: radial-gradient(circle at 30% 30%, var(--orange), var(--red)); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(255, 51, 51, 0.4); }
+        .logo-text { font-size: 9px; font-weight: 700; letter-spacing: 1px; }
+        .header h1 { font-size: 18px; font-weight: 700; letter-spacing: 3px; background: linear-gradient(135deg, var(--orange), var(--red)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+        .header p { font-size: 9px; color: #666; margin-top: 4px; letter-spacing: 2px; }
+
+        .giant-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+
+        .giant { width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, var(--orange), var(--red), #660000); position: relative; display: flex; align-items: center; justify-content: center; flex-direction: column; box-shadow: 0 0 80px rgba(255, 51, 51, 0.5); animation: giantPulse 4s ease-in-out infinite; }
+        @keyframes giantPulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 80px rgba(255, 51, 51, 0.5); } 50% { transform: scale(1.03); box-shadow: 0 0 100px rgba(255, 51, 51, 0.7); } }
+        .giant.active { animation: giantBurn 1s ease-in-out infinite; }
+        @keyframes giantBurn { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+
+        .giant-time { font-size: 42px; font-weight: 700; color: #fff; text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+        .giant-label { font-size: 10px; color: rgba(255, 255, 255, 0.7); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+        .corona { position: absolute; width: 260px; height: 260px; border-radius: 50%; border: 2px solid rgba(255, 107, 0, 0.3); top: 50%; left: 50%; transform: translate(-50%, -50%); animation: coronaPulse 3s ease-in-out infinite; }
+        @keyframes coronaPulse { 0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.1); } }
+
+        .exercises { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+        .exercise-btn { padding: 8px 12px; border-radius: 6px; border: 1px solid #333; background: transparent; color: #666; font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+        .exercise-btn:hover { border-color: var(--red); color: var(--red); }
+        .exercise-btn.active { background: linear-gradient(135deg, var(--orange), var(--red)); border-color: transparent; color: #000; }
+
+        .target-select { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
+        .target-btn { padding: 10px 16px; border-radius: 6px; border: 1px solid #333; background: transparent; color: #666; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .target-btn:hover { border-color: var(--orange); color: var(--orange); }
+        .target-btn.active { background: var(--orange); border-color: var(--orange); color: #000; }
+
+        .controls { display: flex; gap: 12px; justify-content: center; margin-bottom: 20px; }
+        .btn { padding: 14px 28px; border-radius: 8px; border: 2px solid var(--red); background: transparent; color: var(--red); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { background: var(--red); color: #000; box-shadow: 0 0 30px rgba(255, 51, 51, 0.4); }
+
+        .stats { display: flex; justify-content: center; gap: 32px; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--orange); }
+        .stat-label { font-size: 9px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+
+        .heat-bar { width: 100%; max-width: 300px; height: 8px; background: #1a1a2e; border-radius: 4px; margin: 0 auto 20px; overflow: hidden; }
+        .heat-fill { height: 100%; background: linear-gradient(90deg, var(--orange), var(--red)); transition: width 0.1s linear; }
+
+        .sound-toggle { position: fixed; top: 16px; right: 16px; background: rgba(10, 10, 10, 0.9); border: 1px solid #333; border-radius: 8px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #666; cursor: pointer; z-index: 100; }
+        .sound-toggle:hover { border-color: var(--red); color: var(--red); }
+        .sound-toggle.active { color: var(--red); border-color: var(--red); }
+    </style>
+</head>
+<body>
+    <button class="sound-toggle active" id="soundToggle">SFX: ON</button>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo"><span class="logo-text">SM</span></div>
+            <h1>Red Giant</h1>
+            <p>Endurance Timer</p>
+        </div>
+
+        <div class="exercises">
+            <button class="exercise-btn active" data-ex="Plank">PLANK</button>
+            <button class="exercise-btn" data-ex="Wall Sit">WALL SIT</button>
+            <button class="exercise-btn" data-ex="Handstand">HANDSTAND</button>
+            <button class="exercise-btn" data-ex="L-Sit">L-SIT</button>
+            <button class="exercise-btn" data-ex="Dead Hang">DEAD HANG</button>
+            <button class="exercise-btn" data-ex="Horse Stance">HORSE</button>
+        </div>
+
+        <div class="target-select">
+            <button class="target-btn" data-target="30">30s</button>
+            <button class="target-btn active" data-target="60">1:00</button>
+            <button class="target-btn" data-target="120">2:00</button>
+            <button class="target-btn" data-target="180">3:00</button>
+            <button class="target-btn" data-target="300">5:00</button>
+        </div>
+
+        <div class="heat-bar">
+            <div class="heat-fill" id="heatFill" style="width: 0%"></div>
+        </div>
+
+        <div class="giant-container">
+            <div class="corona"></div>
+            <div class="giant" id="giant">
+                <div class="giant-time" id="timerDisplay">0:00</div>
+                <div class="giant-label" id="exerciseLabel">Plank</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="startBtn">START</button>
+            <button class="btn" id="resetBtn">RESET</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="bestTime">0:00</div>
+                <div class="stat-label">Best</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="totalTime">0:00</div>
+                <div class="stat-label">Total</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let audioCtx = null, soundEnabled = true;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            const now = audioCtx.currentTime;
+
+            if (type === 'tick') {
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(100, now);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(now); osc.stop(now + 0.05);
+            } else if (type === 'milestone') {
+                [0, 0.1, 0.2].forEach((delay, i) => {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(200 + i * 100, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.2);
+                    }, delay * 1000);
+                });
+            } else if (type === 'complete') {
+                for (let i = 0; i < 6; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(150 + i * 80, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.3);
+                    }, i * 100);
+                }
+            } else if (type === 'record') {
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(300 + i * 50, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(audioCtx.currentTime); osc.stop(audioCtx.currentTime + 0.25);
+                    }, i * 80);
+                }
+            }
+        }
+
+        let state = {
+            exercise: 'Plank',
+            target: 60,
+            elapsed: 0,
+            isRunning: false,
+            bestTimes: JSON.parse(localStorage.getItem('redgiant_best') || '{}'),
+            totalTime: parseInt(localStorage.getItem('redgiant_total') || '0'),
+            intervalId: null,
+            lastMilestone: 0
+        };
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        function updateDisplay() {
+            document.getElementById('timerDisplay').textContent = formatTime(state.elapsed);
+            document.getElementById('exerciseLabel').textContent = state.exercise;
+
+            const progress = Math.min(100, (state.elapsed / state.target) * 100);
+            document.getElementById('heatFill').style.width = progress + '%';
+
+            const best = state.bestTimes[state.exercise] || 0;
+            document.getElementById('bestTime').textContent = formatTime(best);
+            document.getElementById('totalTime').textContent = formatTime(state.totalTime);
+
+            const giant = document.getElementById('giant');
+            giant.classList.toggle('active', state.isRunning);
+
+            document.getElementById('startBtn').textContent = state.isRunning ? 'STOP' : 'START';
+        }
+
+        function start() {
+            if (state.isRunning) {
+                stop();
+                return;
+            }
+
+            state.isRunning = true;
+            state.lastMilestone = 0;
+            initAudio();
+
+            state.intervalId = setInterval(() => {
+                state.elapsed++;
+                state.totalTime++;
+                localStorage.setItem('redgiant_total', state.totalTime);
+
+                playSound('tick');
+
+                // Milestones every 30 seconds
+                if (state.elapsed % 30 === 0 && state.elapsed !== state.lastMilestone) {
+                    state.lastMilestone = state.elapsed;
+                    playSound('milestone');
+                }
+
+                // Target reached
+                if (state.elapsed === state.target) {
+                    playSound('complete');
+                }
+
+                // Check for personal best
+                const best = state.bestTimes[state.exercise] || 0;
+                if (state.elapsed > best) {
+                    state.bestTimes[state.exercise] = state.elapsed;
+                    localStorage.setItem('redgiant_best', JSON.stringify(state.bestTimes));
+                    if (state.elapsed === best + 1 && best > 0) {
+                        playSound('record');
+                    }
+                }
+
+                updateDisplay();
+            }, 1000);
+
+            updateDisplay();
+        }
+
+        function stop() {
+            state.isRunning = false;
+            if (state.intervalId) {
+                clearInterval(state.intervalId);
+                state.intervalId = null;
+            }
+            updateDisplay();
+        }
+
+        function reset() {
+            stop();
+            state.elapsed = 0;
+            updateDisplay();
+        }
+
+        document.querySelectorAll('.exercise-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.exercise-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.exercise = btn.dataset.ex;
+                reset();
+            });
+        });
+
+        document.querySelectorAll('.target-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.target-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.target = parseInt(btn.dataset.target);
+                updateDisplay();
+            });
+        });
+
+        document.getElementById('startBtn').addEventListener('click', start);
+        document.getElementById('resetBtn').addEventListener('click', reset);
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+            document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>
