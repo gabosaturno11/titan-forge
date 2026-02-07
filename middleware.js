@@ -33,5 +33,5 @@ export default function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/bonus.html', '/bonus', '/tools/cf4-full-program-bonus/:path*'],
+  matcher: ['/bonus.html', '/bonus', '/vault', '/tools/cf4-full-program-bonus/:path*'],
 };

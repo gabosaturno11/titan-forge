@@ -4,7 +4,8 @@
 
 - **Project:** titan-forge
 - **Gate (login):** `/gate.html` — public
-- **Bonus (protected):** `/bonus.html` — requires auth cookie
+- **Vault (protected):** `/vault` → `/bonus.html` — requires auth cookie
+- **Bonus (protected):** `/bonus.html` — requires auth cookie (legacy URL)
 - **CF4 (protected):** `/tools/cf4-full-program-bonus/*` — requires auth cookie
 
 ## Env vars (Vercel dashboard or CLI)
@@ -14,10 +15,10 @@
 
 ## Flow
 
-1. User visits `/bonus.html` → middleware redirects to `/gate.html` if no cookie
+1. User visits `/vault` (or `/bonus.html`) → middleware redirects to `/gate.html` if no cookie
 2. User enters password on `/gate.html` → POST to `/api/verify`
-3. If correct, `/api/verify` sets `vault_auth` cookie, returns 200
-4. Client redirects to `/bonus.html`; middleware sees cookie, allows access
+3. If correct (`password === VAULT_PASSWORD`), `/api/verify` sets `vault_auth` cookie (value = `VAULT_TOKEN`), returns 200
+4. Client redirects to `/vault`; middleware sees valid cookie, allows access → serves `bonus.html`
 
 ## Deploy
 

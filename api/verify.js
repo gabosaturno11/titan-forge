@@ -5,19 +5,20 @@ module.exports = function (req, res) {
   }
 
   const { password } = req.body || {};
-  const token = process.env.VAULT_TOKEN;
+  const vaultPassword = process.env.VAULT_PASSWORD;
+  const vaultToken = process.env.VAULT_TOKEN;
 
-  // Fallback if env var not set (shouldn't happen in production)
-  if (!token) {
+  // Fallback if env vars not set
+  if (!vaultPassword || !vaultToken) {
     return res.status(500).json({ ok: false, error: 'Server misconfigured' });
   }
 
-  if (password === token) {
+  if (password === vaultPassword) {
     // Set auth cookie — HttpOnly, Secure, SameSite=Lax, 30 days
     const maxAge = 30 * 24 * 60 * 60; // 30 days in seconds
     res.setHeader(
       'Set-Cookie',
-      `vault_auth=${encodeURIComponent(token)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`
+      `vault_auth=${encodeURIComponent(vaultToken)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`
     );
     return res.status(200).json({ ok: true });
   }

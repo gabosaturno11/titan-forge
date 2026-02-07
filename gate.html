@@ -369,9 +369,9 @@
           btn.innerHTML = '<span>ACCESS GRANTED</span>';
           btn.style.background = 'linear-gradient(135deg, #22c55e, #06b6d4)';
 
-          // Brief delay for visual feedback
+          // Brief delay for visual feedback, then redirect to vault
           setTimeout(() => {
-            window.location.replace('/bonus.html');
+            window.location.replace('/vault');
           }, 500);
         } else {
           err.classList.add('show');
@@ -380,13 +380,13 @@
           input.focus();
         }
       } catch (error) {
-        // Fallback for non-Vercel (GitHub Pages) - client-side check
+        // Fallback for non-Vercel (local/GitHub Pages) - client-side check
         if (input.value === 'saturno2025') {
           localStorage.setItem('vault_auth', 'granted');
           btn.innerHTML = '<span>ACCESS GRANTED</span>';
           btn.style.background = 'linear-gradient(135deg, #22c55e, #06b6d4)';
           setTimeout(() => {
-            window.location.replace('/bonus.html');
+            window.location.replace('/vault');
           }, 500);
         } else {
           err.classList.add('show');
