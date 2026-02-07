@@ -41,9 +41,6 @@
         ::-webkit-scrollbar-track { background: var(--bg-base); }
         ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 2px; }
 
-        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-        .pulse { animation: pulse 2s ease-in-out infinite; }
-
         .panel {
             background: var(--bg-elevated);
             border: 1px solid var(--border);
@@ -67,11 +64,9 @@
             letter-spacing: 0.2em;
         }
 
-        .panel-body {
-            padding: 16px;
-        }
+        .panel-body { padding: 16px; }
 
-        textarea, input[type="text"], select {
+        textarea, input[type="text"], input[type="password"], select {
             width: 100%;
             background: var(--bg-base);
             border: 1px solid var(--border);
@@ -102,41 +97,17 @@
             transition: all 0.2s;
         }
 
-        .btn-primary {
-            background: var(--accent-purple);
-            color: white;
-        }
+        .btn-primary { background: var(--accent-purple); color: white; }
         .btn-primary:hover { background: #9333ea; transform: translateY(-1px); }
-
-        .btn-secondary {
-            background: var(--bg-surface);
-            color: var(--text-secondary);
-            border: 1px solid var(--border);
-        }
+        .btn-secondary { background: var(--bg-surface); color: var(--text-secondary); border: 1px solid var(--border); }
         .btn-secondary:hover { background: var(--border); color: white; }
-
-        .btn-success {
-            background: var(--accent-green);
-            color: white;
-        }
+        .btn-success { background: var(--accent-green); color: white; }
         .btn-success:hover { background: #16a34a; }
-
-        .btn-cyan {
-            background: var(--accent-cyan);
-            color: white;
-        }
+        .btn-cyan { background: var(--accent-cyan); color: white; }
         .btn-cyan:hover { background: #0891b2; }
-
-        .btn-amber {
-            background: var(--accent-amber);
-            color: #000;
-        }
+        .btn-amber { background: var(--accent-amber); color: #000; }
         .btn-amber:hover { background: #d97706; }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .variant-card {
             background: var(--bg-base);
@@ -145,7 +116,6 @@
             margin-bottom: 8px;
             border-radius: 0 4px 4px 0;
         }
-
         .variant-card.ig { border-color: #e1306c; }
         .variant-card.email { border-color: var(--accent-amber); }
         .variant-card.yt { border-color: #ff0000; }
@@ -163,7 +133,6 @@
             font-weight: 500;
             text-transform: uppercase;
         }
-
         .status-ready { background: rgba(34, 197, 94, 0.1); color: var(--accent-green); }
         .status-working { background: rgba(245, 158, 11, 0.1); color: var(--accent-amber); }
         .status-error { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); }
@@ -196,7 +165,6 @@
         .checkbox-custom.checked { border-color: var(--accent-purple); background: rgba(168, 85, 247, 0.1); }
         .checkbox-custom input { display: none; }
 
-        /* PDF Preview */
         .pdf-preview {
             background: white;
             color: #1a1a1a;
@@ -206,41 +174,16 @@
             max-height: 400px;
             overflow-y: auto;
         }
-
         .pdf-preview h1 { font-size: 24px; font-weight: bold; margin-bottom: 8px; }
         .pdf-preview h2 { font-size: 14px; color: #666; font-style: italic; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #1a1a1a; }
         .pdf-preview p { font-size: 14px; line-height: 1.7; margin-bottom: 12px; }
         .pdf-preview .footer { font-size: 11px; color: #888; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; }
 
-        /* API Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.9);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
-        }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; }
         .modal.show { display: flex; }
-        .modal-content {
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            padding: 24px;
-            max-width: 400px;
-            width: 100%;
-        }
+        .modal-content { background: var(--bg-elevated); border: 1px solid var(--border); padding: 24px; max-width: 400px; width: 100%; }
 
-        /* Spinner */
-        .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid transparent;
-            border-top-color: currentColor;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            display: inline-block;
-        }
+        .spinner { width: 16px; height: 16px; border: 2px solid transparent; border-top-color: currentColor; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
@@ -265,10 +208,8 @@
         <section class="panel flex-1 flex flex-col min-w-0">
             <div class="panel-header">
                 <span class="panel-title text-purple-400">01 / PDF MAKER</span>
-                <span class="text-[9px] text-zinc-600">BRANDED DOCS</span>
             </div>
             <div class="panel-body flex-grow flex flex-col gap-4 overflow-y-auto">
-                <!-- Title & Author -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-1">Title</label>
@@ -280,7 +221,6 @@
                     </div>
                 </div>
 
-                <!-- Template Selection -->
                 <div>
                     <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-2">Template</label>
                     <div class="flex gap-2">
@@ -291,27 +231,21 @@
                     </div>
                 </div>
 
-                <!-- Content Input -->
                 <div class="flex-grow flex flex-col">
                     <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-1">Content</label>
-                    <textarea id="pdf-content" class="flex-grow min-h-[150px]" placeholder="Paste your content here...
+                    <textarea id="pdf-content" class="flex-grow min-h-[150px]" placeholder="Paste content here...
 
-Supports basic formatting:
 # Heading
 ## Subheading
 - Bullet points
-**Bold text**
-
-The PDF will be beautifully formatted."></textarea>
+**Bold text**"></textarea>
                 </div>
 
-                <!-- Preview -->
                 <div id="pdf-preview-container" class="hidden">
                     <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-1">Preview</label>
                     <div id="pdf-preview" class="pdf-preview"></div>
                 </div>
 
-                <!-- Actions -->
                 <div class="flex gap-2">
                     <button onclick="generatePDFPreview()" class="btn btn-secondary flex-1">Preview</button>
                     <button onclick="downloadPDF()" class="btn btn-primary flex-1">Download PDF</button>
@@ -319,22 +253,20 @@ The PDF will be beautifully formatted."></textarea>
             </div>
         </section>
 
-        <!-- PANEL 2: CAPTION MULTIPLIER (BEAST API POWERED) -->
+        <!-- PANEL 2: CAPTION MULTIPLIER -->
         <section class="panel flex-1 flex flex-col min-w-0">
             <div class="panel-header">
                 <span class="panel-title text-cyan-400">02 / CAPTION MULTIPLIER</span>
-                <span class="text-[9px] text-zinc-600">BEAST API</span>
+                <span class="text-[9px] text-zinc-600">CLAUDE API</span>
             </div>
             <div class="panel-body flex-grow flex flex-col gap-4 overflow-y-auto">
-                <!-- Seed Input -->
                 <div>
                     <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-1">Seed Phrase</label>
-                    <textarea id="seed-input" rows="4" placeholder="Enter your core idea or seed phrase...
+                    <textarea id="seed-input" rows="4" placeholder="Enter your core idea...
 
 Example: 'Mastery isn't about perfection. It's about showing up before you're ready.'"></textarea>
                 </div>
 
-                <!-- Voice Mode -->
                 <div>
                     <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-2">Voice Mode</label>
                     <div class="flex flex-wrap gap-2" id="voice-modes">
@@ -343,50 +275,26 @@ Example: 'Mastery isn't about perfection. It's about showing up before you're re
                         <button class="mode-btn" data-mode="Prophet">Prophet</button>
                         <button class="mode-btn" data-mode="Rebel">Rebel</button>
                         <button class="mode-btn" data-mode="Mystic">Mystic</button>
-                        <button class="mode-btn" data-mode="Philosopher">Philosopher</button>
                     </div>
                 </div>
 
-                <!-- Platforms -->
                 <div>
                     <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-2">Platforms</label>
                     <div class="grid grid-cols-3 gap-2">
-                        <label class="checkbox-custom checked">
-                            <input type="checkbox" data-platform="ig" checked>
-                            <span class="text-[10px]">Instagram</span>
-                        </label>
-                        <label class="checkbox-custom checked">
-                            <input type="checkbox" data-platform="email" checked>
-                            <span class="text-[10px]">Email</span>
-                        </label>
-                        <label class="checkbox-custom checked">
-                            <input type="checkbox" data-platform="yt" checked>
-                            <span class="text-[10px]">YouTube</span>
-                        </label>
-                        <label class="checkbox-custom">
-                            <input type="checkbox" data-platform="twitter">
-                            <span class="text-[10px]">Twitter/X</span>
-                        </label>
-                        <label class="checkbox-custom">
-                            <input type="checkbox" data-platform="linkedin">
-                            <span class="text-[10px]">LinkedIn</span>
-                        </label>
-                        <label class="checkbox-custom">
-                            <input type="checkbox" data-platform="tiktok">
-                            <span class="text-[10px]">TikTok</span>
-                        </label>
+                        <label class="checkbox-custom checked"><input type="checkbox" data-platform="ig" checked><span class="text-[10px]">Instagram</span></label>
+                        <label class="checkbox-custom checked"><input type="checkbox" data-platform="email" checked><span class="text-[10px]">Email</span></label>
+                        <label class="checkbox-custom checked"><input type="checkbox" data-platform="yt" checked><span class="text-[10px]">YouTube</span></label>
+                        <label class="checkbox-custom"><input type="checkbox" data-platform="twitter"><span class="text-[10px]">Twitter/X</span></label>
+                        <label class="checkbox-custom"><input type="checkbox" data-platform="linkedin"><span class="text-[10px]">LinkedIn</span></label>
+                        <label class="checkbox-custom"><input type="checkbox" data-platform="tiktok"><span class="text-[10px]">TikTok</span></label>
                     </div>
                 </div>
 
-                <!-- Multiply Button -->
-                <button onclick="multiplyCaption()" class="btn btn-cyan w-full" id="multiply-btn">
-                    <span id="multiply-text">Multiply with AI</span>
-                </button>
+                <button onclick="multiplyCaption()" class="btn btn-cyan w-full" id="multiply-btn">Multiply with Claude AI</button>
 
-                <!-- Variants Output -->
                 <div id="variants-container" class="flex-grow overflow-y-auto space-y-2">
                     <div class="text-center text-zinc-600 text-[11px] py-8">
-                        Enter a seed phrase and click Multiply to generate platform-specific variants using Claude AI
+                        Enter seed + click Multiply to generate variants
                     </div>
                 </div>
             </div>
@@ -396,49 +304,38 @@ Example: 'Mastery isn't about perfection. It's about showing up before you're re
         <section class="panel w-72 flex flex-col shrink-0">
             <div class="panel-header">
                 <span class="panel-title text-green-400">03 / QUICK DEPLOY</span>
-                <span class="text-[9px] text-zinc-600">SHIP IT</span>
             </div>
             <div class="panel-body flex flex-col gap-4">
-                <!-- Project Info -->
                 <div>
-                    <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-1">Project Name</label>
-                    <input type="text" id="project-name" value="titan-forge" placeholder="project-name">
+                    <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-1">Project</label>
+                    <input type="text" id="project-name" value="titan-forge">
                 </div>
 
-                <!-- GitHub Section -->
                 <div class="border-t border-zinc-800 pt-4">
                     <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-2">GitHub</label>
                     <div class="space-y-2">
-                        <input type="text" id="github-repo" placeholder="username/repo" value="gabosaturno11/titan-forge">
+                        <input type="text" id="github-repo" value="gabosaturno11/titan-forge">
                         <button onclick="copyGitCommands()" class="btn btn-secondary w-full">Copy Git Commands</button>
                     </div>
                 </div>
 
-                <!-- Vercel Section -->
                 <div class="border-t border-zinc-800 pt-4">
-                    <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-2">Vercel Deploy</label>
+                    <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-2">Vercel</label>
                     <div class="space-y-2">
-                        <button onclick="copyVercelCommands()" class="btn btn-secondary w-full">Copy Vercel Commands</button>
                         <button onclick="openVercel()" class="btn btn-success w-full">Open Vercel Dashboard</button>
                     </div>
                 </div>
 
-                <!-- Quick Export -->
                 <div class="border-t border-zinc-800 pt-4">
-                    <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-2">Quick Export</label>
+                    <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-2">Export</label>
                     <div class="space-y-2">
-                        <button onclick="downloadThisPage()" class="btn btn-primary w-full">Download This HTML</button>
                         <button onclick="copyAllVariants()" class="btn btn-secondary w-full">Copy All Variants</button>
                     </div>
                 </div>
 
-                <!-- Deploy Log -->
                 <div class="border-t border-zinc-800 pt-4 flex-grow">
-                    <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-2">Deploy Log</label>
-                    <div id="deploy-log" class="bg-zinc-900/50 rounded p-3 text-[10px] text-zinc-500 h-32 overflow-y-auto font-mono">
-                        <div>> SATURNO FORGE initialized</div>
-                        <div>> Beast API ready</div>
-                    </div>
+                    <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-2">Log</label>
+                    <div id="deploy-log" class="bg-zinc-900/50 rounded p-3 text-[10px] text-zinc-500 h-32 overflow-y-auto font-mono"></div>
                 </div>
             </div>
         </section>
@@ -447,134 +344,78 @@ Example: 'Mastery isn't about perfection. It's about showing up before you're re
 
     <!-- FOOTER -->
     <footer class="h-8 border-t border-zinc-900 bg-black flex items-center justify-between px-4 text-[9px] shrink-0">
-        <span class="text-zinc-600">SATURNO FORGE V2.0 — Beast API Powered</span>
-        <span class="text-zinc-700">Ctrl+S: Download PDF | Ctrl+M: Multiply | Ctrl+D: Deploy</span>
+        <span class="text-zinc-600">SATURNO FORGE V2.0 — Direct Claude API</span>
+        <span class="text-zinc-700">Ctrl+S: PDF | Ctrl+M: Multiply</span>
     </footer>
 
     <!-- API KEY MODAL -->
     <div id="api-modal" class="modal">
         <div class="modal-content">
-            <h2 class="text-white font-bold mb-4">API Configuration</h2>
+            <h2 class="text-white font-bold mb-4">Claude API Key</h2>
             <div class="space-y-4">
                 <div>
-                    <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-1">Claude API Key</label>
-                    <input type="password" id="api-key-input" placeholder="sk-ant-..." class="w-full">
-                </div>
-                <div>
-                    <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-1">Backend URL</label>
-                    <input type="text" id="backend-input" value="https://saturno-beast-api.vercel.app" class="w-full">
-                    <p class="text-[9px] text-green-500 mt-1">Your backend - no CORS issues!</p>
+                    <label class="text-[9px] text-zinc-500 uppercase tracking-wider block mb-1">API Key</label>
+                    <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." class="w-full">
+                    <p class="text-[9px] text-zinc-600 mt-2">Get key from console.anthropic.com</p>
                 </div>
             </div>
             <div class="flex gap-2 mt-6">
-                <button onclick="saveApiConfig()" class="btn btn-amber flex-1">Save</button>
+                <button onclick="saveApiKey()" class="btn btn-amber flex-1">Save</button>
                 <button onclick="closeApiModal()" class="btn btn-secondary flex-1">Cancel</button>
             </div>
-            <div id="api-status-msg" class="text-[10px] mt-4 hidden"></div>
+            <div id="api-msg" class="text-[10px] mt-4 hidden"></div>
         </div>
     </div>
 
     <script>
         // ═══════════════════════════════════════════════════════════════════════
-        // API CONFIGURATION (Embedded from api-config.js)
-        // ═══════════════════════════════════════════════════════════════════════
-
-        const API_CONFIG = {
-            STORAGE_KEY: 'claude_api_key',
-            BACKEND_KEY: 'beast_api_url',
-            DEFAULT_BACKEND: 'https://saturno-beast-api.vercel.app',
-
-            getApiKey() {
-                return localStorage.getItem(this.STORAGE_KEY);
-            },
-
-            setApiKey(key) {
-                if (key && key.startsWith('sk-ant-')) {
-                    localStorage.setItem(this.STORAGE_KEY, key);
-                    return true;
-                }
-                return false;
-            },
-
-            hasApiKey() {
-                const key = this.getApiKey();
-                return key && key.startsWith('sk-ant-');
-            },
-
-            getBackendUrl() {
-                return localStorage.getItem(this.BACKEND_KEY) || this.DEFAULT_BACKEND;
-            },
-
-            setBackendUrl(url) {
-                localStorage.setItem(this.BACKEND_KEY, url);
-            },
-
-            getSynthesizeUrl() {
-                return this.getBackendUrl() + '/api/synthesize';
-            }
-        };
-
-        // ═══════════════════════════════════════════════════════════════════════
         // STATE
         // ═══════════════════════════════════════════════════════════════════════
-
-        let currentTemplate = 'professional';
+        const STORAGE_KEY = 'claude_api_key';
         let currentVoiceMode = 'Teacher';
         let generatedVariants = [];
 
         // ═══════════════════════════════════════════════════════════════════════
-        // API MODAL
+        // API KEY MANAGEMENT
         // ═══════════════════════════════════════════════════════════════════════
+        function getApiKey() { return localStorage.getItem(STORAGE_KEY); }
+        function hasApiKey() { return !!getApiKey(); }
 
         function openApiModal() {
-            const modal = document.getElementById('api-modal');
-            const keyInput = document.getElementById('api-key-input');
-            const backendInput = document.getElementById('backend-input');
-
-            if (API_CONFIG.hasApiKey()) {
-                keyInput.value = '';
-                keyInput.placeholder = 'Key saved (enter new to replace)';
-            }
-            backendInput.value = API_CONFIG.getBackendUrl();
-            modal.classList.add('show');
+            document.getElementById('api-modal').classList.add('show');
+            document.getElementById('api-key-input').value = '';
+            document.getElementById('api-key-input').placeholder = hasApiKey() ? 'Key saved (enter new to replace)' : 'sk-ant-api03-...';
         }
 
         function closeApiModal() {
             document.getElementById('api-modal').classList.remove('show');
         }
 
-        function saveApiConfig() {
-            const keyInput = document.getElementById('api-key-input');
-            const backendInput = document.getElementById('backend-input');
-            const status = document.getElementById('api-status-msg');
+        function saveApiKey() {
+            const key = document.getElementById('api-key-input').value.trim();
+            const msg = document.getElementById('api-msg');
 
-            if (keyInput.value) {
-                if (!API_CONFIG.setApiKey(keyInput.value)) {
-                    status.className = 'text-[10px] mt-4 text-red-500';
-                    status.textContent = 'Invalid key format (must start with sk-ant-)';
-                    status.classList.remove('hidden');
-                    return;
-                }
+            if (key) {
+                localStorage.setItem(STORAGE_KEY, key);
+                msg.className = 'text-[10px] mt-4 text-green-500';
+                msg.textContent = 'Saved!';
+                msg.classList.remove('hidden');
+                updateApiButton();
+                log('API key saved');
+                setTimeout(closeApiModal, 600);
+            } else if (hasApiKey()) {
+                closeApiModal();
+            } else {
+                msg.className = 'text-[10px] mt-4 text-red-500';
+                msg.textContent = 'Please enter a key';
+                msg.classList.remove('hidden');
             }
-
-            if (backendInput.value) {
-                API_CONFIG.setBackendUrl(backendInput.value);
-            }
-
-            status.className = 'text-[10px] mt-4 text-green-500';
-            status.textContent = 'Saved!';
-            status.classList.remove('hidden');
-
-            updateApiButton();
-            log('API configuration saved');
-
-            setTimeout(() => closeApiModal(), 800);
         }
 
         function updateApiButton() {
             const btn = document.getElementById('api-btn');
-            if (API_CONFIG.hasApiKey()) {
-                btn.textContent = 'API READY';
+            if (hasApiKey()) {
+                btn.textContent = 'API OK';
                 btn.classList.remove('btn-secondary');
                 btn.classList.add('btn-success');
             } else {
@@ -585,21 +426,46 @@ Example: 'Mastery isn't about perfection. It's about showing up before you're re
         }
 
         // ═══════════════════════════════════════════════════════════════════════
-        // TEMPLATE SELECTION
+        // DIRECT CLAUDE API CALL
         // ═══════════════════════════════════════════════════════════════════════
+        async function callClaude(prompt) {
+            const apiKey = getApiKey();
+            if (!apiKey) throw new Error('No API key');
 
+            const response = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'anthropic-version': '2023-06-01',
+                    'anthropic-dangerous-direct-browser-access': 'true'
+                },
+                body: JSON.stringify({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 2000,
+                    messages: [{ role: 'user', content: prompt }]
+                })
+            });
+
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                throw new Error(err.error?.message || `API error ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.content?.[0]?.text || '';
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // UI EVENT HANDLERS
+        // ═══════════════════════════════════════════════════════════════════════
         document.querySelectorAll('[data-template]').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('[data-template]').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
-                currentTemplate = this.dataset.template;
-                log('Template: ' + currentTemplate);
+                log('Template: ' + this.dataset.template);
             });
         });
-
-        // ═══════════════════════════════════════════════════════════════════════
-        // VOICE MODE SELECTION
-        // ═══════════════════════════════════════════════════════════════════════
 
         document.querySelectorAll('[data-mode]').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -610,15 +476,11 @@ Example: 'Mastery isn't about perfection. It's about showing up before you're re
             });
         });
 
-        // ═══════════════════════════════════════════════════════════════════════
-        // PLATFORM CHECKBOXES
-        // ═══════════════════════════════════════════════════════════════════════
-
         document.querySelectorAll('.checkbox-custom').forEach(label => {
             label.addEventListener('click', function(e) {
                 if (e.target.tagName !== 'INPUT') {
-                    const checkbox = this.querySelector('input');
-                    checkbox.checked = !checkbox.checked;
+                    const cb = this.querySelector('input');
+                    cb.checked = !cb.checked;
                 }
                 this.classList.toggle('checked', this.querySelector('input').checked);
             });
@@ -627,215 +489,131 @@ Example: 'Mastery isn't about perfection. It's about showing up before you're re
         // ═══════════════════════════════════════════════════════════════════════
         // PDF MAKER
         // ═══════════════════════════════════════════════════════════════════════
-
         function generatePDFPreview() {
             const title = document.getElementById('pdf-title').value || 'Untitled';
-            const author = document.getElementById('pdf-author').value || 'Unknown';
+            const author = document.getElementById('pdf-author').value || 'Gabo Saturno';
             const content = document.getElementById('pdf-content').value;
 
-            if (!content.trim()) {
-                alert('Please enter some content');
-                return;
-            }
+            if (!content.trim()) { alert('Enter content first'); return; }
 
-            const preview = document.getElementById('pdf-preview');
-            const container = document.getElementById('pdf-preview-container');
-
-            let formatted = content
-                .replace(/^# (.*$)/gm, '<h1 style="font-size: 20px; font-weight: bold; margin-top: 20px;">$1</h1>')
-                .replace(/^## (.*$)/gm, '<h3 style="font-size: 16px; font-weight: bold; margin-top: 15px;">$1</h3>')
+            let html = content
+                .replace(/^# (.*$)/gm, '<h1 style="font-size:20px;font-weight:bold;margin-top:20px;">$1</h1>')
+                .replace(/^## (.*$)/gm, '<h3 style="font-size:16px;font-weight:bold;margin-top:15px;">$1</h3>')
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/^- (.*$)/gm, '<li style="margin-left: 20px;">$1</li>')
+                .replace(/^- (.*$)/gm, '<li style="margin-left:20px;">$1</li>')
                 .replace(/\n\n/g, '</p><p>')
                 .replace(/\n/g, '<br>');
 
-            preview.innerHTML = `
+            document.getElementById('pdf-preview').innerHTML = `
                 <h1>${title}</h1>
                 <h2>By ${author}</h2>
-                <div style="margin-top: 20px;">${formatted}</div>
-                <div class="footer">
-                    Generated by SATURNO FORGE<br>
-                    saturnomovement.com
-                </div>
+                <div style="margin-top:20px;">${html}</div>
+                <div class="footer">SATURNO MOVEMENT | saturnomovement.com</div>
             `;
-
-            container.classList.remove('hidden');
-            log('PDF preview generated');
-            setStatus('PREVIEW READY', 'ready');
+            document.getElementById('pdf-preview-container').classList.remove('hidden');
+            log('Preview generated');
         }
 
         function downloadPDF() {
             const preview = document.getElementById('pdf-preview');
             const title = document.getElementById('pdf-title').value || 'document';
+            if (!preview.innerHTML) generatePDFPreview();
 
-            if (!preview.innerHTML) {
-                generatePDFPreview();
-            }
-
-            setStatus('GENERATING PDF...', 'working');
-            log('Generating PDF...');
-
-            const opt = {
+            setStatus('GENERATING...', 'working');
+            html2pdf().set({
                 margin: 15,
                 filename: `${title.replace(/\s+/g, '_')}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(preview).save().then(() => {
-                log('PDF downloaded: ' + opt.filename);
-                setStatus('PDF DOWNLOADED', 'ready');
+            }).from(preview).save().then(() => {
+                log('PDF downloaded');
+                setStatus('DONE', 'ready');
             });
         }
 
         // ═══════════════════════════════════════════════════════════════════════
-        // CAPTION MULTIPLIER (BEAST API POWERED!)
+        // CAPTION MULTIPLIER
         // ═══════════════════════════════════════════════════════════════════════
-
         async function multiplyCaption() {
             const seed = document.getElementById('seed-input').value.trim();
-            if (!seed) {
-                alert('Please enter a seed phrase');
-                return;
-            }
+            if (!seed) { alert('Enter a seed phrase'); return; }
+            if (!hasApiKey()) { openApiModal(); return; }
 
-            if (!API_CONFIG.hasApiKey()) {
-                openApiModal();
-                return;
-            }
-
-            // Get selected platforms
             const platforms = [];
-            document.querySelectorAll('[data-platform]:checked').forEach(cb => {
-                platforms.push(cb.dataset.platform);
-            });
-
-            if (platforms.length === 0) {
-                alert('Please select at least one platform');
-                return;
-            }
+            document.querySelectorAll('[data-platform]:checked').forEach(cb => platforms.push(cb.dataset.platform));
+            if (!platforms.length) { alert('Select at least one platform'); return; }
 
             const btn = document.getElementById('multiply-btn');
-            const btnText = document.getElementById('multiply-text');
             btn.disabled = true;
-            btnText.innerHTML = '<span class="spinner"></span> Generating...';
+            btn.innerHTML = '<span class="spinner"></span>Generating...';
             setStatus('CALLING CLAUDE...', 'working');
-            log('Calling Beast API...');
+            log('Starting generation...');
+
+            generatedVariants = [];
+
+            const platformGuides = {
+                ig: 'Instagram caption (2000 chars max). Line breaks for readability. End with #SaturnoMovement and 3-4 hashtags.',
+                email: 'Email newsletter. Start with engaging subject line on first line. Personal, conversational. End with call to reply.',
+                yt: 'YouTube script with [HOOK - 0:00], [EXPAND - 0:30], [CTA - End] sections.',
+                twitter: 'Twitter/X post (280 chars max). Punchy and direct.',
+                linkedin: 'LinkedIn post. Professional but personal. End with engagement question.',
+                tiktok: 'TikTok script with [TEXT ON SCREEN] and [VOICEOVER] sections. Keep it punchy.'
+            };
+
+            const platformNames = {
+                ig: 'Instagram', email: 'Email', yt: 'YouTube',
+                twitter: 'Twitter/X', linkedin: 'LinkedIn', tiktok: 'TikTok'
+            };
 
             try {
-                generatedVariants = [];
-
                 for (const platform of platforms) {
-                    const platformInfo = getPlatformInfo(platform);
-                    log(`Generating ${platformInfo.name}...`);
+                    log(`Generating ${platformNames[platform]}...`);
 
-                    const prompt = buildPromptForPlatform(seed, currentVoiceMode, platform);
-                    const result = await callBeastAPI(prompt);
+                    const prompt = `You are writing as Gabo Saturno, a calisthenics coach and movement philosopher.
+
+VOICE MODE: ${currentVoiceMode}
+- Raw: Direct, unfiltered, stream of consciousness
+- Teacher: Educational, clear explanations with examples
+- Prophet: Visionary, inspiring, speaks of transformation
+- Rebel: Challenges norms, provocative, punk energy
+- Mystic: Poetic, metaphorical, spiritual depth
+
+SEED CONTENT:
+${seed}
+
+TASK: Transform this into a ${platformNames[platform]} post.
+FORMAT: ${platformGuides[platform]}
+
+Output ONLY the final content. No explanations or meta-commentary.`;
+
+                    const result = await callClaude(prompt);
 
                     generatedVariants.push({
                         id: `v${generatedVariants.length}`,
-                        platform: platform,
-                        platformName: platformInfo.name,
+                        platform,
+                        platformName: platformNames[platform],
                         content: result
                     });
 
-                    // Small delay between requests
+                    // Rate limit
                     if (platforms.indexOf(platform) < platforms.length - 1) {
-                        await new Promise(r => setTimeout(r, 500));
+                        await new Promise(r => setTimeout(r, 800));
                     }
                 }
 
                 renderVariants();
                 log(`Generated ${generatedVariants.length} variants`);
-                setStatus(`${generatedVariants.length} VARIANTS READY`, 'ready');
+                setStatus(`${generatedVariants.length} READY`, 'ready');
 
-            } catch (error) {
-                log('ERROR: ' + error.message);
-                setStatus('API ERROR', 'error');
-                alert('API Error: ' + error.message);
+            } catch (err) {
+                log('ERROR: ' + err.message);
+                setStatus('ERROR', 'error');
+                alert('Error: ' + err.message);
             } finally {
                 btn.disabled = false;
-                btnText.textContent = 'Multiply with AI';
+                btn.textContent = 'Multiply with Claude AI';
             }
-        }
-
-        async function callBeastAPI(content) {
-            // Try Beast API first, fallback to direct Claude
-            try {
-                const response = await fetch(API_CONFIG.getSynthesizeUrl(), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': API_CONFIG.getApiKey()
-                    },
-                    body: JSON.stringify({
-                        content: content,
-                        mode: currentVoiceMode,
-                        faders: { certainty: 7, formality: 4, intensity: 6, intimacy: 6, abstraction: 5, density: 5 }
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    return data.output || data.result || data.content || data;
-                }
-                throw new Error('Beast API failed');
-            } catch (e) {
-                log('Beast API failed, using direct Claude...');
-                return await callClaudeDirect(content);
-            }
-        }
-
-        // Direct Claude API call (bypasses backend)
-        async function callClaudeDirect(content) {
-            const response = await fetch('https://api.anthropic.com/v1/messages', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': API_CONFIG.getApiKey(),
-                    'anthropic-version': '2023-06-01',
-                    'anthropic-dangerous-direct-browser-access': 'true'
-                },
-                body: JSON.stringify({
-                    model: 'claude-sonnet-4-20250514',
-                    max_tokens: 2000,
-                    messages: [{ role: 'user', content: content }]
-                })
-            });
-
-            if (!response.ok) {
-                const err = await response.json().catch(() => ({}));
-                throw new Error(err.error?.message || `Claude API error: ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data.content?.[0]?.text || 'No response';
-        }
-
-        function buildPromptForPlatform(seed, voice, platform) {
-            const platformGuides = {
-                ig: `Transform this into an Instagram caption (2000 char max). Include line breaks for readability. End with 3-5 relevant hashtags including #SaturnoMovement`,
-                email: `Transform this into an email body. Start with an engaging subject line. Keep it personal and conversational. End with a call to reply.`,
-                yt: `Transform this into a YouTube script structure with [HOOK - 0:00], [EXPAND - 0:15], and [CTA - End] sections.`,
-                twitter: `Transform this into a Twitter/X thread (280 char per tweet). Use numbered tweets if needed.`,
-                linkedin: `Transform this into a LinkedIn post. Professional but personal. End with an engagement question.`,
-                tiktok: `Transform this into a TikTok script with [TEXT ON SCREEN] and [VOICEOVER] sections. Keep it punchy.`
-            };
-
-            return `SEED CONTENT:\n${seed}\n\nVOICE: ${voice}\n\nTASK: ${platformGuides[platform]}\n\nOutput ONLY the final content, no explanations.`;
-        }
-
-        function getPlatformInfo(platform) {
-            const info = {
-                ig: { name: 'Instagram' },
-                email: { name: 'Email' },
-                yt: { name: 'YouTube' },
-                twitter: { name: 'Twitter/X' },
-                linkedin: { name: 'LinkedIn' },
-                tiktok: { name: 'TikTok' }
-            };
-            return info[platform] || { name: platform };
         }
 
         function renderVariants() {
@@ -861,77 +639,41 @@ Example: 'Mastery isn't about perfection. It's about showing up before you're re
             const el = document.getElementById(`variant-${id}`);
             if (el) {
                 navigator.clipboard.writeText(el.innerText);
-                log('Copied to clipboard');
+                log('Copied');
             }
         }
 
         function copyAllVariants() {
-            if (generatedVariants.length === 0) {
-                alert('No variants to copy. Generate some first!');
-                return;
-            }
-            const all = generatedVariants.map(v => `=== ${v.platformName} ===\n${v.content}`).join('\n\n---\n\n');
-            navigator.clipboard.writeText(all);
-            log('Copied all variants');
+            if (!generatedVariants.length) { alert('Generate variants first'); return; }
+            const text = generatedVariants.map(v => `=== ${v.platformName} ===\n${v.content}`).join('\n\n---\n\n');
+            navigator.clipboard.writeText(text);
+            log('All copied');
             alert('All variants copied!');
         }
 
         // ═══════════════════════════════════════════════════════════════════════
-        // DEPLOY FUNCTIONS
+        // DEPLOY HELPERS
         // ═══════════════════════════════════════════════════════════════════════
-
         function copyGitCommands() {
-            const repo = document.getElementById('github-repo').value;
             const project = document.getElementById('project-name').value;
-
-            const commands = `# Git Commands for ${project}
-git add .
-git commit -m "Deploy ${project}"
-git push origin main`;
-
-            navigator.clipboard.writeText(commands);
+            navigator.clipboard.writeText(`git add . && git commit -m "Update ${project}" && git push origin main`);
             log('Git commands copied');
-            alert('Git commands copied!');
-        }
-
-        function copyVercelCommands() {
-            const project = document.getElementById('project-name').value;
-
-            const commands = `# Vercel Deploy
-cd ~/Desktop/${project}
-vercel --prod`;
-
-            navigator.clipboard.writeText(commands);
-            log('Vercel commands copied');
-            alert('Vercel commands copied!');
+            alert('Copied!');
         }
 
         function openVercel() {
             window.open('https://vercel.com/dashboard', '_blank');
-            log('Opened Vercel dashboard');
-        }
-
-        function downloadThisPage() {
-            const html = document.documentElement.outerHTML;
-            const blob = new Blob([html], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'SATURNO_FORGE.html';
-            a.click();
-            URL.revokeObjectURL(url);
-            log('Downloaded HTML');
+            log('Opened Vercel');
         }
 
         // ═══════════════════════════════════════════════════════════════════════
         // UTILITIES
         // ═══════════════════════════════════════════════════════════════════════
-
-        function log(message) {
-            const logEl = document.getElementById('deploy-log');
+        function log(msg) {
+            const el = document.getElementById('deploy-log');
             const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-            logEl.innerHTML += `<div>> [${time}] ${message}</div>`;
-            logEl.scrollTop = logEl.scrollHeight;
+            el.innerHTML += `<div>> [${time}] ${msg}</div>`;
+            el.scrollTop = el.scrollHeight;
         }
 
         function setStatus(text, type) {
@@ -940,24 +682,18 @@ vercel --prod`;
             el.className = `status-badge status-${type}`;
         }
 
-        // ═══════════════════════════════════════════════════════════════════════
-        // KEYBOARD SHORTCUTS
-        // ═══════════════════════════════════════════════════════════════════════
-
+        // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.ctrlKey || e.metaKey) {
                 if (e.key === 's') { e.preventDefault(); downloadPDF(); }
                 if (e.key === 'm') { e.preventDefault(); multiplyCaption(); }
-                if (e.key === 'd') { e.preventDefault(); copyVercelCommands(); }
             }
         });
 
-        // ═══════════════════════════════════════════════════════════════════════
-        // INIT
-        // ═══════════════════════════════════════════════════════════════════════
-
+        // Init
         updateApiButton();
-        log('Beast API: ' + API_CONFIG.getBackendUrl());
+        log('FORGE initialized');
+        log(hasApiKey() ? 'API key found' : 'No API key - click API KEY button');
     </script>
 
 </body>
